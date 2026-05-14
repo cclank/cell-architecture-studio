@@ -925,7 +925,7 @@ function ModelLoadingOverlay({ cell }: { cell: CellItem }) {
   return (
     <Html center className="model-loader">
       <div>
-        <span>Loading 3D specimen</span>
+        <span>Đang tải mẫu 3D</span>
         <strong>{cell.name}</strong>
         <i>
           <b style={{ width: `${displayProgress}%` }} />
