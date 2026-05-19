@@ -25,7 +25,15 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { CellScene } from "./components/CellScene";
-import { cells, getCellById, type CellItem, type ViewMode } from "./data/cells";
+import {
+  CELL_CATEGORY_ORDER,
+  categorize,
+  cells,
+  getCellById,
+  type CellCategory,
+  type CellItem,
+  type ViewMode,
+} from "./data/cells";
 
 type ModeOption = {
   id: ViewMode;
@@ -40,7 +48,13 @@ const modeOptions: ModeOption[] = [
 
 const initialCell = getCellById("animal");
 
-function Header({ cell }: { cell: CellItem }) {
+function Header({ cell, onToast }: { cell: CellItem; onToast: (msg: string) => void }) {
+  const navItems: { id: string; label: string; Icon: LucideIcon; msg: string }[] = [
+    { id: "gallery", label: "Gallery", Icon: Grid3X3, msg: "Gallery view is on the roadmap." },
+    { id: "library", label: "Library", Icon: Library, msg: "Library hub is on the roadmap." },
+    { id: "notebooks", label: "Notebooks", Icon: BookOpen, msg: "Notebooks are on the roadmap." },
+    { id: "settings", label: "Settings", Icon: Settings, msg: "Settings panel is on the roadmap." },
+  ];
   return (
     <header className="topbar">
       <div className="brand-block">
@@ -54,23 +68,18 @@ function Header({ cell }: { cell: CellItem }) {
       </div>
 
       <nav className="top-nav" aria-label="Primary">
-        <a href="#gallery">
-          <Grid3X3 size={24} />
-          <span>Gallery</span>
-        </a>
-        <a href="#library">
-          <Library size={24} />
-          <span>Library</span>
-        </a>
-        <a href="#notebooks">
-          <BookOpen size={24} />
-          <span>Notebooks</span>
-        </a>
-        <a href="#settings">
-          <Settings size={24} />
-          <span>Settings</span>
-        </a>
-        <button className="avatar-button" type="button" aria-label="User menu">
+        {navItems.map(({ id, label, Icon, msg }) => (
+          <button key={id} type="button" onClick={() => onToast(msg)}>
+            <Icon size={24} />
+            <span>{label}</span>
+          </button>
+        ))}
+        <button
+          className="avatar-button"
+          type="button"
+          aria-label="User menu"
+          onClick={() => onToast("User menu is on the roadmap.")}
+        >
           <span className="avatar-core" style={{ background: cell.accentSoft }}>
             <span style={{ background: cell.accent }} />
           </span>
@@ -84,31 +93,33 @@ function Header({ cell }: { cell: CellItem }) {
 type SidebarProps = {
   selectedCell: CellItem;
   activeOrganelle: string;
-  favorites: Set<string>;
-  onSelectCell: (id: string) => void;
   onSelectOrganelle: (id: string) => void;
-  onToggleFavorite: (id: string) => void;
+  onToast: (message: string) => void;
 };
 
 function MiniCell({ cell }: { cell: CellItem }) {
-  if (cell.renderImage?.url) {
-    return (
-      <span className="mini-cell has-preview" style={{ "--thumb": cell.accent } as CSSProperties}>
-        <img src={cell.renderImage.url} alt="" aria-hidden="true" />
-      </span>
-    );
-  }
+  const [imageBroken, setImageBroken] = useState(false);
+  const previewUrl = cell.renderImage?.url ?? cell.modelAsset?.previewUrl;
 
-  if (cell.modelAsset?.previewUrl) {
+  if (previewUrl && !imageBroken) {
     return (
-      <span className="mini-cell has-preview" style={{ "--thumb": cell.accent } as CSSProperties}>
-        <img src={cell.modelAsset.previewUrl} alt="" aria-hidden="true" />
+      <span
+        className="mini-cell has-preview"
+        style={{ "--thumb": cell.accent, background: cell.accentSoft } as CSSProperties}
+      >
+        <img src={previewUrl} alt="" aria-hidden="true" onError={() => setImageBroken(true)} />
       </span>
     );
   }
 
   return (
-    <span className={`mini-cell mini-cell-${cell.modelKind}`} style={{ "--thumb": cell.accent } as CSSProperties}>
+    <span
+      className={`mini-cell mini-cell-fallback`}
+      style={{
+        "--thumb": cell.accent,
+        background: `linear-gradient(135deg, ${cell.accent}, ${cell.color})`,
+      } as CSSProperties}
+    >
       <span />
       <i />
       <b />
@@ -116,65 +127,141 @@ function MiniCell({ cell }: { cell: CellItem }) {
   );
 }
 
+type SpecimenStripProps = {
+  selectedCell: CellItem;
+  favorites: Set<string>;
+  onSelectCell: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
+  onToast: (message: string) => void;
+};
+
+function SpecimenStrip({
+  selectedCell,
+  favorites,
+  onSelectCell,
+  onToggleFavorite,
+  onToast,
+}: SpecimenStripProps) {
+  const [query, setQuery] = useState("");
+
+  const grouped = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? cells.filter(
+          (c) =>
+            c.name.toLowerCase().includes(q) ||
+            c.type.toLowerCase().includes(q),
+        )
+      : cells;
+    const map = new Map<CellCategory, CellItem[]>();
+    for (const category of CELL_CATEGORY_ORDER) map.set(category, []);
+    for (const cell of filtered) map.get(categorize(cell))!.push(cell);
+    return CELL_CATEGORY_ORDER.map((cat) => ({
+      category: cat,
+      items: map.get(cat) ?? [],
+    })).filter((g) => g.items.length > 0);
+  }, [query]);
+
+  return (
+    <section className="specimen-strip">
+      <div className="specimen-strip-header">
+        <span className="specimen-strip-title">
+          <Leaf size={18} />
+          Specimens
+        </span>
+        <label className="specimen-strip-search">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search specimens…"
+            aria-label="Search specimens"
+          />
+        </label>
+      </div>
+      <div className="specimen-strip-scroll">
+        {grouped.length === 0 && (
+          <p className="specimen-strip-empty">No specimens match “{query}”.</p>
+        )}
+        {grouped.map(({ category, items }) => (
+          <div key={category} className="specimen-strip-section">
+            <div className="specimen-strip-section-title">
+              <span>{category}</span>
+              <span className="specimen-strip-count">{items.length}</span>
+            </div>
+            <div className="specimen-strip-row">
+              {items.map((cell) => {
+                const selected = selectedCell.id === cell.id;
+                return (
+                  <button
+                    type="button"
+                    key={cell.id}
+                    className={`specimen-tile ${selected ? "is-active" : ""}`}
+                    onClick={() => {
+                      if (selected) {
+                        onToast(`${cell.name} is already on stage.`);
+                      } else {
+                        onSelectCell(cell.id);
+                        onToast(`Loaded ${cell.name} on stage.`);
+                      }
+                    }}
+                    title={cell.name}
+                  >
+                    <MiniCell cell={cell} />
+                    <span className="specimen-tile-label">{cell.name}</span>
+                    <span
+                      className={`favorite-pin ${favorites.has(cell.id) ? "is-on" : ""}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        const wasOn = favorites.has(cell.id);
+                        onToggleFavorite(cell.id);
+                        onToast(
+                          wasOn
+                            ? `Removed ${cell.name} from favorites.`
+                            : `Added ${cell.name} to favorites.`,
+                        );
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Favorite ${cell.name}`}
+                    >
+                      <Star size={12} fill="currentColor" />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Sidebar({
   selectedCell,
   activeOrganelle,
-  favorites,
-  onSelectCell,
   onSelectOrganelle,
-  onToggleFavorite,
+  onToast,
 }: SidebarProps) {
   return (
     <aside className="left-rail">
-      <section className="panel cell-type-panel">
-        <div className="panel-heading">
-          <span>
-            <Leaf size={18} />
-            Cell Types
-          </span>
-          <ChevronDown size={18} />
-        </div>
-
-        <div className="cell-list">
-          {cells.map((cell) => {
-            const selected = selectedCell.id === cell.id;
-            return (
-              <button
-                className={`cell-row ${selected ? "is-active" : ""}`}
-                type="button"
-                key={cell.id}
-                onClick={() => onSelectCell(cell.id)}
-              >
-                <MiniCell cell={cell} />
-                <span className="cell-row-copy">
-                  <strong>{cell.name}</strong>
-                  <span>{cell.type}</span>
-                </span>
-                <span
-                  className={`favorite-dot ${favorites.has(cell.id) ? "is-on" : ""}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onToggleFavorite(cell.id);
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Favorite ${cell.name}`}
-                >
-                  <Star size={18} fill="currentColor" />
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
       <section className="panel organelle-panel">
         <div className="panel-heading">
           <span>
             <Sparkles size={16} />
             Organelles
           </span>
-          <ChevronDown size={18} />
+          <button
+            type="button"
+            className="panel-heading-chev"
+            onClick={() =>
+              onToast(`${selectedCell.organelles.length} organelles available.`)
+            }
+            aria-label="Organelles info"
+          >
+            <ChevronDown size={18} />
+          </button>
         </div>
 
         <div className="organelle-list">
@@ -183,7 +270,14 @@ function Sidebar({
               className={`organelle-row ${activeOrganelle === organelle.id ? "is-active" : ""}`}
               type="button"
               key={organelle.id}
-              onClick={() => onSelectOrganelle(organelle.id)}
+              onClick={() => {
+                if (activeOrganelle === organelle.id) {
+                  onToast(`${organelle.name} is already in focus.`);
+                } else {
+                  onSelectOrganelle(organelle.id);
+                  onToast(`Focused on ${organelle.name}.`);
+                }
+              }}
             >
               <span className="color-dot" style={{ background: organelle.color }} />
               <span>{organelle.name}</span>
@@ -239,7 +333,14 @@ function Stage({
                   key={id}
                   type="button"
                   className={viewMode === id ? "is-active" : ""}
-                  onClick={() => onModeChange(id)}
+                  onClick={() => {
+                    if (viewMode === id) {
+                      onToast(`${label} view already active.`);
+                    } else {
+                      onModeChange(id);
+                      onToast(`${label} view enabled.`);
+                    }
+                  }}
                   title={label}
                 >
                   <Icon size={22} />
@@ -251,7 +352,14 @@ function Stage({
               <input
                 type="checkbox"
                 checked={crossSection}
-                onChange={(event) => onCrossSectionChange(event.target.checked)}
+                onChange={(event) => {
+                  onCrossSectionChange(event.target.checked);
+                  onToast(
+                    event.target.checked
+                      ? "Cross section enabled."
+                      : "Cross section disabled.",
+                  );
+                }}
               />
               <i />
             </label>
@@ -273,16 +381,38 @@ function Stage({
           <button
             type="button"
             className={autoRotate ? "is-active" : ""}
-            onClick={() => onAutoRotateChange(!autoRotate)}
+            onClick={() => {
+              const next = !autoRotate;
+              onAutoRotateChange(next);
+              onToast(next ? "Auto-rotate on." : "Auto-rotate off.");
+            }}
           >
             <RotateCcw size={20} />
             Rotate
           </button>
-          <button type="button" onClick={() => onModeChange("focus")}>
+          <button
+            type="button"
+            className={viewMode === "focus" ? "is-active" : ""}
+            onClick={() => {
+              onModeChange("focus");
+              onToast(
+                viewMode === "focus"
+                  ? `Isolating ${cell.name} again.`
+                  : `Isolated ${cell.name} — Focus view.`,
+              );
+            }}
+          >
             <CircleDot size={20} />
             Isolate
           </button>
-          <button type="button" onClick={() => onModeChange("focus")}>
+          <button
+            type="button"
+            className={viewMode === "focus" ? "is-active" : ""}
+            onClick={() => {
+              onModeChange("focus");
+              onToast("Hide others — switched to Focus view.");
+            }}
+          >
             <EyeOff size={20} />
             Hide Others
           </button>
@@ -293,11 +423,17 @@ function Stage({
         </div>
 
         <div className="export-toolbar">
-          <button type="button" onClick={() => onToast("截图功能这里先做占位。")}>
+          <button
+            type="button"
+            onClick={() => onToast("Screenshot capture is on the roadmap.")}
+          >
             <Camera size={20} />
             Screenshot
           </button>
-          <button type="button" onClick={() => onToast("GLB 导出需要接入模型导出管线。")}>
+          <button
+            type="button"
+            onClick={() => onToast("GLB export pipeline is on the roadmap.")}
+          >
             <Box size={20} />
             GLB Export
           </button>
@@ -348,7 +484,12 @@ function RightPanel({
       <section className="panel details-panel">
         <div className="panel-heading detail-heading">
           <span>Organelle Details</span>
-          <button type="button" onClick={() => onToggleFavorite(cell.id)} aria-label="Toggle favorite">
+          <button
+            type="button"
+            onClick={() => onToggleFavorite(cell.id)}
+            aria-label="Toggle favorite"
+            title={favorites.has(cell.id) ? "Remove from favorites" : "Add to favorites"}
+          >
             <Heart size={22} fill={favorites.has(cell.id) ? "currentColor" : "none"} />
           </button>
         </div>
@@ -668,16 +809,22 @@ export default function App() {
 
   return (
     <div className="app-shell" style={shellStyle}>
-      <Header cell={selectedCell} />
+      <Header cell={selectedCell} onToast={showToast} />
+
+      <SpecimenStrip
+        selectedCell={selectedCell}
+        favorites={favorites}
+        onSelectCell={setSelectedCellId}
+        onToggleFavorite={toggleFavorite}
+        onToast={showToast}
+      />
 
       <div className="app-grid">
         <Sidebar
           selectedCell={selectedCell}
           activeOrganelle={activeOrganelle}
-          favorites={favorites}
-          onSelectCell={setSelectedCellId}
           onSelectOrganelle={setActiveOrganelle}
-          onToggleFavorite={toggleFavorite}
+          onToast={showToast}
         />
 
         <div className="center-stack">
@@ -699,7 +846,10 @@ export default function App() {
           />
           <BottomPanels
             cell={selectedCell}
-            onCompare={() => setComparisonOpen(true)}
+            onCompare={() => {
+              setComparisonOpen(true);
+              showToast(`Opened comparison: ${selectedCell.name} vs ${getCellById(selectedCell.comparison).name}.`);
+            }}
             onToast={showToast}
           />
         </div>
@@ -713,7 +863,12 @@ export default function App() {
           viewedOrganelleCount={viewedOrganelleKeys.size}
           totalOrganelleCount={totalOrganelleCount}
           tutorPrompt={tutorPrompt}
-          onToggleFavorite={toggleFavorite}
+          onToggleFavorite={(id) => {
+            const wasOn = favorites.has(id);
+            toggleFavorite(id);
+            const name = getCellById(id).name;
+            showToast(wasOn ? `Removed ${name} from favorites.` : `Added ${name} to favorites.`);
+          }}
           onTutorPrompt={(prompt) => {
             setTutorPrompt(prompt);
             showToast("AI tutor prompt staged.");
@@ -721,7 +876,14 @@ export default function App() {
         />
       </div>
 
-      <ComparisonModal cell={selectedCell} open={comparisonOpen} onClose={() => setComparisonOpen(false)} />
+      <ComparisonModal
+        cell={selectedCell}
+        open={comparisonOpen}
+        onClose={() => {
+          setComparisonOpen(false);
+          showToast("Closed comparison view.");
+        }}
+      />
       <Toast message={toast} />
     </div>
   );

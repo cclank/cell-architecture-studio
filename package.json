@@ -21,6 +21,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.0",
     "lucide-react": "^0.552.0",
+    "meshoptimizer": "^1.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "three": "^0.181.2"
@@ -31,6 +32,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.0",
+    "gltfpack": "^1.1.0",
     "playwright-core": "^1.59.1",
     "pngjs": "^7.0.0",
     "typescript": "~5.9.3",

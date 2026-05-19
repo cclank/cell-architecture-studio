@@ -1,5 +1,7 @@
 # Cell Architecture Studio
 
+> Last updated: 2026-05-16 16:00
+
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=111)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=fff)
 ![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite&logoColor=fff)
@@ -22,7 +24,7 @@ An interactive cell architecture gallery built with React, Vite, Three.js, and s
 
 ## Highlights
 
-- Seven specimen views: plant cell, white blood cell, neuron, epithelial cell, bacteria cell, animal cell, and muscle cell.
+- 300+ specimens across cells, organs, body systems, bones, macromolecules, viruses, and botanical specimens — sourced from the NIH 3D Print Exchange and rendered with the studio's solid/native material modes. The original seven hand-built cells (plant, white blood, neuron, epithelial, bacteria, animal, muscle) anchor the gallery.
 - High fidelity Plant Cell and White Blood Cell GLB rendering with native texture preservation.
 - Mesh first experience with 3D canvas rendering as the default view.
 - AI Tutor panel with learning prompts, lesson focus, and mastery tracking.
