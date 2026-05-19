@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "Cell Architecture Studio",
+    "subtitle": "Explore life at the microscopic level"
+  },
+  "nav": {
+    "gallery": "Gallery",
+    "library": "Library",
+    "notebooks": "Notebooks",
+    "settings": "Settings",
+    "userMenu": "User menu"
+  },
+  "sidebar": {
+    "cellTypes": "Cell Types",
+    "organelles": "Organelles",
+    "favorite": "Favorite {{name}}"
+  },
+  "stage": {
+    "viewMode": "View Mode",
+    "mesh": "Mesh",
+    "focus": "Focus",
+    "crossSection": "Cross Section",
+    "rotate": "Rotate",
+    "isolate": "Isolate",
+    "hideOthers": "Hide Others",
+    "resetView": "Reset View",
+    "screenshot": "Screenshot",
+    "glbExport": "GLB Export"
+  },
+  "rightPanel": {
+    "organelleDetails": "Organelle Details",
+    "toggleFavorite": "Toggle favorite",
+    "label": "Label",
+    "biologicalNotes": "Biological Notes",
+    "funFact": "Fun Fact",
+    "aiTutor": "AI Tutor",
+    "mastery": "Mastery",
+    "cellsExplored": "{{viewedCellCount}}/{{totalCellCount}} cells explored",
+    "organellesInspected": "{{viewedOrganelleCount}}/{{totalOrganelleCount}} organelles inspected",
+    "currentLessonFocus": "Current lesson focus",
+    "promptStaged": "Prompt staged for AI tutor",
+    "whereItOccurs": "Where It Occurs"
+  },
+  "bottomPanels": {
+    "microscopeView": "Microscope View",
+    "compareCells": "Compare Cells",
+    "youAreHere": "You are here",
+    "vs": "VS",
+    "addImage": "Add Image",
+    "openComparison": "Open Comparison View"
+  },
+  "comparison": {
+    "title": "Comparison View",
+    "comparedWith": "{{cell}} compared with {{comparedCell}}",
+    "close": "Close",
+    "defaultFocus": "Default focus",
+    "mainNote": "Main note",
+    "occursIn": "Occurs in"
+  },
+  "toast": {
+    "screenshotPlaceholder": "Screenshot feature placeholder.",
+    "glbExportPlaceholder": "GLB export needs model export pipeline integration.",
+    "viewReset": "View reset.",
+    "aiPromptStaged": "AI tutor prompt staged.",
+    "imageSelected": "{{label}} selected.",
+    "imageUploadPlanned": "Image upload is a planned step."
+  },
+  "cellScene": {
+    "loading": "Loading 3D specimen"
+  },
+  "tutorPrompts": {
+    "explainOrganelle": "Explain how {{organelle}} helps a {{cell}} stay alive.",
+    "quizDifferences": "Quiz me on the visual differences between {{cell}} and {{comparedCell}}.",
+    "guideFind": "Guide me through finding {{organelle}} inside the 3D model."
+  },
+  "lessonFocus": {
+    "locate": "Locate {{organelle}}, explain its role, then compare it with the matching structure in {{comparedCell}}."
+  }
+}

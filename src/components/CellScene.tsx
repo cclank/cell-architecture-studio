@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Center, ContactShadows, Float, Html, OrbitControls, RoundedBox, useGLTF, useProgress } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Color,
   CatmullRomCurve3,
@@ -919,13 +920,14 @@ function CellModel({
 }
 
 function ModelLoadingOverlay({ cell }: { cell: CellItem }) {
+  const { t } = useTranslation();
   const { progress } = useProgress();
   const displayProgress = Math.max(8, Math.min(100, Math.round(progress)));
 
   return (
     <Html center className="model-loader">
       <div>
-        <span>Loading 3D specimen</span>
+        <span>{t("cellScene.loading")}</span>
         <strong>{cell.name}</strong>
         <i>
           <b style={{ width: `${displayProgress}%` }} />

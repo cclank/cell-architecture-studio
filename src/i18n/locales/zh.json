@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "细胞结构工作室",
+    "subtitle": "探索微观世界的生命"
+  },
+  "nav": {
+    "gallery": "画廊",
+    "library": "资料库",
+    "notebooks": "笔记本",
+    "settings": "设置",
+    "userMenu": "用户菜单"
+  },
+  "sidebar": {
+    "cellTypes": "细胞类型",
+    "organelles": "细胞器",
+    "favorite": "收藏 {{name}}"
+  },
+  "stage": {
+    "viewMode": "查看模式",
+    "mesh": "网格",
+    "focus": "聚焦",
+    "crossSection": "横截面",
+    "rotate": "旋转",
+    "isolate": "隔离",
+    "hideOthers": "隐藏其他",
+    "resetView": "重置视角",
+    "screenshot": "截图",
+    "glbExport": "GLB 导出"
+  },
+  "rightPanel": {
+    "organelleDetails": "细胞器详情",
+    "toggleFavorite": "切换收藏",
+    "label": "标签",
+    "biologicalNotes": "生物学笔记",
+    "funFact": "趣味知识",
+    "aiTutor": "AI 导师",
+    "mastery": "掌握程度",
+    "cellsExplored": "已探索 {{viewedCellCount}}/{{totalCellCount}} 种细胞",
+    "organellesInspected": "已查看 {{viewedOrganelleCount}}/{{totalOrganelleCount}} 个细胞器",
+    "currentLessonFocus": "当前课程重点",
+    "promptStaged": "AI 导师提示已就绪",
+    "whereItOccurs": "出现位置"
+  },
+  "bottomPanels": {
+    "microscopeView": "显微镜视图",
+    "compareCells": "比较细胞",
+    "youAreHere": "你在这里",
+    "vs": "对比",
+    "addImage": "添加图片",
+    "openComparison": "打开比较视图"
+  },
+  "comparison": {
+    "title": "比较视图",
+    "comparedWith": "{{cell}} 与 {{comparedCell}} 比较",
+    "close": "关闭",
+    "defaultFocus": "默认焦点",
+    "mainNote": "主要说明",
+    "occursIn": "出现于"
+  },
+  "toast": {
+    "screenshotPlaceholder": "截图功能占位。",
+    "glbExportPlaceholder": "GLB 导出需要接入模型导出管线。",
+    "viewReset": "视角已重置。",
+    "aiPromptStaged": "AI 导师提示已就绪。",
+    "imageSelected": "已选择 {{label}}。",
+    "imageUploadPlanned": "图片上传功能计划中。"
+  },
+  "cellScene": {
+    "loading": "正在加载 3D 标本"
+  },
+  "tutorPrompts": {
+    "explainOrganelle": "解释 {{organelle}} 如何帮助 {{cell}} 维持生命。",
+    "quizDifferences": "考考我关于 {{cell}} 和 {{comparedCell}} 在视觉上的差异。",
+    "guideFind": "指导我在 3D 模型中找到 {{organelle}}。"
+  },
+  "lessonFocus": {
+    "locate": "找到 {{organelle}}，解释其作用，然后与 {{comparedCell}} 中的对应结构进行比较。"
+  }
+}
