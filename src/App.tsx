@@ -99,15 +99,24 @@ type SidebarProps = {
 
 function MiniCell({ cell }: { cell: CellItem }) {
   const [imageBroken, setImageBroken] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const previewUrl = cell.renderImage?.url ?? cell.modelAsset?.previewUrl;
 
   if (previewUrl && !imageBroken) {
     return (
       <span
-        className="mini-cell has-preview"
+        className={`mini-cell has-preview ${imageLoaded ? "is-loaded" : "is-loading"}`}
         style={{ "--thumb": cell.accent, background: cell.accentSoft } as CSSProperties}
       >
-        <img src={previewUrl} alt="" aria-hidden="true" onError={() => setImageBroken(true)} />
+        <img
+          src={previewUrl}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageBroken(true)}
+        />
       </span>
     );
   }
@@ -320,7 +329,7 @@ function Stage({
     <main className="stage-column">
       <section className="stage-panel">
         <div className="stage-title">
-          <div>
+          <div key={cell.id} className="stage-title-copy">
             <h2>{cell.name}</h2>
             <p>{cell.type}</p>
           </div>
