@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Library,
   Microscope,
+  Gamepad2,
   Plus,
   RotateCcw,
   Settings,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { CellScene } from "./components/CellScene";
+import { SpecimenQuiz } from "./components/SpecimenQuiz";
 import {
   CELL_CATEGORY_ORDER,
   categorize,
@@ -48,7 +50,15 @@ const modeOptions: ModeOption[] = [
 
 const initialCell = getCellById("animal");
 
-function Header({ cell, onToast }: { cell: CellItem; onToast: (msg: string) => void }) {
+function Header({
+  cell,
+  onToast,
+  onPlayQuiz,
+}: {
+  cell: CellItem;
+  onToast: (msg: string) => void;
+  onPlayQuiz: () => void;
+}) {
   const navItems: { id: string; label: string; Icon: LucideIcon; msg: string }[] = [
     { id: "gallery", label: "Gallery", Icon: Grid3X3, msg: "Gallery view is on the roadmap." },
     { id: "library", label: "Library", Icon: Library, msg: "Library hub is on the roadmap." },
@@ -74,6 +84,10 @@ function Header({ cell, onToast }: { cell: CellItem; onToast: (msg: string) => v
             <span>{label}</span>
           </button>
         ))}
+        <button className="quiz-launch" type="button" onClick={onPlayQuiz}>
+          <Gamepad2 size={22} />
+          <span>Quiz</span>
+        </button>
         <button
           className="avatar-button"
           type="button"
@@ -759,6 +773,7 @@ export default function App() {
     `Guide me through finding ${initialCell.organelles[0].name} inside the 3D model.`,
   );
   const [toast, setToast] = useState<string | null>(null);
+  const [quizOpen, setQuizOpen] = useState(false);
   const toastTimer = useRef<number | null>(null);
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
@@ -818,7 +833,7 @@ export default function App() {
 
   return (
     <div className="app-shell" style={shellStyle}>
-      <Header cell={selectedCell} onToast={showToast} />
+      <Header cell={selectedCell} onToast={showToast} onPlayQuiz={() => setQuizOpen(true)} />
 
       <SpecimenStrip
         selectedCell={selectedCell}
@@ -893,6 +908,7 @@ export default function App() {
           showToast("Closed comparison view.");
         }}
       />
+      {quizOpen && <SpecimenQuiz onExit={() => setQuizOpen(false)} />}
       <Toast message={toast} />
     </div>
   );
