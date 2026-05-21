@@ -622,6 +622,7 @@ export const cells: CellItem[] = [
     modelKind: "animal",
     defaultOrganelle: "chambers",
     comparison: "muscle",
+    renderImage: { url: "/cell-renders-transparent/library/human-heart.png", aspect: "square" },
     modelAsset: {
       url: "/models/library/human-heart.glb",
       previewUrl: "/cell-renders-transparent/library/human-heart.png",
