@@ -25,9 +25,12 @@ import {
   Target,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { CellScene } from "./components/CellScene";
-import { SpecimenQuiz } from "./components/SpecimenQuiz";
+
+const SpecimenQuiz = lazy(() =>
+  import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
+);
 import {
   CELL_CATEGORY_ORDER,
   categorize,
@@ -1098,14 +1101,16 @@ export default function App() {
         }}
       />
       {quizOpen && (
-        <SpecimenQuiz
-          onExit={() => setQuizOpen(false)}
-          onStudySpecimen={(id) => {
-            setSelectedCellId(id);
-            setQuizOpen(false);
-            showToast(`Loaded ${getCellById(id).name} on stage.`);
-          }}
-        />
+        <Suspense fallback={<div className="quiz-layer quiz-loading">Loading quiz…</div>}>
+          <SpecimenQuiz
+            onExit={() => setQuizOpen(false)}
+            onStudySpecimen={(id) => {
+              setSelectedCellId(id);
+              setQuizOpen(false);
+              showToast(`Loaded ${getCellById(id).name} on stage.`);
+            }}
+          />
+        </Suspense>
       )}
       <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
       <Toast message={toast} />

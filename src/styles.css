@@ -2009,6 +2009,13 @@ a {
   animation: fade-in 220ms ease both;
 }
 
+.quiz-loading {
+  font-family: var(--note);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #6a5f4c;
+}
+
 .quiz-panel {
   display: flex;
   flex-direction: column;
