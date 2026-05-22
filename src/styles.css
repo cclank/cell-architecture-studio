@@ -297,6 +297,36 @@ a {
   color: #3f345f;
 }
 
+.specimen-strip-fav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(84, 74, 58, 0.18);
+  background: rgba(255, 255, 255, 0.6);
+  color: #6a5f4c;
+  font-family: var(--note);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 120ms ease;
+}
+
+.specimen-strip-fav-toggle:hover {
+  border-color: #e0a92e;
+}
+
+.specimen-strip-fav-toggle:active {
+  transform: scale(0.95);
+}
+
+.specimen-strip-fav-toggle.is-on {
+  border-color: transparent;
+  background: linear-gradient(135deg, #f0b429, #e8923a);
+  color: #fff;
+}
+
 .specimen-strip-search {
   flex: 1;
   display: block;
@@ -901,6 +931,17 @@ a {
   position: absolute;
   inset: 180px 22px 188px;
   z-index: 1;
+}
+
+.canvas-wrap:fullscreen {
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, #fdfaf3, #ece4d6);
+  padding: 0;
+}
+
+.canvas-wrap:fullscreen .cell-canvas {
+  width: 100vw !important;
+  height: 100vh !important;
 }
 
 /* Re-trigger a soft fade/slide each time the specimen name changes. */
@@ -2330,6 +2371,37 @@ a {
   font-weight: 800;
   color: #2f9e54;
   animation: fade-in 400ms ease both;
+}
+
+/* Type-the-name mode */
+.quiz-type {
+  display: flex;
+  gap: 10px;
+}
+
+.quiz-type-input {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(84, 74, 58, 0.2);
+  background: rgba(255, 255, 255, 0.8);
+  font-family: var(--note);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2f2922;
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.quiz-type-input:focus {
+  border-color: var(--accent, #b13f3d);
+}
+
+.quiz-type-input:disabled {
+  opacity: 0.85;
+  color: #1c6b38;
+  border-color: rgba(47, 158, 84, 0.4);
+  background: rgba(47, 158, 84, 0.08);
 }
 
 @media (max-width: 620px) {

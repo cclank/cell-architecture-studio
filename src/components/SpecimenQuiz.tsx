@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { Check, Clock, RotateCcw, Trophy, X, Zap } from "lucide-react";
+import { Check, Clock, Keyboard, RotateCcw, Trophy, X, Zap } from "lucide-react";
 import { CellScene } from "./CellScene";
 import { CELL_CATEGORY_ORDER, categorize, cells, type CellCategory, type CellItem } from "../data/cells";
 
@@ -11,7 +11,7 @@ const TIMEOUT_SENTINEL = "__timeout__";
 // loads and reads clearly in the stage.
 const QUIZ_POOL = cells.filter((c) => c.renderImage);
 
-type QuizMode = "casual" | "timed";
+type QuizMode = "casual" | "timed" | "type";
 type CategoryFilter = "All" | CellCategory;
 type Phase = "config" | "playing" | "finished";
 
@@ -29,6 +29,43 @@ function shuffle<T>(arr: T[]): T[] {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+
+function normalizeName(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  let curr = new Array<number>(n + 1);
+  for (let i = 1; i <= m; i += 1) {
+    curr[0] = i;
+    for (let j = 1; j <= n; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[n];
+}
+
+// Accept exact normalized match, or a near-miss typo for longer names.
+function nameMatches(typed: string, target: string): boolean {
+  const a = normalizeName(typed);
+  const b = normalizeName(target);
+  if (!a) return false;
+  if (a === b) return true;
+  const tolerance = b.length >= 8 ? 2 : b.length >= 5 ? 1 : 0;
+  return levenshtein(a, b) <= tolerance;
 }
 
 function poolForCategory(category: CategoryFilter): CellItem[] {
@@ -89,9 +126,11 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
   const [resetKey, setResetKey] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMED_SECONDS);
   const [newRecord, setNewRecord] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [typedWasRight, setTypedWasRight] = useState(false);
 
   const answered = selected !== null;
-  const isCorrect = answered && selected === question?.target.id;
+  const isCorrect = answered && (selected === question?.target.id || typedWasRight);
   const accentCell = question?.target ?? QUIZ_POOL[0];
 
   const startGame = useCallback(() => {
@@ -105,6 +144,8 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     setResetKey((k) => k + 1);
     setTimeLeft(TIMED_SECONDS);
     setNewRecord(false);
+    setTyped("");
+    setTypedWasRight(false);
     setPhase("playing");
   }, [category]);
 
@@ -125,6 +166,23 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     },
     [answered, question],
   );
+
+  const submitTyped = useCallback(() => {
+    if (answered || !question) return;
+    const right = nameMatches(typed, question.target.name);
+    setTypedWasRight(right);
+    setSelected(right ? question.target.id : TIMEOUT_SENTINEL);
+    if (right) {
+      setScore((s) => s + 1);
+      setStreak((s) => {
+        const next = s + 1;
+        setBestStreak((b) => Math.max(b, next));
+        return next;
+      });
+    } else {
+      setStreak(0);
+    }
+  }, [answered, question, typed]);
 
   const finishGame = useCallback(
     (finalScore: number) => {
@@ -151,6 +209,8 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     setQuestionNumber((n) => n + 1);
     setResetKey((k) => k + 1);
     setTimeLeft(TIMED_SECONDS);
+    setTyped("");
+    setTypedWasRight(false);
   }, [question, questionNumber, score, recent, category, finishGame]);
 
   // Countdown timer for timed mode — auto-reveal (as wrong) when it hits zero.
@@ -173,7 +233,7 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
         onExit();
         return;
       }
-      if (!answered && question) {
+      if (!answered && question && mode !== "type") {
         const idx = Number(e.key) - 1;
         if (idx >= 0 && idx < question.options.length) {
           handleAnswer(question.options[idx].id);
@@ -185,7 +245,7 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, answered, question, handleAnswer, handleNext, onExit]);
+  }, [phase, answered, question, mode, handleAnswer, handleNext, onExit]);
 
   const shellStyle = {
     "--accent": accentCell.accent,
@@ -235,6 +295,13 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
                 onClick={() => setMode("timed")}
               >
                 <Clock size={14} /> Timed ({TIMED_SECONDS}s)
+              </button>
+              <button
+                type="button"
+                className={`quiz-chip ${mode === "type" ? "is-active" : ""}`}
+                onClick={() => setMode("type")}
+              >
+                <Keyboard size={14} /> Type it
               </button>
             </div>
           </div>
@@ -343,32 +410,61 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
           <span className="quiz-stage-hint">What specimen is this?</span>
         </div>
 
-        <div className="quiz-options">
-          {question.options.map((option, idx) => {
-            const isTarget = option.id === question.target.id;
-            const isPicked = option.id === selected;
-            let state = "";
-            if (answered) {
-              if (isTarget) state = "is-correct";
-              else if (isPicked) state = "is-wrong";
-              else state = "is-muted";
-            }
-            return (
-              <button
-                key={option.id}
-                type="button"
-                className={`quiz-option ${state}`}
-                onClick={() => handleAnswer(option.id)}
-                disabled={answered}
-              >
-                <span className="quiz-option-key">{idx + 1}</span>
-                <span className="quiz-option-name">{option.name}</span>
-                {answered && isTarget && <Check size={18} />}
-                {answered && isPicked && !isTarget && <X size={18} />}
+        {mode === "type" ? (
+          <form
+            className="quiz-type"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (answered) handleNext();
+              else submitTyped();
+            }}
+          >
+            <input
+              type="text"
+              className="quiz-type-input"
+              value={answered ? question.target.name : typed}
+              onChange={(e) => setTyped(e.target.value)}
+              placeholder="Type the specimen name…"
+              aria-label="Specimen name"
+              disabled={answered}
+              autoFocus
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {!answered && (
+              <button type="submit" className="quiz-primary" disabled={!typed.trim()}>
+                Submit
               </button>
-            );
-          })}
-        </div>
+            )}
+          </form>
+        ) : (
+          <div className="quiz-options">
+            {question.options.map((option, idx) => {
+              const isTarget = option.id === question.target.id;
+              const isPicked = option.id === selected;
+              let state = "";
+              if (answered) {
+                if (isTarget) state = "is-correct";
+                else if (isPicked) state = "is-wrong";
+                else state = "is-muted";
+              }
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`quiz-option ${state}`}
+                  onClick={() => handleAnswer(option.id)}
+                  disabled={answered}
+                >
+                  <span className="quiz-option-key">{idx + 1}</span>
+                  <span className="quiz-option-name">{option.name}</span>
+                  {answered && isTarget && <Check size={18} />}
+                  {answered && isPicked && !isTarget && <X size={18} />}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <footer className="quiz-footer">
           {answered ? (
@@ -376,7 +472,7 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
               <span className={isCorrect ? "quiz-feedback-ok" : "quiz-feedback-no"}>
                 {isCorrect
                   ? "Correct!"
-                  : selected === TIMEOUT_SENTINEL
+                  : mode === "timed" && selected === TIMEOUT_SENTINEL
                     ? `Time's up — it was ${question.target.name}.`
                     : `It was ${question.target.name}.`}
               </span>

@@ -16,6 +16,7 @@ import {
   Library,
   Microscope,
   Gamepad2,
+  Maximize,
   Plus,
   RotateCcw,
   Settings,
@@ -166,16 +167,18 @@ function SpecimenStrip({
   onToast,
 }: SpecimenStripProps) {
   const [query, setQuery] = useState("");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
 
   const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const filtered = q
+    let filtered = q
       ? cells.filter(
           (c) =>
             c.name.toLowerCase().includes(q) ||
             c.type.toLowerCase().includes(q),
         )
       : cells;
+    if (favoritesOnly) filtered = filtered.filter((c) => favorites.has(c.id));
     const map = new Map<CellCategory, CellItem[]>();
     for (const category of CELL_CATEGORY_ORDER) map.set(category, []);
     for (const cell of filtered) map.get(categorize(cell))!.push(cell);
@@ -183,7 +186,7 @@ function SpecimenStrip({
       category: cat,
       items: map.get(cat) ?? [],
     })).filter((g) => g.items.length > 0);
-  }, [query]);
+  }, [query, favoritesOnly, favorites]);
 
   return (
     <section className="specimen-strip">
@@ -192,6 +195,19 @@ function SpecimenStrip({
           <Leaf size={18} />
           Specimens
         </span>
+        <button
+          type="button"
+          className={`specimen-strip-fav-toggle ${favoritesOnly ? "is-on" : ""}`}
+          onClick={() => {
+            const next = !favoritesOnly;
+            setFavoritesOnly(next);
+            onToast(next ? "Showing favorites only." : "Showing all specimens.");
+          }}
+          aria-pressed={favoritesOnly}
+        >
+          <Star size={15} fill={favoritesOnly ? "currentColor" : "none"} />
+          <span>{favoritesOnly ? "Favorites" : "All"}</span>
+        </button>
         <label className="specimen-strip-search">
           <input
             type="search"
@@ -204,7 +220,11 @@ function SpecimenStrip({
       </div>
       <div className="specimen-strip-scroll">
         {grouped.length === 0 && (
-          <p className="specimen-strip-empty">No specimens match “{query}”.</p>
+          <p className="specimen-strip-empty">
+            {favoritesOnly && !query.trim()
+              ? "No favorites yet — tap the star on a tile."
+              : `No specimens match “${query}”.`}
+          </p>
         )}
         {grouped.map(({ category, items }) => (
           <div key={category} className="specimen-strip-section">
@@ -337,6 +357,18 @@ function captureScreenshot(cell: CellItem, onToast: (msg: string) => void): void
     onToast(`Saved ${cell.name}.png`);
   } catch {
     onToast("Screenshot failed — canvas blocked.");
+  }
+}
+
+function toggleFullscreen(onToast: (msg: string) => void): void {
+  const el = document.querySelector<HTMLElement>(".canvas-wrap");
+  if (!el) return;
+  if (!document.fullscreenElement) {
+    el.requestFullscreen()
+      .then(() => onToast("Fullscreen — press Esc to exit."))
+      .catch(() => onToast("Fullscreen blocked by browser."));
+  } else {
+    document.exitFullscreen().catch(() => {});
   }
 }
 
@@ -490,6 +522,10 @@ function Stage({
           <button type="button" onClick={onReset}>
             <RotateCcw size={20} />
             Reset View
+          </button>
+          <button type="button" onClick={() => toggleFullscreen(onToast)}>
+            <Maximize size={20} />
+            Fullscreen
           </button>
         </div>
 
