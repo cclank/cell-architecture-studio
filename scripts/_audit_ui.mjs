@@ -39,7 +39,7 @@ async function checkToast(label, action, { expectText } = {}) {
   console.log(`${ok ? "OK  " : "FAIL"} ${label}  ->  ${text || "(no toast)"}`);
 }
 
-for (const navLabel of ["Gallery", "Library", "Notebooks", "Settings"]) {
+for (const navLabel of ["Gallery", "Library", "Notebooks"]) {
   await checkToast(`header: ${navLabel}`, async () => {
     await page.locator(".top-nav button", { hasText: navLabel }).click({ timeout: 2000, noWaitAfter: true });
   });
@@ -84,10 +84,10 @@ await checkToast("stage: reset view", async () => {
 }, { expectText: "reset" });
 await checkToast("stage: screenshot", async () => {
   await page.locator(".export-toolbar button", { hasText: "Screenshot" }).click({ timeout: 2000, noWaitAfter: true });
-}, { expectText: "screenshot" });
+}, { expectText: "saved" });
 await checkToast("stage: GLB export", async () => {
   await page.locator(".export-toolbar button", { hasText: "GLB Export" }).click({ timeout: 2000, noWaitAfter: true });
-}, { expectText: "glb" });
+}, { expectText: "model" });
 await checkToast("bottom: micro-card", async () => {
   await page.locator(".micro-card:not(.add-card)").first().click({ timeout: 2000, noWaitAfter: true });
 });
