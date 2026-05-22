@@ -19,7 +19,6 @@ import {
   Maximize,
   Plus,
   RotateCcw,
-  Settings,
   Shuffle,
   Sparkles,
   Star,
@@ -52,20 +51,47 @@ const modeOptions: ModeOption[] = [
 
 const initialCell = getCellById("animal");
 
+const FAVORITES_KEY = "cas-favorites";
+const LAST_CELL_KEY = "cas-last-cell";
+const cellExists = (id: string) => cells.some((c) => c.id === id);
+
+function loadFavorites(): Set<string> {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    const ids = raw ? (JSON.parse(raw) as string[]) : null;
+    if (Array.isArray(ids)) return new Set(ids.filter(cellExists));
+  } catch {
+    /* ignore */
+  }
+  return new Set([initialCell.id]);
+}
+
+function loadLastCellId(): string {
+  try {
+    const id = localStorage.getItem(LAST_CELL_KEY);
+    if (id && cellExists(id)) return id;
+  } catch {
+    /* ignore */
+  }
+  return initialCell.id;
+}
+
 function Header({
   cell,
   onToast,
   onPlayQuiz,
+  onAbout,
 }: {
   cell: CellItem;
   onToast: (msg: string) => void;
   onPlayQuiz: () => void;
+  onAbout: () => void;
 }) {
-  const navItems: { id: string; label: string; Icon: LucideIcon; msg: string }[] = [
-    { id: "gallery", label: "Gallery", Icon: Grid3X3, msg: "Gallery view is on the roadmap." },
-    { id: "library", label: "Library", Icon: Library, msg: "Library hub is on the roadmap." },
-    { id: "notebooks", label: "Notebooks", Icon: BookOpen, msg: "Notebooks are on the roadmap." },
-    { id: "settings", label: "Settings", Icon: Settings, msg: "Settings panel is on the roadmap." },
+  const navItems: { id: string; label: string; Icon: LucideIcon; onClick: () => void }[] = [
+    { id: "gallery", label: "Gallery", Icon: Grid3X3, onClick: () => onToast("Gallery view is on the roadmap.") },
+    { id: "library", label: "Library", Icon: Library, onClick: () => onToast("Library hub is on the roadmap.") },
+    { id: "notebooks", label: "Notebooks", Icon: BookOpen, onClick: () => onToast("Notebooks are on the roadmap.") },
+    { id: "about", label: "About", Icon: Info, onClick: onAbout },
   ];
   return (
     <header className="topbar">
@@ -80,8 +106,8 @@ function Header({
       </div>
 
       <nav className="top-nav" aria-label="Primary">
-        {navItems.map(({ id, label, Icon, msg }) => (
-          <button key={id} type="button" onClick={() => onToast(msg)}>
+        {navItems.map(({ id, label, Icon, onClick }) => (
+          <button key={id} type="button" onClick={onClick}>
             <Icon size={24} />
             <span>{label}</span>
           </button>
@@ -848,14 +874,63 @@ function Toast({ message }: { message: string | null }) {
   return <div className="toast">{message}</div>;
 }
 
+function AboutModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
+  return (
+    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="About this app">
+      <div className="about-modal">
+        <button className="modal-close" type="button" onClick={onClose}>
+          Close
+        </button>
+        <div className="about-head">
+          <span className="brand-orb" aria-hidden="true">
+            <Sparkles size={24} />
+          </span>
+          <div>
+            <h3>Cell Architecture Studio</h3>
+            <p>Explore life at the microscopic level in interactive 3D.</p>
+          </div>
+        </div>
+
+        <dl className="about-list">
+          <div>
+            <dt>Specimens</dt>
+            <dd>{cells.length} interactive 3D models across cells, organs, bones, viruses, macromolecules and botanical specimens.</dd>
+          </div>
+          <div>
+            <dt>3D models</dt>
+            <dd>
+              Sourced from the{" "}
+              <a href="https://3d.nih.gov" target="_blank" rel="noopener noreferrer">
+                NIH 3D Print Exchange
+              </a>
+              . Licenses vary per entry — verify each model's terms before reuse.
+            </dd>
+          </div>
+          <div>
+            <dt>Rendering</dt>
+            <dd>React + Three.js (React Three Fiber) with an HDR studio environment, ACES tone mapping, and meshopt-compressed assets.</dd>
+          </div>
+          <div>
+            <dt>Quiz</dt>
+            <dd>Identify specimens across casual, timed and type-it modes; scores and history are saved locally in your browser.</dd>
+          </div>
+        </dl>
+
+        <p className="about-foot">Built as an educational project. Not for clinical use.</p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  const [selectedCellId, setSelectedCellId] = useState(initialCell.id);
+  const [selectedCellId, setSelectedCellId] = useState(loadLastCellId);
   const [activeOrganelle, setActiveOrganelle] = useState(initialCell.defaultOrganelle);
   const [viewMode, setViewMode] = useState<ViewMode>("mesh");
   const [crossSection, setCrossSection] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [resetKey, setResetKey] = useState(0);
-  const [favorites, setFavorites] = useState<Set<string>>(() => new Set([initialCell.id]));
+  const [favorites, setFavorites] = useState<Set<string>>(loadFavorites);
   const [viewedCells, setViewedCells] = useState<Set<string>>(() => new Set([initialCell.id]));
   const [viewedOrganelleKeys, setViewedOrganelleKeys] = useState<Set<string>>(
     () => new Set([`${initialCell.id}:${initialCell.defaultOrganelle}`]),
@@ -866,6 +941,7 @@ export default function App() {
   );
   const [toast, setToast] = useState<string | null>(null);
   const [quizOpen, setQuizOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const toastTimer = useRef<number | null>(null);
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
@@ -883,6 +959,22 @@ export default function App() {
     setActiveOrganelle(selectedCell.defaultOrganelle);
     setComparisonOpen(false);
   }, [selectedCell]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LAST_CELL_KEY, selectedCellId);
+    } catch {
+      /* ignore */
+    }
+  }, [selectedCellId]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
+    } catch {
+      /* ignore */
+    }
+  }, [favorites]);
 
   useEffect(() => {
     setViewedCells((current) => {
@@ -925,7 +1017,12 @@ export default function App() {
 
   return (
     <div className="app-shell" style={shellStyle}>
-      <Header cell={selectedCell} onToast={showToast} onPlayQuiz={() => setQuizOpen(true)} />
+      <Header
+        cell={selectedCell}
+        onToast={showToast}
+        onPlayQuiz={() => setQuizOpen(true)}
+        onAbout={() => setAboutOpen(true)}
+      />
 
       <SpecimenStrip
         selectedCell={selectedCell}
@@ -1010,6 +1107,7 @@ export default function App() {
           }}
         />
       )}
+      <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
       <Toast message={toast} />
     </div>
   );

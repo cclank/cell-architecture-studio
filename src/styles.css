@@ -1550,6 +1550,76 @@ a {
   animation: scale-in 220ms ease both;
 }
 
+.about-modal {
+  position: relative;
+  width: min(540px, 100%);
+  padding: 28px;
+  border: 1px solid rgba(84, 74, 58, 0.18);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  animation: scale-in 220ms ease both;
+}
+
+.about-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.about-head h3 {
+  margin: 0;
+  font-family: var(--note);
+  font-size: 1.3rem;
+  color: #2f2922;
+}
+
+.about-head p {
+  margin: 2px 0 0;
+  font-size: 0.92rem;
+  color: #6a5f4c;
+}
+
+.about-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.about-list > div {
+  display: grid;
+  gap: 3px;
+}
+
+.about-list dt {
+  font-family: var(--note);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3f345f;
+}
+
+.about-list dd {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #4a4133;
+}
+
+.about-list a {
+  color: var(--accent, #b13f3d);
+  font-weight: 700;
+}
+
+.about-foot {
+  margin: 20px 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #8a7f6c;
+}
+
 .modal-close {
   position: absolute;
   top: 18px;
