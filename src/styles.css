@@ -23,6 +23,30 @@
   box-sizing: border-box;
 }
 
+/* Keyboard focus: visible ring only for keyboard users, not mouse clicks. */
+:focus-visible {
+  outline: 2.5px solid #b13f3d;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
 html {
   min-width: 320px;
   background:

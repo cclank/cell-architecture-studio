@@ -819,6 +819,7 @@ type ComparisonModalProps = {
 
 function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
   const comparedCell = getCellById(cell.comparison);
+  useEscapeToClose(open, onClose);
   if (!open) {
     return null;
   }
@@ -877,7 +878,19 @@ function Toast({ message }: { message: string | null }) {
   return <div className="toast">{message}</div>;
 }
 
+function useEscapeToClose(open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+}
+
 function AboutModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEscapeToClose(open, onClose);
   if (!open) return null;
   return (
     <div className="modal-layer" role="dialog" aria-modal="true" aria-label="About this app">
