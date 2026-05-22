@@ -87,9 +87,8 @@ export default function App() {
     });
   }
 
+  // Only the 3D-stage tint follows the specimen; UI accent stays clinical blue.
   const shellStyle = {
-    "--accent": selectedCell.accent,
-    "--accent-soft": selectedCell.accentSoft,
     "--cell-color": selectedCell.color,
   } as CSSProperties;
 

@@ -349,9 +349,8 @@ export function SpecimenQuiz({
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, answered, question, mode, handleAnswer, handleNext, onExit]);
 
+  // Stage tint follows the specimen; UI accent stays clinical blue.
   const shellStyle = {
-    "--accent": accentCell.accent,
-    "--accent-soft": accentCell.accentSoft,
     "--cell-color": accentCell.color,
   } as CSSProperties;
 
