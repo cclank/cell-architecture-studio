@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { Check, Clock, Keyboard, RotateCcw, Trophy, X, Zap } from "lucide-react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { Check, Clock, Keyboard, RotateCcw, Trophy, Volume2, VolumeX, X, Zap } from "lucide-react";
 import { CellScene } from "./CellScene";
 import { CELL_CATEGORY_ORDER, categorize, cells, type CellCategory, type CellItem } from "../data/cells";
+import { playCorrect, playFinish, playWrong } from "../lib/quizSound";
 
 const TOTAL_QUESTIONS = 10;
 const TIMED_SECONDS = 12;
@@ -111,6 +112,65 @@ function writeBest(category: CategoryFilter, mode: QuizMode, value: number): voi
   }
 }
 
+type QuizResult = {
+  score: number;
+  total: number;
+  category: CategoryFilter;
+  mode: QuizMode;
+  ts: number;
+};
+
+const HISTORY_KEY = "cas-quiz-history";
+const HISTORY_MAX = 12;
+
+function readHistory(): QuizResult[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const parsed = raw ? (JSON.parse(raw) as QuizResult[]) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function pushHistory(result: QuizResult): void {
+  try {
+    const next = [result, ...readHistory()].slice(0, HISTORY_MAX);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+}
+
+const MUTE_KEY = "cas-quiz-muted";
+
+function readMuted(): boolean {
+  try {
+    return localStorage.getItem(MUTE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeMuted(value: boolean): void {
+  try {
+    localStorage.setItem(MUTE_KEY, value ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
+}
+
+function relativeTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const mins = Math.round(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  return `${days}d ago`;
+}
+
 export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>("config");
   const [category, setCategory] = useState<CategoryFilter>("All");
@@ -128,6 +188,8 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
   const [newRecord, setNewRecord] = useState(false);
   const [typed, setTyped] = useState("");
   const [typedWasRight, setTypedWasRight] = useState(false);
+  const [muted, setMuted] = useState(readMuted);
+  const [history, setHistory] = useState<QuizResult[]>(() => readHistory());
 
   const answered = selected !== null;
   const isCorrect = answered && (selected === question?.target.id || typedWasRight);
@@ -149,11 +211,10 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     setPhase("playing");
   }, [category]);
 
-  const handleAnswer = useCallback(
-    (id: string) => {
-      if (answered || !question) return;
-      setSelected(id);
-      if (id === question.target.id) {
+  const registerResult = useCallback(
+    (right: boolean) => {
+      if (right) {
+        if (!muted) playCorrect();
         setScore((s) => s + 1);
         setStreak((s) => {
           const next = s + 1;
@@ -161,10 +222,20 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
           return next;
         });
       } else {
+        if (!muted) playWrong();
         setStreak(0);
       }
     },
-    [answered, question],
+    [muted],
+  );
+
+  const handleAnswer = useCallback(
+    (id: string) => {
+      if (answered || !question) return;
+      setSelected(id);
+      registerResult(id === question.target.id);
+    },
+    [answered, question, registerResult],
   );
 
   const submitTyped = useCallback(() => {
@@ -172,17 +243,8 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     const right = nameMatches(typed, question.target.name);
     setTypedWasRight(right);
     setSelected(right ? question.target.id : TIMEOUT_SENTINEL);
-    if (right) {
-      setScore((s) => s + 1);
-      setStreak((s) => {
-        const next = s + 1;
-        setBestStreak((b) => Math.max(b, next));
-        return next;
-      });
-    } else {
-      setStreak(0);
-    }
-  }, [answered, question, typed]);
+    registerResult(right);
+  }, [answered, question, typed, registerResult]);
 
   const finishGame = useCallback(
     (finalScore: number) => {
@@ -191,9 +253,19 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
         writeBest(category, mode, finalScore);
         setNewRecord(true);
       }
+      const result: QuizResult = {
+        score: finalScore,
+        total: TOTAL_QUESTIONS,
+        category,
+        mode,
+        ts: Date.now(),
+      };
+      pushHistory(result);
+      setHistory(readHistory());
+      if (!muted) playFinish();
       setPhase("finished");
     },
-    [category, mode],
+    [category, mode, muted],
   );
 
   const handleNext = useCallback(() => {
@@ -219,11 +291,12 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     if (timeLeft <= 0) {
       setSelected(TIMEOUT_SENTINEL);
       setStreak(0);
+      if (!muted) playWrong();
       return;
     }
     const id = window.setTimeout(() => setTimeLeft((t) => t - 1), 1000);
     return () => window.clearTimeout(id);
-  }, [phase, mode, answered, timeLeft]);
+  }, [phase, mode, answered, timeLeft, muted]);
 
   // Keyboard: 1-4 to answer, Enter/Space to advance, Esc to exit.
   useEffect(() => {
@@ -306,9 +379,43 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
             </div>
           </div>
 
-          <p className="quiz-config-best">
-            <Trophy size={15} /> Best: {readBest(category, mode)} / {TOTAL_QUESTIONS}
-          </p>
+          <div className="quiz-config-meta">
+            <p className="quiz-config-best">
+              <Trophy size={15} /> Best: {readBest(category, mode)} / {TOTAL_QUESTIONS}
+            </p>
+            <button
+              type="button"
+              className={`quiz-mute ${muted ? "is-muted" : ""}`}
+              onClick={() => {
+                const next = !muted;
+                setMuted(next);
+                writeMuted(next);
+              }}
+              aria-pressed={muted}
+            >
+              {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              {muted ? "Sound off" : "Sound on"}
+            </button>
+          </div>
+
+          {history.length > 0 && (
+            <div className="quiz-config-group">
+              <span className="quiz-config-label">Recent games</span>
+              <ul className="quiz-history">
+                {history.slice(0, 5).map((h) => (
+                  <li key={h.ts} className="quiz-history-row">
+                    <span className="quiz-history-score">
+                      {h.score}/{h.total}
+                    </span>
+                    <span className="quiz-history-meta">
+                      {h.category} · {h.mode}
+                    </span>
+                    <span className="quiz-history-time">{relativeTime(h.ts)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="quiz-result-actions">
             <button type="button" className="quiz-primary" onClick={startGame}>
