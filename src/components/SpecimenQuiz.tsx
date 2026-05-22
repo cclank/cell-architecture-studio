@@ -1,18 +1,26 @@
-import { useCallback, useMemo, useState, type CSSProperties } from "react";
-import { Check, RotateCcw, Trophy, X, Zap } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { Check, Clock, RotateCcw, Trophy, X, Zap } from "lucide-react";
 import { CellScene } from "./CellScene";
-import { categorize, cells, type CellItem } from "../data/cells";
+import { CELL_CATEGORY_ORDER, categorize, cells, type CellCategory, type CellItem } from "../data/cells";
 
 const TOTAL_QUESTIONS = 10;
+const TIMED_SECONDS = 12;
+const TIMEOUT_SENTINEL = "__timeout__";
 
 // Only quiz specimens that have a rendered thumbnail — guarantees the model
 // loads and reads clearly in the stage.
 const QUIZ_POOL = cells.filter((c) => c.renderImage);
 
+type QuizMode = "casual" | "timed";
+type CategoryFilter = "All" | CellCategory;
+type Phase = "config" | "playing" | "finished";
+
 type Question = {
   target: CellItem;
   options: CellItem[];
 };
+
+const CATEGORY_FILTERS: CategoryFilter[] = ["All", ...CELL_CATEGORY_ORDER];
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -23,39 +31,86 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-function buildQuestion(recent: Set<string>): Question {
-  const available = QUIZ_POOL.filter((c) => !recent.has(c.id));
-  const pool = available.length >= 4 ? available : QUIZ_POOL;
+function poolForCategory(category: CategoryFilter): CellItem[] {
+  if (category === "All") return QUIZ_POOL;
+  const filtered = QUIZ_POOL.filter((c) => categorize(c) === category);
+  return filtered.length >= 4 ? filtered : QUIZ_POOL;
+}
+
+function buildQuestion(category: CategoryFilter, recent: Set<string>): Question {
+  const base = poolForCategory(category);
+  const available = base.filter((c) => !recent.has(c.id));
+  const pool = available.length >= 1 ? available : base;
   const target = pool[Math.floor(Math.random() * pool.length)];
 
-  // Prefer distractors from the same category for a meaningful challenge.
+  // Prefer distractors from the same anatomical category for a real challenge.
   const sameCategory = QUIZ_POOL.filter(
     (c) => c.id !== target.id && categorize(c) === categorize(target),
   );
   const others = QUIZ_POOL.filter((c) => c.id !== target.id);
   const distractorSource = sameCategory.length >= 3 ? sameCategory : others;
   const distractors = shuffle(distractorSource).slice(0, 3);
-  const options = shuffle([target, ...distractors]);
-  return { target, options };
+  return { target, options: shuffle([target, ...distractors]) };
+}
+
+function bestScoreKey(category: CategoryFilter, mode: QuizMode): string {
+  return `cas-quiz-best:${category}:${mode}`;
+}
+
+function readBest(category: CategoryFilter, mode: QuizMode): number {
+  try {
+    const raw = localStorage.getItem(bestScoreKey(category, mode));
+    return raw ? Number(raw) || 0 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeBest(category: CategoryFilter, mode: QuizMode, value: number): void {
+  try {
+    localStorage.setItem(bestScoreKey(category, mode), String(value));
+  } catch {
+    /* ignore quota / privacy-mode errors */
+  }
 }
 
 export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
+  const [phase, setPhase] = useState<Phase>("config");
+  const [category, setCategory] = useState<CategoryFilter>("All");
+  const [mode, setMode] = useState<QuizMode>("casual");
+
+  const [question, setQuestion] = useState<Question | null>(null);
   const [recent, setRecent] = useState<Set<string>>(() => new Set());
-  const [question, setQuestion] = useState<Question>(() => buildQuestion(new Set()));
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [questionNumber, setQuestionNumber] = useState(1);
   const [resetKey, setResetKey] = useState(0);
-  const [finished, setFinished] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(TIMED_SECONDS);
+  const [newRecord, setNewRecord] = useState(false);
 
   const answered = selected !== null;
-  const isCorrect = answered && selected === question.target.id;
+  const isCorrect = answered && selected === question?.target.id;
+  const accentCell = question?.target ?? QUIZ_POOL[0];
+
+  const startGame = useCallback(() => {
+    setQuestion(buildQuestion(category, new Set()));
+    setRecent(new Set());
+    setSelected(null);
+    setScore(0);
+    setStreak(0);
+    setBestStreak(0);
+    setQuestionNumber(1);
+    setResetKey((k) => k + 1);
+    setTimeLeft(TIMED_SECONDS);
+    setNewRecord(false);
+    setPhase("playing");
+  }, [category]);
 
   const handleAnswer = useCallback(
     (id: string) => {
-      if (answered) return;
+      if (answered || !question) return;
       setSelected(id);
       if (id === question.target.id) {
         setScore((s) => s + 1);
@@ -68,40 +123,141 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
         setStreak(0);
       }
     },
-    [answered, question.target.id],
+    [answered, question],
+  );
+
+  const finishGame = useCallback(
+    (finalScore: number) => {
+      const prevBest = readBest(category, mode);
+      if (finalScore > prevBest) {
+        writeBest(category, mode, finalScore);
+        setNewRecord(true);
+      }
+      setPhase("finished");
+    },
+    [category, mode],
   );
 
   const handleNext = useCallback(() => {
+    if (!question) return;
     if (questionNumber >= TOTAL_QUESTIONS) {
-      setFinished(true);
+      finishGame(score);
       return;
     }
-    setRecent((prev) => new Set(prev).add(question.target.id));
-    setQuestion(buildQuestion(new Set([...recent, question.target.id])));
+    const nextRecent = new Set([...recent, question.target.id]);
+    setRecent(nextRecent);
+    setQuestion(buildQuestion(category, nextRecent));
     setSelected(null);
     setQuestionNumber((n) => n + 1);
     setResetKey((k) => k + 1);
-  }, [questionNumber, question.target.id, recent]);
+    setTimeLeft(TIMED_SECONDS);
+  }, [question, questionNumber, score, recent, category, finishGame]);
 
-  const handleRestart = useCallback(() => {
-    setRecent(new Set());
-    setQuestion(buildQuestion(new Set()));
-    setSelected(null);
-    setScore(0);
-    setStreak(0);
-    setBestStreak(0);
-    setQuestionNumber(1);
-    setResetKey((k) => k + 1);
-    setFinished(false);
-  }, []);
+  // Countdown timer for timed mode — auto-reveal (as wrong) when it hits zero.
+  useEffect(() => {
+    if (phase !== "playing" || mode !== "timed" || answered) return;
+    if (timeLeft <= 0) {
+      setSelected(TIMEOUT_SENTINEL);
+      setStreak(0);
+      return;
+    }
+    const id = window.setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+    return () => window.clearTimeout(id);
+  }, [phase, mode, answered, timeLeft]);
+
+  // Keyboard: 1-4 to answer, Enter/Space to advance, Esc to exit.
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onExit();
+        return;
+      }
+      if (!answered && question) {
+        const idx = Number(e.key) - 1;
+        if (idx >= 0 && idx < question.options.length) {
+          handleAnswer(question.options[idx].id);
+        }
+      } else if (answered && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, answered, question, handleAnswer, handleNext, onExit]);
 
   const shellStyle = {
-    "--accent": question.target.accent,
-    "--accent-soft": question.target.accentSoft,
-    "--cell-color": question.target.color,
+    "--accent": accentCell.accent,
+    "--accent-soft": accentCell.accentSoft,
+    "--cell-color": accentCell.color,
   } as CSSProperties;
 
-  if (finished) {
+  if (phase === "config") {
+    return (
+      <div className="quiz-layer" style={shellStyle}>
+        <div className="quiz-config">
+          <button type="button" className="quiz-exit quiz-config-close" onClick={onExit} aria-label="Close">
+            <X size={20} />
+          </button>
+          <h2>Specimen Quiz</h2>
+          <p className="quiz-config-sub">Identify the 3D model from 4 options.</p>
+
+          <div className="quiz-config-group">
+            <span className="quiz-config-label">Category</span>
+            <div className="quiz-chip-row">
+              {CATEGORY_FILTERS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={`quiz-chip ${category === c ? "is-active" : ""}`}
+                  onClick={() => setCategory(c)}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="quiz-config-group">
+            <span className="quiz-config-label">Mode</span>
+            <div className="quiz-chip-row">
+              <button
+                type="button"
+                className={`quiz-chip ${mode === "casual" ? "is-active" : ""}`}
+                onClick={() => setMode("casual")}
+              >
+                Casual
+              </button>
+              <button
+                type="button"
+                className={`quiz-chip ${mode === "timed" ? "is-active" : ""}`}
+                onClick={() => setMode("timed")}
+              >
+                <Clock size={14} /> Timed ({TIMED_SECONDS}s)
+              </button>
+            </div>
+          </div>
+
+          <p className="quiz-config-best">
+            <Trophy size={15} /> Best: {readBest(category, mode)} / {TOTAL_QUESTIONS}
+          </p>
+
+          <div className="quiz-result-actions">
+            <button type="button" className="quiz-primary" onClick={startGame}>
+              Start quiz
+            </button>
+            <button type="button" className="quiz-secondary" onClick={onExit}>
+              Cancel
+            </button>
+          </div>
+          <p className="quiz-config-hint">Tip: press 1-4 to answer, Enter for next.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "finished") {
     const pct = Math.round((score / TOTAL_QUESTIONS) * 100);
     const verdict =
       pct >= 90 ? "Cell biology master!" : pct >= 60 ? "Solid knowledge." : "Keep exploring!";
@@ -114,9 +270,12 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
             {score} / {TOTAL_QUESTIONS}
           </p>
           <p className="quiz-result-verdict">{verdict}</p>
-          <p className="quiz-result-streak">Best streak: {bestStreak}</p>
+          {newRecord && <p className="quiz-result-record">New best score!</p>}
+          <p className="quiz-result-streak">
+            Best streak: {bestStreak} · {category} · {mode}
+          </p>
           <div className="quiz-result-actions">
-            <button type="button" className="quiz-primary" onClick={handleRestart}>
+            <button type="button" className="quiz-primary" onClick={() => setPhase("config")}>
               <RotateCcw size={18} />
               Play again
             </button>
@@ -128,6 +287,11 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
       </div>
     );
   }
+
+  if (!question) return null;
+
+  const timePct = (timeLeft / TIMED_SECONDS) * 100;
+  const timeLow = mode === "timed" && timeLeft <= 4;
 
   return (
     <div className="quiz-layer" style={shellStyle}>
@@ -156,6 +320,16 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
           </div>
         </header>
 
+        {mode === "timed" && (
+          <div className={`quiz-timer ${timeLow ? "is-low" : ""}`}>
+            <Clock size={14} />
+            <div className="quiz-timer-bar">
+              <i style={{ width: `${timePct}%` }} />
+            </div>
+            <span className="quiz-timer-num">{timeLeft}s</span>
+          </div>
+        )}
+
         <div className="quiz-stage">
           <CellScene
             key={resetKey}
@@ -170,7 +344,7 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
         </div>
 
         <div className="quiz-options">
-          {question.options.map((option) => {
+          {question.options.map((option, idx) => {
             const isTarget = option.id === question.target.id;
             const isPicked = option.id === selected;
             let state = "";
@@ -187,7 +361,8 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
                 onClick={() => handleAnswer(option.id)}
                 disabled={answered}
               >
-                <span>{option.name}</span>
+                <span className="quiz-option-key">{idx + 1}</span>
+                <span className="quiz-option-name">{option.name}</span>
                 {answered && isTarget && <Check size={18} />}
                 {answered && isPicked && !isTarget && <X size={18} />}
               </button>
@@ -199,7 +374,11 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
           {answered ? (
             <div className="quiz-feedback">
               <span className={isCorrect ? "quiz-feedback-ok" : "quiz-feedback-no"}>
-                {isCorrect ? "Correct!" : `It was ${question.target.name}.`}
+                {isCorrect
+                  ? "Correct!"
+                  : selected === TIMEOUT_SENTINEL
+                    ? `Time's up — it was ${question.target.name}.`
+                    : `It was ${question.target.name}.`}
               </span>
               <button type="button" className="quiz-primary" onClick={handleNext}>
                 {questionNumber >= TOTAL_QUESTIONS ? "See results" : "Next"}
