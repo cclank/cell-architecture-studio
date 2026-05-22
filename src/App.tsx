@@ -986,7 +986,16 @@ export default function App() {
           showToast("Closed comparison view.");
         }}
       />
-      {quizOpen && <SpecimenQuiz onExit={() => setQuizOpen(false)} />}
+      {quizOpen && (
+        <SpecimenQuiz
+          onExit={() => setQuizOpen(false)}
+          onStudySpecimen={(id) => {
+            setSelectedCellId(id);
+            setQuizOpen(false);
+            showToast(`Loaded ${getCellById(id).name} on stage.`);
+          }}
+        />
+      )}
       <Toast message={toast} />
     </div>
   );

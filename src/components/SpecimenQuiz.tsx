@@ -171,7 +171,13 @@ function relativeTime(ts: number): string {
   return `${days}d ago`;
 }
 
-export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
+export function SpecimenQuiz({
+  onExit,
+  onStudySpecimen,
+}: {
+  onExit: () => void;
+  onStudySpecimen?: (id: string) => void;
+}) {
   const [phase, setPhase] = useState<Phase>("config");
   const [category, setCategory] = useState<CategoryFilter>("All");
   const [mode, setMode] = useState<QuizMode>("casual");
@@ -190,6 +196,7 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
   const [typedWasRight, setTypedWasRight] = useState(false);
   const [muted, setMuted] = useState(readMuted);
   const [history, setHistory] = useState<QuizResult[]>(() => readHistory());
+  const [misses, setMisses] = useState<CellItem[]>([]);
 
   const answered = selected !== null;
   const isCorrect = answered && (selected === question?.target.id || typedWasRight);
@@ -208,6 +215,7 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
     setNewRecord(false);
     setTyped("");
     setTypedWasRight(false);
+    setMisses([]);
     setPhase("playing");
   }, [category]);
 
@@ -224,9 +232,10 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
       } else {
         if (!muted) playWrong();
         setStreak(0);
+        if (question) setMisses((m) => (m.some((c) => c.id === question.target.id) ? m : [...m, question.target]));
       }
     },
-    [muted],
+    [muted, question],
   );
 
   const handleAnswer = useCallback(
@@ -448,6 +457,31 @@ export function SpecimenQuiz({ onExit }: { onExit: () => void }) {
           <p className="quiz-result-streak">
             Best streak: {bestStreak} · {category} · {mode}
           </p>
+
+          {misses.length > 0 && (
+            <div className="quiz-review">
+              <span className="quiz-review-title">Review — you missed {misses.length}</span>
+              <div className="quiz-review-grid">
+                {misses.map((cell) => (
+                  <button
+                    key={cell.id}
+                    type="button"
+                    className="quiz-review-item"
+                    onClick={() => onStudySpecimen?.(cell.id)}
+                    disabled={!onStudySpecimen}
+                    title={onStudySpecimen ? `Open ${cell.name} in studio` : cell.name}
+                  >
+                    <span
+                      className="quiz-review-thumb"
+                      style={{ backgroundImage: `url(${cell.renderImage?.url ?? ""})` }}
+                    />
+                    <span className="quiz-review-name">{cell.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="quiz-result-actions">
             <button type="button" className="quiz-primary" onClick={() => setPhase("config")}>
               <RotateCcw size={18} />
