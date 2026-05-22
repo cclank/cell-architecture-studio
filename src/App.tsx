@@ -312,6 +312,54 @@ function Sidebar({
   );
 }
 
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function triggerDownload(href: string, filename: string): void {
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+function captureScreenshot(cell: CellItem, onToast: (msg: string) => void): void {
+  const canvas = document.querySelector<HTMLCanvasElement>(".canvas-wrap canvas");
+  if (!canvas) {
+    onToast("Stage not ready — try again.");
+    return;
+  }
+  try {
+    const url = canvas.toDataURL("image/png");
+    triggerDownload(url, `${slugify(cell.name)}.png`);
+    onToast(`Saved ${cell.name}.png`);
+  } catch {
+    onToast("Screenshot failed — canvas blocked.");
+  }
+}
+
+async function exportGlb(cell: CellItem, onToast: (msg: string) => void): Promise<void> {
+  const url = cell.modelAsset?.url;
+  if (!url) {
+    onToast(`${cell.name} has no downloadable model.`);
+    return;
+  }
+  onToast(`Preparing ${cell.name} model…`);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(String(res.status));
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    triggerDownload(objectUrl, `${slugify(cell.name)}.glb`);
+    URL.revokeObjectURL(objectUrl);
+    onToast(`Downloaded ${cell.name}.glb`);
+  } catch {
+    onToast("Model download failed.");
+  }
+}
+
 type StageProps = {
   cell: CellItem;
   activeOrganelle: string;
@@ -446,17 +494,11 @@ function Stage({
         </div>
 
         <div className="export-toolbar">
-          <button
-            type="button"
-            onClick={() => onToast("Screenshot capture is on the roadmap.")}
-          >
+          <button type="button" onClick={() => captureScreenshot(cell, onToast)}>
             <Camera size={20} />
             Screenshot
           </button>
-          <button
-            type="button"
-            onClick={() => onToast("GLB export pipeline is on the roadmap.")}
-          >
+          <button type="button" onClick={() => exportGlb(cell, onToast)}>
             <Box size={20} />
             GLB Export
           </button>

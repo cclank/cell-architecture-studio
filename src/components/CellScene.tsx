@@ -1215,6 +1215,7 @@ export function CellScene({
         antialias: true,
         alpha: true,
         premultipliedAlpha: false,
+        preserveDrawingBuffer: true,
         toneMapping: ACESFilmicToneMapping,
         toneMappingExposure: nativeMaterial ? 1.05 : 1.18,
       }}
