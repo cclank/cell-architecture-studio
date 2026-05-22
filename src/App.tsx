@@ -20,6 +20,7 @@ import {
   Plus,
   RotateCcw,
   Settings,
+  Shuffle,
   Sparkles,
   Star,
   Target,
@@ -207,6 +208,19 @@ function SpecimenStrip({
         >
           <Star size={15} fill={favoritesOnly ? "currentColor" : "none"} />
           <span>{favoritesOnly ? "Favorites" : "All"}</span>
+        </button>
+        <button
+          type="button"
+          className="specimen-strip-surprise"
+          onClick={() => {
+            const pool = cells.filter((c) => c.id !== selectedCell.id);
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            onSelectCell(pick.id);
+            onToast(`Surprise — ${pick.name}!`);
+          }}
+        >
+          <Shuffle size={15} />
+          <span>Surprise</span>
         </button>
         <label className="specimen-strip-search">
           <input

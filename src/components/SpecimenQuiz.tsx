@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
-import { Check, Clock, Keyboard, RotateCcw, Trophy, Volume2, VolumeX, X, Zap } from "lucide-react";
+import { Check, Clock, Keyboard, RotateCcw, Share2, Trophy, Volume2, VolumeX, X, Zap } from "lucide-react";
 import { CellScene } from "./CellScene";
 import { CELL_CATEGORY_ORDER, categorize, cells, type CellCategory, type CellItem } from "../data/cells";
 import { playCorrect, playFinish, playWrong } from "../lib/quizSound";
@@ -197,6 +197,8 @@ export function SpecimenQuiz({
   const [muted, setMuted] = useState(readMuted);
   const [history, setHistory] = useState<QuizResult[]>(() => readHistory());
   const [misses, setMisses] = useState<CellItem[]>([]);
+  const [roundLog, setRoundLog] = useState<boolean[]>([]);
+  const [shareLabel, setShareLabel] = useState("Share result");
 
   const answered = selected !== null;
   const isCorrect = answered && (selected === question?.target.id || typedWasRight);
@@ -216,11 +218,29 @@ export function SpecimenQuiz({
     setTyped("");
     setTypedWasRight(false);
     setMisses([]);
+    setRoundLog([]);
+    setShareLabel("Share result");
     setPhase("playing");
   }, [category]);
 
+  const shareResult = useCallback(() => {
+    const squares = roundLog.map((ok) => (ok ? "🟩" : "🟥")).join("");
+    const label = category === "All" ? "all specimens" : category;
+    const text = `Cell Architecture Quiz — ${score}/${TOTAL_QUESTIONS} (${label}, ${mode})\n${squares}`;
+    const done = () => {
+      setShareLabel("Copied!");
+      window.setTimeout(() => setShareLabel("Share result"), 1800);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => setShareLabel("Copy failed"));
+    } else {
+      setShareLabel("Copy failed");
+    }
+  }, [roundLog, score, category, mode]);
+
   const registerResult = useCallback(
     (right: boolean) => {
+      setRoundLog((log) => [...log, right]);
       if (right) {
         if (!muted) playCorrect();
         setScore((s) => s + 1);
@@ -486,6 +506,10 @@ export function SpecimenQuiz({
             <button type="button" className="quiz-primary" onClick={() => setPhase("config")}>
               <RotateCcw size={18} />
               Play again
+            </button>
+            <button type="button" className="quiz-secondary" onClick={shareResult}>
+              <Share2 size={16} />
+              {shareLabel}
             </button>
             <button type="button" className="quiz-secondary" onClick={onExit}>
               Back to studio
