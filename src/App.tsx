@@ -1,6 +1,14 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { cells, getCellById, type ViewMode } from "./data/cells";
-import { loadFavorites, loadLastCellId, saveFavorites, saveLastCellId } from "./lib/storage";
+import {
+  clearAllData,
+  loadFavorites,
+  loadLastCellId,
+  loadRecentIds,
+  pushRecentId,
+  saveFavorites,
+  saveLastCellId,
+} from "./lib/storage";
 import { Header } from "./components/Header";
 import { SpecimenStrip } from "./components/SpecimenStrip";
 import { Sidebar } from "./components/Sidebar";
@@ -9,6 +17,8 @@ import { RightPanel } from "./components/RightPanel";
 import { BottomPanels } from "./components/BottomPanels";
 import { ComparisonModal } from "./components/ComparisonModal";
 import { AboutModal } from "./components/AboutModal";
+import { SpecimenGridModal } from "./components/SpecimenGridModal";
+import { NotebooksModal } from "./components/NotebooksModal";
 import { Toast } from "./components/Toast";
 
 const SpecimenQuiz = lazy(() =>
@@ -36,6 +46,10 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [quizOpen, setQuizOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [notebooksOpen, setNotebooksOpen] = useState(false);
+  const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
   const toastTimer = useRef<number | null>(null);
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
@@ -56,6 +70,7 @@ export default function App() {
 
   useEffect(() => {
     saveLastCellId(selectedCellId);
+    setRecentIds(pushRecentId(selectedCellId));
   }, [selectedCellId]);
 
   useEffect(() => {
@@ -96,9 +111,24 @@ export default function App() {
     <div className="app-shell" style={shellStyle}>
       <Header
         cell={selectedCell}
-        onToast={showToast}
+        favoritesCount={favorites.size}
+        exploredCount={viewedCells.size}
+        totalCount={cells.length}
         onPlayQuiz={() => setQuizOpen(true)}
         onAbout={() => setAboutOpen(true)}
+        onGallery={() => setGalleryOpen(true)}
+        onLibrary={() => setLibraryOpen(true)}
+        onNotebooks={() => setNotebooksOpen(true)}
+        onClearFavorites={() => {
+          setFavorites(new Set());
+          showToast("Cleared all favorites.");
+        }}
+        onResetAll={() => {
+          clearAllData();
+          setFavorites(new Set());
+          setRecentIds([]);
+          showToast("All saved data reset.");
+        }}
       />
 
       <SpecimenStrip
@@ -189,6 +219,54 @@ export default function App() {
         </Suspense>
       )}
       <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
+
+      <SpecimenGridModal
+        title="Gallery"
+        subtitle={`Browse all ${cells.length} specimens`}
+        open={galleryOpen}
+        searchable
+        selectedId={selectedCellId}
+        sections={[{ label: "All specimens", items: cells }]}
+        onSelect={(id) => {
+          setSelectedCellId(id);
+          setGalleryOpen(false);
+          showToast(`Loaded ${getCellById(id).name} on stage.`);
+        }}
+        onClose={() => setGalleryOpen(false)}
+      />
+
+      <SpecimenGridModal
+        title="Your Library"
+        subtitle="Favorites and recently viewed specimens"
+        open={libraryOpen}
+        selectedId={selectedCellId}
+        sections={[
+          {
+            label: "Favorites",
+            items: cells.filter((c) => favorites.has(c.id)),
+            emptyHint: "No favorites yet — tap the star on a specimen.",
+          },
+          {
+            label: "Recently viewed",
+            items: recentIds.map(getCellById),
+            emptyHint: "Specimens you open will appear here.",
+          },
+        ]}
+        onSelect={(id) => {
+          setSelectedCellId(id);
+          setLibraryOpen(false);
+          showToast(`Loaded ${getCellById(id).name} on stage.`);
+        }}
+        onClose={() => setLibraryOpen(false)}
+      />
+
+      <NotebooksModal
+        open={notebooksOpen}
+        currentCell={selectedCell}
+        onSelect={setSelectedCellId}
+        onClose={() => setNotebooksOpen(false)}
+      />
+
       <Toast message={toast} />
     </div>
   );

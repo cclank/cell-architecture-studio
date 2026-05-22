@@ -42,3 +42,70 @@ export function saveLastCellId(id: string): void {
     /* ignore */
   }
 }
+
+const RECENT_KEY = "cas-recent";
+const RECENT_MAX = 24;
+
+export function loadRecentIds(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    const ids = raw ? (JSON.parse(raw) as string[]) : [];
+    return Array.isArray(ids) ? ids.filter(cellExists) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function pushRecentId(id: string): string[] {
+  const next = [id, ...loadRecentIds().filter((x) => x !== id)].slice(0, RECENT_MAX);
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+  return next;
+}
+
+const NOTES_KEY = "cas-notes";
+
+export type NotesMap = Record<string, string>;
+
+export function loadNotes(): NotesMap {
+  try {
+    const raw = localStorage.getItem(NOTES_KEY);
+    const parsed = raw ? (JSON.parse(raw) as NotesMap) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveNote(id: string, text: string): NotesMap {
+  const notes = loadNotes();
+  if (text.trim()) {
+    notes[id] = text;
+  } else {
+    delete notes[id];
+  }
+  try {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  } catch {
+    /* ignore */
+  }
+  return notes;
+}
+
+export function clearAllData(): void {
+  try {
+    for (const key of [FAVORITES_KEY, LAST_CELL_KEY, RECENT_KEY, NOTES_KEY]) {
+      localStorage.removeItem(key);
+    }
+    // Quiz keys live under cas-quiz-*.
+    for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("cas-quiz")) localStorage.removeItem(k);
+    }
+  } catch {
+    /* ignore */
+  }
+}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   BookOpen,
   ChevronDown,
@@ -9,21 +10,44 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { CellItem } from "../data/cells";
+import { UserMenu } from "./UserMenu";
 
 type HeaderProps = {
   cell: CellItem;
-  onToast: (msg: string) => void;
+  favoritesCount: number;
+  exploredCount: number;
+  totalCount: number;
   onPlayQuiz: () => void;
   onAbout: () => void;
+  onGallery: () => void;
+  onLibrary: () => void;
+  onNotebooks: () => void;
+  onClearFavorites: () => void;
+  onResetAll: () => void;
 };
 
-export function Header({ cell, onToast, onPlayQuiz, onAbout }: HeaderProps) {
+export function Header({
+  cell,
+  favoritesCount,
+  exploredCount,
+  totalCount,
+  onPlayQuiz,
+  onAbout,
+  onGallery,
+  onLibrary,
+  onNotebooks,
+  onClearFavorites,
+  onResetAll,
+}: HeaderProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const navItems: { id: string; label: string; Icon: LucideIcon; onClick: () => void }[] = [
-    { id: "gallery", label: "Gallery", Icon: Grid3X3, onClick: () => onToast("Gallery view is on the roadmap.") },
-    { id: "library", label: "Library", Icon: Library, onClick: () => onToast("Library hub is on the roadmap.") },
-    { id: "notebooks", label: "Notebooks", Icon: BookOpen, onClick: () => onToast("Notebooks are on the roadmap.") },
+    { id: "gallery", label: "Gallery", Icon: Grid3X3, onClick: onGallery },
+    { id: "library", label: "Library", Icon: Library, onClick: onLibrary },
+    { id: "notebooks", label: "Notebooks", Icon: BookOpen, onClick: onNotebooks },
     { id: "about", label: "About", Icon: Info, onClick: onAbout },
   ];
+
   return (
     <header className="topbar">
       <div className="brand-block">
@@ -47,17 +71,35 @@ export function Header({ cell, onToast, onPlayQuiz, onAbout }: HeaderProps) {
           <Gamepad2 size={22} />
           <span>Quiz</span>
         </button>
-        <button
-          className="avatar-button"
-          type="button"
-          aria-label="User menu"
-          onClick={() => onToast("User menu is on the roadmap.")}
-        >
-          <span className="avatar-core" style={{ background: cell.accentSoft }}>
-            <span style={{ background: cell.accent }} />
-          </span>
-          <ChevronDown size={20} />
-        </button>
+        <div className="avatar-wrap">
+          <button
+            className="avatar-button"
+            type="button"
+            aria-label="User menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span className="avatar-core" style={{ background: cell.accentSoft }}>
+              <span style={{ background: cell.accent }} />
+            </span>
+            <ChevronDown size={20} />
+          </button>
+          <UserMenu
+            open={menuOpen}
+            favoritesCount={favoritesCount}
+            exploredCount={exploredCount}
+            totalCount={totalCount}
+            onClearFavorites={() => {
+              onClearFavorites();
+              setMenuOpen(false);
+            }}
+            onResetAll={() => {
+              onResetAll();
+              setMenuOpen(false);
+            }}
+            onClose={() => setMenuOpen(false)}
+          />
+        </div>
       </nav>
     </header>
   );

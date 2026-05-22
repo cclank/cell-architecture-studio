@@ -39,14 +39,24 @@ async function checkToast(label, action, { expectText } = {}) {
   console.log(`${ok ? "OK  " : "FAIL"} ${label}  ->  ${text || "(no toast)"}`);
 }
 
-for (const navLabel of ["Gallery", "Library", "Notebooks"]) {
-  await checkToast(`header: ${navLabel}`, async () => {
-    await page.locator(".top-nav button", { hasText: navLabel }).click({ timeout: 2000, noWaitAfter: true });
-  });
+// Header nav (Gallery/Library/Notebooks/About) and the avatar now open modals
+// or a menu — their feedback is the opened UI, verified in _test_roadmap.mjs.
+for (const [label, panel] of [
+  ["Gallery", ".browser-modal"],
+  ["Notebooks", ".notebooks-modal"],
+]) {
+  try {
+    await page.locator(".top-nav button", { hasText: label }).click({ timeout: 2000 });
+    await page.locator(panel).first().waitFor({ state: "visible", timeout: 2000 });
+    results.push({ label: `header: ${label}`, ok: true, text: "opened panel" });
+    console.log(`OK   header: ${label}  ->  opened panel`);
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(300);
+  } catch {
+    results.push({ label: `header: ${label}`, ok: false, text: "no panel" });
+    console.log(`FAIL header: ${label}  ->  no panel`);
+  }
 }
-await checkToast("header: avatar", async () => {
-  await page.locator(".avatar-button").click({ timeout: 2000, noWaitAfter: true });
-});
 await checkToast("specimen tile: select Neuron", async () => {
   await page.locator(".specimen-tile", { hasText: /^Neuron$/ }).first().click({ timeout: 2000, noWaitAfter: true });
 }, { expectText: "neuron" });
@@ -91,9 +101,14 @@ await checkToast("stage: GLB export", async () => {
 await checkToast("bottom: micro-card", async () => {
   await page.locator(".micro-card:not(.add-card)").first().click({ timeout: 2000, noWaitAfter: true });
 });
-await checkToast("bottom: add image card", async () => {
-  await page.locator(".micro-card.add-card").click({ timeout: 2000, noWaitAfter: true });
-}, { expectText: "image" });
+// Add Image opens a native file dialog (feedback = upload, see _test_roadmap.mjs).
+try {
+  const present = await page.locator(".micro-card-row input[type=file]").count();
+  results.push({ label: "bottom: add image (file input)", ok: present > 0, text: present > 0 ? "file input present" : "missing" });
+  console.log(`${present > 0 ? "OK  " : "FAIL"} bottom: add image (file input)`);
+} catch {
+  results.push({ label: "bottom: add image (file input)", ok: false, text: "missing" });
+}
 await checkToast("bottom: open comparison", async () => {
   await page.locator(".comparison-button").click({ timeout: 2000, noWaitAfter: true });
 }, { expectText: "comparison" });
