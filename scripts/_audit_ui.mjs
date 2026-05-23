@@ -16,7 +16,7 @@ page.on("console", (m) => {
   if (m.type() === "error") consoleErrs.push(`CONSOLE ERROR: ${m.text()}`);
 });
 await page.goto("http://localhost:5174/", { waitUntil: "networkidle", timeout: 30000 });
-await page.waitForTimeout(1200);
+await page.waitForTimeout(3000);
 
 const results = [];
 

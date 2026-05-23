@@ -20,6 +20,9 @@ import { AboutModal } from "./components/AboutModal";
 import { SpecimenGridModal } from "./components/SpecimenGridModal";
 import { NotebooksModal } from "./components/NotebooksModal";
 import { Toast } from "./components/Toast";
+import { Confetti } from "./components/Confetti";
+import { CelebrationBanner } from "./components/CelebrationBanner";
+import { useProgression } from "./hooks/useProgression";
 
 const SpecimenQuiz = lazy(() =>
   import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
@@ -51,6 +54,9 @@ export default function App() {
   const [notebooksOpen, setNotebooksOpen] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
   const toastTimer = useRef<number | null>(null);
+  const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
+  // Seed with the restored cell so reloading doesn't fire a "viewed" award.
+  const firedViews = useRef<Set<string>>(new Set([loadLastCellId()]));
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
   const totalOrganelleCount = useMemo(
@@ -71,7 +77,11 @@ export default function App() {
   useEffect(() => {
     saveLastCellId(selectedCellId);
     setRecentIds(pushRecentId(selectedCellId));
-  }, [selectedCellId]);
+    if (!firedViews.current.has(selectedCellId)) {
+      firedViews.current.add(selectedCellId);
+      fire({ type: "viewNew" });
+    }
+  }, [selectedCellId, fire]);
 
   useEffect(() => {
     saveFavorites(favorites);
@@ -91,6 +101,7 @@ export default function App() {
   }
 
   function toggleFavorite(id: string) {
+    const wasFav = favorites.has(id);
     setFavorites((current) => {
       const next = new Set(current);
       if (next.has(id)) {
@@ -100,6 +111,7 @@ export default function App() {
       }
       return next;
     });
+    if (!wasFav) fire({ type: "favorite", favoritesCount: favorites.size + 1 });
   }
 
   // Only the 3D-stage tint follows the specimen; UI accent stays clinical blue.
@@ -114,6 +126,8 @@ export default function App() {
         favoritesCount={favorites.size}
         exploredCount={viewedCells.size}
         totalCount={cells.length}
+        progress={progress}
+        xpPulse={xpPulse}
         onPlayQuiz={() => setQuizOpen(true)}
         onAbout={() => setAboutOpen(true)}
         onGallery={() => setGalleryOpen(true)}
@@ -125,6 +139,7 @@ export default function App() {
         }}
         onResetAll={() => {
           clearAllData();
+          resetProgress();
           setFavorites(new Set());
           setRecentIds([]);
           showToast("All saved data reset.");
@@ -215,6 +230,10 @@ export default function App() {
               setQuizOpen(false);
               showToast(`Loaded ${getCellById(id).name} on stage.`);
             }}
+            onCorrect={(streak) => fire({ type: "quizCorrect", streak })}
+            onComplete={(score, total, bestStreak) =>
+              fire({ type: "quizComplete", score, total, bestStreak })
+            }
           />
         </Suspense>
       )}
@@ -267,6 +286,8 @@ export default function App() {
         onClose={() => setNotebooksOpen(false)}
       />
 
+      <CelebrationBanner celebration={banner} />
+      <Confetti fireKey={confettiKey} />
       <Toast message={toast} />
     </div>
   );

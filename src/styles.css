@@ -111,8 +111,8 @@ a {
 }
 
 .brand-orb {
-  width: 72px;
-  height: 72px;
+  width: 52px;
+  height: 52px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -128,16 +128,17 @@ a {
 .brand-block h1 {
   margin: 0;
   font-family: var(--serif);
-  font-size: 4.2rem;
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: 0;
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .brand-block p {
   display: inline-flex;
   align-items: center;
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: #5b6472;
   font-family: var(--note);
   font-size: 1.15rem;
@@ -3039,4 +3040,139 @@ a {
 
 .micro-card-remove:hover {
   background: #b91c1c;
+}
+
+/* ===== Gamification: XP bar ===== */
+.xp-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.xp-bar.is-bumped {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22);
+}
+
+.xp-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--brand);
+  white-space: nowrap;
+}
+
+.xp-track {
+  position: relative;
+  width: 96px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.14);
+  overflow: hidden;
+}
+
+.xp-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #7c5cff);
+  transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xp-count {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ===== Confetti overlay ===== */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 90;
+}
+
+/* ===== Celebration banner ===== */
+.celebration {
+  position: fixed;
+  top: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 95;
+  pointer-events: none;
+}
+
+.celebration-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border-radius: 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 50px rgba(30, 41, 59, 0.25);
+  animation: celebrate-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.celebration-card strong {
+  display: block;
+  font-size: 1.05rem;
+  color: #1a1f2b;
+}
+
+.celebration-card span {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.celebration-level {
+  color: #7c5cff;
+}
+
+.celebration-level strong {
+  color: #7c5cff;
+}
+
+.celebration-badge {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #7c5cff);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  animation: badge-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes celebrate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0) rotate(-30deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
 }

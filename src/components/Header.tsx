@@ -10,13 +10,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { CellItem } from "../data/cells";
+import type { Progress } from "../lib/progression";
 import { UserMenu } from "./UserMenu";
+import { XpBar } from "./XpBar";
 
 type HeaderProps = {
   cell: CellItem;
   favoritesCount: number;
   exploredCount: number;
   totalCount: number;
+  progress: Progress;
+  xpPulse: number;
   onPlayQuiz: () => void;
   onAbout: () => void;
   onGallery: () => void;
@@ -31,6 +35,8 @@ export function Header({
   favoritesCount,
   exploredCount,
   totalCount,
+  progress,
+  xpPulse,
   onPlayQuiz,
   onAbout,
   onGallery,
@@ -61,6 +67,7 @@ export function Header({
       </div>
 
       <nav className="top-nav" aria-label="Primary">
+        <XpBar progress={progress} pulse={xpPulse} />
         {navItems.map(({ id, label, Icon, onClick }) => (
           <button key={id} type="button" onClick={onClick}>
             <Icon size={24} />

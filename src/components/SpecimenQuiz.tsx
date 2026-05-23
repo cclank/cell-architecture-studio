@@ -174,9 +174,13 @@ function relativeTime(ts: number): string {
 export function SpecimenQuiz({
   onExit,
   onStudySpecimen,
+  onCorrect,
+  onComplete,
 }: {
   onExit: () => void;
   onStudySpecimen?: (id: string) => void;
+  onCorrect?: (streak: number) => void;
+  onComplete?: (score: number, total: number, bestStreak: number) => void;
 }) {
   const [phase, setPhase] = useState<Phase>("config");
   const [category, setCategory] = useState<CategoryFilter>("All");
@@ -244,18 +248,17 @@ export function SpecimenQuiz({
       if (right) {
         if (!muted) playCorrect();
         setScore((s) => s + 1);
-        setStreak((s) => {
-          const next = s + 1;
-          setBestStreak((b) => Math.max(b, next));
-          return next;
-        });
+        const nextStreak = streak + 1;
+        setStreak(nextStreak);
+        setBestStreak((b) => Math.max(b, nextStreak));
+        onCorrect?.(nextStreak);
       } else {
         if (!muted) playWrong();
         setStreak(0);
         if (question) setMisses((m) => (m.some((c) => c.id === question.target.id) ? m : [...m, question.target]));
       }
     },
-    [muted, question],
+    [muted, question, streak, onCorrect],
   );
 
   const handleAnswer = useCallback(
@@ -291,10 +294,11 @@ export function SpecimenQuiz({
       };
       pushHistory(result);
       setHistory(readHistory());
+      onComplete?.(finalScore, TOTAL_QUESTIONS, bestStreak);
       if (!muted) playFinish();
       setPhase("finished");
     },
-    [category, mode, muted],
+    [category, mode, muted, bestStreak, onComplete],
   );
 
   const handleNext = useCallback(() => {
