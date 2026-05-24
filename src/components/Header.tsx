@@ -26,6 +26,7 @@ type HeaderProps = {
   onGallery: () => void;
   onLibrary: () => void;
   onNotebooks: () => void;
+  onAchievements: () => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
 };
@@ -42,6 +43,7 @@ export function Header({
   onGallery,
   onLibrary,
   onNotebooks,
+  onAchievements,
   onClearFavorites,
   onResetAll,
 }: HeaderProps) {
@@ -96,6 +98,10 @@ export function Header({
             favoritesCount={favoritesCount}
             exploredCount={exploredCount}
             totalCount={totalCount}
+            onAchievements={() => {
+              onAchievements();
+              setMenuOpen(false);
+            }}
             onClearFavorites={() => {
               onClearFavorites();
               setMenuOpen(false);

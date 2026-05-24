@@ -15,24 +15,44 @@ export type Progress = {
   stats: ProgressStats;
 };
 
+type StatsWithLevel = ProgressStats & { level: number };
+
 export type Achievement = {
   id: string;
   title: string;
   desc: string;
   icon: string; // lucide icon name resolved in the UI
-  check: (s: ProgressStats & { level: number }) => boolean;
+  metric: (s: StatsWithLevel) => number;
+  target: number;
+  check: (s: StatsWithLevel) => boolean;
 };
 
+function achievement(
+  id: string,
+  title: string,
+  desc: string,
+  icon: string,
+  metric: (s: StatsWithLevel) => number,
+  target: number,
+): Achievement {
+  return { id, title, desc, icon, metric, target, check: (s) => metric(s) >= target };
+}
+
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: "first-contact", title: "First Contact", desc: "View your first specimen", icon: "Microscope", check: (s) => s.viewed >= 1 },
-  { id: "explorer", title: "Explorer", desc: "View 25 specimens", icon: "Compass", check: (s) => s.viewed >= 25 },
-  { id: "curator", title: "Curator", desc: "View 100 specimens", icon: "Library", check: (s) => s.viewed >= 100 },
-  { id: "collector", title: "Collector", desc: "Favorite 10 specimens", icon: "Star", check: (s) => s.favorites >= 10 },
-  { id: "first-quiz", title: "Quizzer", desc: "Finish a quiz", icon: "Gamepad2", check: (s) => s.quizzes >= 1 },
-  { id: "sharp", title: "Sharpshooter", desc: "Reach a 5 answer streak", icon: "Zap", check: (s) => s.bestStreak >= 5 },
-  { id: "flawless", title: "Flawless", desc: "Score a perfect quiz", icon: "Trophy", check: (s) => s.perfect >= 1 },
-  { id: "scholar", title: "Scholar", desc: "Reach level 5", icon: "GraduationCap", check: (s) => s.level >= 5 },
+  achievement("first-contact", "First Contact", "View your first specimen", "Microscope", (s) => s.viewed, 1),
+  achievement("explorer", "Explorer", "View 25 specimens", "Compass", (s) => s.viewed, 25),
+  achievement("curator", "Curator", "View 100 specimens", "Library", (s) => s.viewed, 100),
+  achievement("collector", "Collector", "Favorite 10 specimens", "Star", (s) => s.favorites, 10),
+  achievement("first-quiz", "Quizzer", "Finish a quiz", "Gamepad2", (s) => s.quizzes, 1),
+  achievement("sharp", "Sharpshooter", "Reach a 5 answer streak", "Zap", (s) => s.bestStreak, 5),
+  achievement("flawless", "Flawless", "Score a perfect quiz", "Trophy", (s) => s.perfect, 1),
+  achievement("scholar", "Scholar", "Reach level 5", "GraduationCap", (s) => s.level, 5),
 ];
+
+// Stats including derived level, for progress display in the achievements panel.
+export function statsWithLevel(progress: Progress): StatsWithLevel {
+  return { ...progress.stats, level: levelInfo(progress.xp).level };
+}
 
 export const XP = {
   viewNew: 5,
@@ -96,7 +116,8 @@ export type ProgressEvent =
   | { type: "viewNew" }
   | { type: "favorite"; favoritesCount: number }
   | { type: "quizCorrect"; streak: number }
-  | { type: "quizComplete"; score: number; total: number; bestStreak: number };
+  | { type: "quizComplete"; score: number; total: number; bestStreak: number }
+  | { type: "bonus"; amount: number };
 
 export type AwardResult = {
   progress: Progress;
@@ -139,6 +160,9 @@ export function award(current: Progress, event: ProgressEvent): AwardResult {
       }
       break;
     }
+    case "bonus":
+      gained = event.amount;
+      break;
   }
 
   next.xp += gained;

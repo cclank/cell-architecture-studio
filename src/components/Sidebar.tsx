@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ChevronDown, Sparkles } from "lucide-react";
 import type { CellItem } from "../data/cells";
 
@@ -6,11 +7,13 @@ type SidebarProps = {
   activeOrganelle: string;
   onSelectOrganelle: (id: string) => void;
   onToast: (message: string) => void;
+  topSlot?: ReactNode;
 };
 
-export function Sidebar({ selectedCell, activeOrganelle, onSelectOrganelle, onToast }: SidebarProps) {
+export function Sidebar({ selectedCell, activeOrganelle, onSelectOrganelle, onToast, topSlot }: SidebarProps) {
   return (
     <aside className="left-rail">
+      {topSlot}
       <section className="panel organelle-panel">
         <div className="panel-heading">
           <span>

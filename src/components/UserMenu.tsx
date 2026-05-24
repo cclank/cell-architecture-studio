@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
-import { RotateCcw, Star, Trash2 } from "lucide-react";
+import { RotateCcw, Star, Trash2, Trophy } from "lucide-react";
 
 type UserMenuProps = {
   open: boolean;
   favoritesCount: number;
   exploredCount: number;
   totalCount: number;
+  onAchievements: () => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
   onClose: () => void;
@@ -16,6 +17,7 @@ export function UserMenu({
   favoritesCount,
   exploredCount,
   totalCount,
+  onAchievements,
   onClearFavorites,
   onResetAll,
   onClose,
@@ -52,6 +54,10 @@ export function UserMenu({
           <span>favorites</span>
         </div>
       </div>
+      <button type="button" className="user-menu-item" role="menuitem" onClick={onAchievements}>
+        <Trophy size={16} />
+        Achievements
+      </button>
       <button type="button" className="user-menu-item" role="menuitem" onClick={onClearFavorites}>
         <Star size={16} />
         Clear favorites

@@ -94,6 +94,8 @@ a {
 }
 
 .topbar {
+  position: relative;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3175,4 +3177,206 @@ a {
   100% {
     transform: scale(1) rotate(0);
   }
+}
+
+/* ===== Daily challenge ===== */
+.daily-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+
+.daily-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 140ms ease, transform 120ms ease;
+}
+
+.daily-card:hover {
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.daily-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.daily-copy strong {
+  color: #1a1f2b;
+  font-size: 0.95rem;
+}
+
+.daily-copy span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.daily-cta {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #7c5cff);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 140ms ease;
+}
+
+.daily-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.daily-cta:disabled {
+  background: var(--paper-deep);
+  color: var(--muted);
+  cursor: default;
+}
+
+/* ===== Achievements panel ===== */
+.achievements-modal {
+  width: min(680px, 100%);
+}
+
+.ach-level {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ach-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+  color: #7c5cff;
+  white-space: nowrap;
+}
+
+.ach-level-track {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(124, 92, 255, 0.16);
+  overflow: hidden;
+}
+
+.ach-level-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #7c5cff);
+}
+
+.ach-level-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.ach-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  opacity: 0.7;
+}
+
+.ach-item.is-unlocked {
+  opacity: 1;
+  border-color: rgba(37, 99, 235, 0.4);
+  background: var(--paper);
+  box-shadow: var(--shadow-soft);
+}
+
+.ach-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: var(--paper-deep);
+  color: var(--muted);
+}
+
+.ach-item.is-unlocked .ach-icon {
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #7c5cff);
+}
+
+.ach-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ach-copy strong {
+  color: #1a1f2b;
+  font-size: 0.95rem;
+}
+
+.ach-copy > span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.ach-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ach-progress-track {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(26, 31, 43, 0.1);
+  overflow: hidden;
+}
+
+.ach-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--brand);
+}
+
+.ach-progress-num {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
 }

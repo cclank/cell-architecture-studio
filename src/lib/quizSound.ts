@@ -55,3 +55,19 @@ export function playFinish(): void {
   const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
   notes.forEach((n, i) => tone(audio, n, i * 0.12, 0.26, "triangle", 0.16));
 }
+
+export function playLevelUp(): void {
+  const audio = getCtx();
+  if (!audio) return;
+  // Rising fanfare
+  const notes = [392.0, 523.25, 659.25, 783.99, 1046.5]; // G4 C5 E5 G5 C6
+  notes.forEach((n, i) => tone(audio, n, i * 0.09, 0.3, "triangle", 0.18));
+}
+
+export function playAchievement(): void {
+  const audio = getCtx();
+  if (!audio) return;
+  // Two-note sparkle
+  tone(audio, 880.0, 0, 0.18, "triangle", 0.16); // A5
+  tone(audio, 1318.51, 0.11, 0.26, "triangle", 0.16); // E6
+}

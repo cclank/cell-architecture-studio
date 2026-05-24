@@ -22,7 +22,10 @@ import { NotebooksModal } from "./components/NotebooksModal";
 import { Toast } from "./components/Toast";
 import { Confetti } from "./components/Confetti";
 import { CelebrationBanner } from "./components/CelebrationBanner";
+import { AchievementsPanel } from "./components/AchievementsPanel";
+import { DailyChallenge } from "./components/DailyChallenge";
 import { useProgression } from "./hooks/useProgression";
+import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
 
 const SpecimenQuiz = lazy(() =>
   import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
@@ -54,9 +57,17 @@ export default function App() {
   const [notebooksOpen, setNotebooksOpen] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
   const toastTimer = useRef<number | null>(null);
+  const [achievementsOpen, setAchievementsOpen] = useState(false);
+  const [dailyClaimed, setDailyClaimed] = useState(() => isDailyClaimed());
+  const [dailyStreak, setDailyStreak] = useState(0);
   const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
   // Seed with the restored cell so reloading doesn't fire a "viewed" award.
   const firedViews = useRef<Set<string>>(new Set([loadLastCellId()]));
+  const dailyCell = useMemo(() => specimenOfTheDay(), []);
+
+  useEffect(() => {
+    setDailyStreak(registerVisit().streak);
+  }, []);
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
   const totalOrganelleCount = useMemo(
@@ -133,6 +144,7 @@ export default function App() {
         onGallery={() => setGalleryOpen(true)}
         onLibrary={() => setLibraryOpen(true)}
         onNotebooks={() => setNotebooksOpen(true)}
+        onAchievements={() => setAchievementsOpen(true)}
         onClearFavorites={() => {
           setFavorites(new Set());
           showToast("Cleared all favorites.");
@@ -160,6 +172,23 @@ export default function App() {
           activeOrganelle={activeOrganelle}
           onSelectOrganelle={setActiveOrganelle}
           onToast={showToast}
+          topSlot={
+            <DailyChallenge
+              cell={dailyCell}
+              streak={dailyStreak}
+              claimed={dailyClaimed}
+              onStudy={() => {
+                setSelectedCellId(dailyCell.id);
+                if (!dailyClaimed && claimDaily()) {
+                  setDailyClaimed(true);
+                  fire({ type: "bonus", amount: 15 });
+                  showToast(`Daily specimen — ${dailyCell.name}! +15 XP`);
+                } else {
+                  showToast(`Loaded ${dailyCell.name} on stage.`);
+                }
+              }}
+            />
+          }
         />
 
         <div className="center-stack">
@@ -284,6 +313,12 @@ export default function App() {
         currentCell={selectedCell}
         onSelect={setSelectedCellId}
         onClose={() => setNotebooksOpen(false)}
+      />
+
+      <AchievementsPanel
+        open={achievementsOpen}
+        progress={progress}
+        onClose={() => setAchievementsOpen(false)}
       />
 
       <CelebrationBanner celebration={banner} />

@@ -7,6 +7,15 @@ import {
   type Progress,
   type ProgressEvent,
 } from "../lib/progression";
+import { playAchievement, playLevelUp } from "../lib/quizSound";
+
+function isMuted(): boolean {
+  try {
+    return localStorage.getItem("cas-quiz-muted") === "1";
+  } catch {
+    return false;
+  }
+}
 
 export type Celebration =
   | { kind: "level"; level: number }
@@ -44,6 +53,10 @@ export function useProgression() {
       if (celebrations.length > 0) {
         queue.current.push(...celebrations);
         setConfettiKey((k) => k + 1);
+        if (!isMuted()) {
+          if (result.leveledUp) playLevelUp();
+          else playAchievement();
+        }
         pump();
       }
       return result;
