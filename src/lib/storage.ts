@@ -1,7 +1,8 @@
 import { cells, getCellById } from "../data/cells";
+import { QUIZ_KEY_PREFIX, STORAGE_KEYS } from "./storageKeys";
 
-const FAVORITES_KEY = "cas-favorites";
-const LAST_CELL_KEY = "cas-last-cell";
+const FAVORITES_KEY = STORAGE_KEYS.favorites;
+const LAST_CELL_KEY = STORAGE_KEYS.lastCell;
 
 const initialCell = getCellById("animal");
 const cellExists = (id: string) => cells.some((c) => c.id === id);
@@ -43,7 +44,7 @@ export function saveLastCellId(id: string): void {
   }
 }
 
-const RECENT_KEY = "cas-recent";
+const RECENT_KEY = STORAGE_KEYS.recent;
 const RECENT_MAX = 24;
 
 export function loadRecentIds(): string[] {
@@ -66,7 +67,7 @@ export function pushRecentId(id: string): string[] {
   return next;
 }
 
-const NOTES_KEY = "cas-notes";
+const NOTES_KEY = STORAGE_KEYS.notes;
 
 export type NotesMap = Record<string, string>;
 
@@ -103,7 +104,7 @@ export function clearAllData(): void {
     // Quiz keys live under cas-quiz-*.
     for (let i = localStorage.length - 1; i >= 0; i -= 1) {
       const k = localStorage.key(i);
-      if (k && k.startsWith("cas-quiz")) localStorage.removeItem(k);
+      if (k && k.startsWith(QUIZ_KEY_PREFIX)) localStorage.removeItem(k);
     }
   } catch {
     /* ignore */

@@ -26,6 +26,7 @@ import { CelebrationBanner } from "./components/CelebrationBanner";
 import { AchievementsPanel } from "./components/AchievementsPanel";
 import { DailyChallenge } from "./components/DailyChallenge";
 import { useProgression } from "./hooks/useProgression";
+import { useOverlays } from "./hooks/useOverlays";
 import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
 
 const SpecimenQuiz = lazy(() =>
@@ -46,20 +47,13 @@ export default function App() {
   const [viewedOrganelleKeys, setViewedOrganelleKeys] = useState<Set<string>>(
     () => new Set([`${initialCell.id}:${initialCell.defaultOrganelle}`]),
   );
-  const [comparisonOpen, setComparisonOpen] = useState(false);
+  const overlays = useOverlays();
   const [tutorPrompt, setTutorPrompt] = useState(
     `Guide me through finding ${initialCell.organelles[0].name} inside the 3D model.`,
   );
   const [toast, setToast] = useState<string | null>(null);
-  const [quizOpen, setQuizOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [libraryOpen, setLibraryOpen] = useState(false);
-  const [notebooksOpen, setNotebooksOpen] = useState(false);
-  const [flashcardsOpen, setFlashcardsOpen] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
   const toastTimer = useRef<number | null>(null);
-  const [achievementsOpen, setAchievementsOpen] = useState(false);
   const [dailyClaimed, setDailyClaimed] = useState(() => isDailyClaimed());
   const [dailyStreak, setDailyStreak] = useState(0);
   const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
@@ -84,7 +78,7 @@ export default function App() {
 
   useEffect(() => {
     setActiveOrganelle(selectedCell.defaultOrganelle);
-    setComparisonOpen(false);
+    overlays.close();
   }, [selectedCell]);
 
   useEffect(() => {
@@ -141,13 +135,13 @@ export default function App() {
         totalCount={cells.length}
         progress={progress}
         xpPulse={xpPulse}
-        onPlayQuiz={() => setQuizOpen(true)}
-        onAbout={() => setAboutOpen(true)}
-        onGallery={() => setGalleryOpen(true)}
-        onLibrary={() => setLibraryOpen(true)}
-        onNotebooks={() => setNotebooksOpen(true)}
-        onFlashcards={() => setFlashcardsOpen(true)}
-        onAchievements={() => setAchievementsOpen(true)}
+        onPlayQuiz={() => overlays.open("quiz")}
+        onAbout={() => overlays.open("about")}
+        onGallery={() => overlays.open("gallery")}
+        onLibrary={() => overlays.open("library")}
+        onNotebooks={() => overlays.open("notebooks")}
+        onFlashcards={() => overlays.open("flashcards")}
+        onAchievements={() => overlays.open("achievements")}
         onClearFavorites={() => {
           setFavorites(new Set());
           showToast("Cleared all favorites.");
@@ -214,7 +208,7 @@ export default function App() {
           <BottomPanels
             cell={selectedCell}
             onCompare={() => {
-              setComparisonOpen(true);
+              overlays.open("comparison");
               showToast(
                 `Opened comparison: ${selectedCell.name} vs ${getCellById(selectedCell.comparison).name}.`,
               );
@@ -247,19 +241,19 @@ export default function App() {
 
       <ComparisonModal
         cell={selectedCell}
-        open={comparisonOpen}
+        open={overlays.isOpen("comparison")}
         onClose={() => {
-          setComparisonOpen(false);
+          overlays.close();
           showToast("Closed comparison view.");
         }}
       />
-      {quizOpen && (
+      {overlays.isOpen("quiz") && (
         <Suspense fallback={<div className="quiz-layer quiz-loading">Loading quiz…</div>}>
           <SpecimenQuiz
-            onExit={() => setQuizOpen(false)}
+            onExit={() => overlays.close()}
             onStudySpecimen={(id) => {
               setSelectedCellId(id);
-              setQuizOpen(false);
+              overlays.close();
               showToast(`Loaded ${getCellById(id).name} on stage.`);
             }}
             onCorrect={(streak) => fire({ type: "quizCorrect", streak })}
@@ -269,27 +263,27 @@ export default function App() {
           />
         </Suspense>
       )}
-      <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <AboutModal open={overlays.isOpen("about")} onClose={overlays.close} />
 
       <SpecimenGridModal
         title="Gallery"
         subtitle={`Browse all ${cells.length} specimens`}
-        open={galleryOpen}
+        open={overlays.isOpen("gallery")}
         searchable
         selectedId={selectedCellId}
         sections={[{ label: "All specimens", items: cells }]}
         onSelect={(id) => {
           setSelectedCellId(id);
-          setGalleryOpen(false);
+          overlays.close();
           showToast(`Loaded ${getCellById(id).name} on stage.`);
         }}
-        onClose={() => setGalleryOpen(false)}
+        onClose={() => overlays.close()}
       />
 
       <SpecimenGridModal
         title="Your Library"
         subtitle="Favorites and recently viewed specimens"
-        open={libraryOpen}
+        open={overlays.isOpen("library")}
         selectedId={selectedCellId}
         sections={[
           {
@@ -305,22 +299,22 @@ export default function App() {
         ]}
         onSelect={(id) => {
           setSelectedCellId(id);
-          setLibraryOpen(false);
+          overlays.close();
           showToast(`Loaded ${getCellById(id).name} on stage.`);
         }}
-        onClose={() => setLibraryOpen(false)}
+        onClose={() => overlays.close()}
       />
 
       <NotebooksModal
-        open={notebooksOpen}
+        open={overlays.isOpen("notebooks")}
         currentCell={selectedCell}
         onSelect={setSelectedCellId}
-        onClose={() => setNotebooksOpen(false)}
+        onClose={() => overlays.close()}
       />
 
       <FlashcardsModal
-        open={flashcardsOpen}
-        onClose={() => setFlashcardsOpen(false)}
+        open={overlays.isOpen("flashcards")}
+        onClose={() => overlays.close()}
         onStudySpecimen={(id) => {
           setSelectedCellId(id);
           showToast(`Loaded ${getCellById(id).name} on stage.`);
@@ -328,9 +322,9 @@ export default function App() {
       />
 
       <AchievementsPanel
-        open={achievementsOpen}
+        open={overlays.isOpen("achievements")}
         progress={progress}
-        onClose={() => setAchievementsOpen(false)}
+        onClose={() => overlays.close()}
       />
 
       <CelebrationBanner celebration={banner} />

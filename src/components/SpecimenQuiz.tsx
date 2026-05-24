@@ -3,6 +3,7 @@ import { Check, Clock, Heart, Keyboard, RotateCcw, Share2, Trophy, Volume2, Volu
 import { CellScene } from "./CellScene";
 import { CELL_CATEGORY_ORDER, categorize, cells, type CellCategory, type CellItem } from "../data/cells";
 import { playCorrect, playFinish, playWrong } from "../lib/quizSound";
+import { STORAGE_KEYS } from "../lib/storageKeys";
 
 const TOTAL_QUESTIONS = 10;
 const TIMED_SECONDS = 12;
@@ -93,7 +94,7 @@ function buildQuestion(category: CategoryFilter, recent: Set<string>): Question 
 }
 
 function bestScoreKey(category: CategoryFilter, mode: QuizMode): string {
-  return `cas-quiz-best:${category}:${mode}`;
+  return `${STORAGE_KEYS.quizBestPrefix}:${category}:${mode}`;
 }
 
 function readBest(category: CategoryFilter, mode: QuizMode): number {
@@ -121,7 +122,7 @@ type QuizResult = {
   ts: number;
 };
 
-const HISTORY_KEY = "cas-quiz-history";
+const HISTORY_KEY = STORAGE_KEYS.quizHistory;
 const HISTORY_MAX = 12;
 
 function readHistory(): QuizResult[] {
@@ -143,7 +144,7 @@ function pushHistory(result: QuizResult): void {
   }
 }
 
-const MUTE_KEY = "cas-quiz-muted";
+const MUTE_KEY = STORAGE_KEYS.quizMuted;
 
 function readMuted(): boolean {
   try {

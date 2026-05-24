@@ -1,5 +1,6 @@
 // Lightweight gamification engine: XP, levels, and achievements, all persisted
 // in localStorage. App fires semantic events; this returns what to celebrate.
+import { STORAGE_KEYS } from "./storageKeys";
 
 export type ProgressStats = {
   viewed: number;
@@ -62,7 +63,7 @@ export const XP = {
   perfectBonus: 50,
 };
 
-const KEY = "cas-progress";
+const KEY = STORAGE_KEYS.progress;
 
 const EMPTY: Progress = {
   xp: 0,

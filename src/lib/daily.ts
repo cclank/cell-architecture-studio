@@ -1,4 +1,5 @@
 import { cells, type CellItem } from "../data/cells";
+import { STORAGE_KEYS } from "./storageKeys";
 
 // Local YYYY-MM-DD key for "today".
 function todayKey(d = new Date()): string {
@@ -28,7 +29,7 @@ type DailyState = {
   claimed: string; // date the bonus was claimed
 };
 
-const KEY = "cas-daily";
+const KEY = STORAGE_KEYS.daily;
 
 function load(): DailyState {
   try {

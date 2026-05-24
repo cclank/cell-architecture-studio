@@ -8,10 +8,11 @@ import {
   type ProgressEvent,
 } from "../lib/progression";
 import { playAchievement, playLevelUp } from "../lib/quizSound";
+import { STORAGE_KEYS } from "../lib/storageKeys";
 
 function isMuted(): boolean {
   try {
-    return localStorage.getItem("cas-quiz-muted") === "1";
+    return localStorage.getItem(STORAGE_KEYS.quizMuted) === "1";
   } catch {
     return false;
   }
