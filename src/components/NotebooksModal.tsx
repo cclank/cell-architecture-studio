@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { BookOpen, X } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { getCellById, type CellItem } from "../data/cells";
-import { useEscapeToClose } from "../hooks/useEscapeToClose";
 import { loadNotes, saveNote, type NotesMap } from "../lib/storage";
 import { MiniCell } from "./MiniCell";
+import { Modal } from "./Modal";
 
 type NotebooksModalProps = {
   open: boolean;
@@ -15,9 +15,6 @@ type NotebooksModalProps = {
 export function NotebooksModal({ open, currentCell, onSelect, onClose }: NotebooksModalProps) {
   const [notes, setNotes] = useState<NotesMap>(() => loadNotes());
   const [draft, setDraft] = useState(() => loadNotes()[currentCell.id] ?? "");
-  useEscapeToClose(open, onClose);
-
-  if (!open) return null;
 
   const otherNoteIds = Object.keys(notes).filter((id) => id !== currentCell.id && notes[id]?.trim());
 
@@ -26,11 +23,7 @@ export function NotebooksModal({ open, currentCell, onSelect, onClose }: Noteboo
   }
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Notebooks">
-      <div className="browser-modal notebooks-modal">
-        <button className="modal-close" type="button" onClick={onClose} aria-label="Close">
-          <X size={18} />
-        </button>
+    <Modal open={open} onClose={onClose} label="Notebooks" panelClassName="browser-modal notebooks-modal">
         <div className="browser-head">
           <div>
             <h3>
@@ -104,7 +97,6 @@ export function NotebooksModal({ open, currentCell, onSelect, onClose }: Noteboo
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

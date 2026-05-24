@@ -8,12 +8,11 @@ import {
   Sparkles,
   Star,
   Trophy,
-  X,
   Zap,
   type LucideIcon,
 } from "lucide-react";
 import { ACHIEVEMENTS, levelInfo, statsWithLevel, type Progress } from "../lib/progression";
-import { useEscapeToClose } from "../hooks/useEscapeToClose";
+import { Modal } from "./Modal";
 
 const ICONS: Record<string, LucideIcon> = {
   Microscope,
@@ -35,31 +34,24 @@ export function AchievementsPanel({
   progress: Progress;
   onClose: () => void;
 }) {
-  useEscapeToClose(open, onClose);
-  if (!open) return null;
-
   const stats = statsWithLevel(progress);
   const { level, intoLevel, forNext } = levelInfo(progress.xp);
   const unlockedCount = progress.unlocked.length;
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Achievements">
-      <div className="browser-modal achievements-modal">
-        <button className="modal-close" type="button" onClick={onClose} aria-label="Close">
-          <X size={18} />
-        </button>
-        <div className="browser-head">
-          <div>
-            <h3>
-              <Trophy size={20} /> Achievements
-            </h3>
-            <p>
-              {unlockedCount}/{ACHIEVEMENTS.length} unlocked · {progress.xp} XP
-            </p>
-          </div>
+    <Modal open={open} onClose={onClose} label="Achievements" panelClassName="browser-modal achievements-modal">
+      <div className="browser-head">
+        <div>
+          <h3>
+            <Trophy size={20} /> Achievements
+          </h3>
+          <p>
+            {unlockedCount}/{ACHIEVEMENTS.length} unlocked · {progress.xp} XP
+          </p>
         </div>
+      </div>
 
-        <div className="ach-level">
+      <div className="ach-level">
           <span className="ach-level-badge">
             <Sparkles size={16} /> Level {level}
           </span>
@@ -98,7 +90,6 @@ export function AchievementsPanel({
             );
           })}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

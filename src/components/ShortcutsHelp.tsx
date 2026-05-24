@@ -1,5 +1,5 @@
-import { Keyboard, X } from "lucide-react";
-import { useEscapeToClose } from "../hooks/useEscapeToClose";
+import { Keyboard } from "lucide-react";
+import { Modal } from "./Modal";
 
 const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ["←", "→"], label: "Previous / next specimen" },
@@ -16,35 +16,28 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
 ];
 
 export function ShortcutsHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
-  useEscapeToClose(open, onClose);
-  if (!open) return null;
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
-      <div className="browser-modal shortcuts-modal">
-        <button className="modal-close" type="button" onClick={onClose} aria-label="Close">
-          <X size={18} />
-        </button>
-        <div className="browser-head">
-          <div>
-            <h3>
-              <Keyboard size={20} /> Keyboard shortcuts
-            </h3>
-            <p>Work faster without leaving the keyboard.</p>
-          </div>
+    <Modal open={open} onClose={onClose} label="Keyboard shortcuts" panelClassName="browser-modal shortcuts-modal">
+      <div className="browser-head">
+        <div>
+          <h3>
+            <Keyboard size={20} /> Keyboard shortcuts
+          </h3>
+          <p>Work faster without leaving the keyboard.</p>
         </div>
-        <ul className="shortcuts-list">
-          {SHORTCUTS.map((s) => (
-            <li key={s.label}>
-              <span className="shortcut-keys">
-                {s.keys.map((k) => (
-                  <kbd key={k}>{k}</kbd>
-                ))}
-              </span>
-              <span className="shortcut-label">{s.label}</span>
-            </li>
-          ))}
-        </ul>
       </div>
-    </div>
+      <ul className="shortcuts-list">
+        {SHORTCUTS.map((s) => (
+          <li key={s.label}>
+            <span className="shortcut-keys">
+              {s.keys.map((k) => (
+                <kbd key={k}>{k}</kbd>
+              ))}
+            </span>
+            <span className="shortcut-label">{s.label}</span>
+          </li>
+        ))}
+      </ul>
+    </Modal>
   );
 }

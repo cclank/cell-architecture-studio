@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, BookOpen, RotateCw, Shuffle, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, RotateCw, Shuffle } from "lucide-react";
 import {
   CELL_CATEGORY_ORDER,
   categorize,
@@ -7,7 +7,7 @@ import {
   type CellCategory,
   type CellItem,
 } from "../data/cells";
-import { useEscapeToClose } from "../hooks/useEscapeToClose";
+import { Modal } from "./Modal";
 
 const DECK_BASE = cells.filter((c) => c.renderImage);
 const CATEGORY_FILTERS: ("All" | CellCategory)[] = ["All", ...CELL_CATEGORY_ORDER];
@@ -34,15 +34,12 @@ export function FlashcardsModal({
   const [seed, setSeed] = useState(0);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  useEscapeToClose(open, onClose);
 
   const deck = useMemo(() => {
     void seed;
     const pool = category === "All" ? DECK_BASE : DECK_BASE.filter((c) => categorize(c) === category);
     return shuffle(pool.length > 0 ? pool : DECK_BASE);
   }, [category, seed]);
-
-  if (!open) return null;
 
   const card: CellItem | undefined = deck[index];
   const organelle = card?.organelles[0];
@@ -59,11 +56,7 @@ export function FlashcardsModal({
   }
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Flashcards">
-      <div className="browser-modal flashcards-modal">
-        <button className="modal-close" type="button" onClick={onClose} aria-label="Close">
-          <X size={18} />
-        </button>
+    <Modal open={open} onClose={onClose} label="Flashcards" panelClassName="browser-modal flashcards-modal">
         <div className="browser-head">
           <div>
             <h3>
@@ -141,7 +134,6 @@ export function FlashcardsModal({
             Open {card.name} in the studio →
           </button>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

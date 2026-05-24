@@ -1,8 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { X } from "lucide-react";
 import type { CellItem } from "../data/cells";
-import { useEscapeToClose } from "../hooks/useEscapeToClose";
 import { MiniCell } from "./MiniCell";
+import { Modal } from "./Modal";
 
 type Section = { label: string; items: CellItem[]; emptyHint?: string };
 
@@ -30,7 +29,6 @@ export function SpecimenGridModal({
   footer,
 }: SpecimenGridModalProps) {
   const [query, setQuery] = useState("");
-  useEscapeToClose(open, onClose);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -43,15 +41,10 @@ export function SpecimenGridModal({
     }));
   }, [sections, query]);
 
-  if (!open) return null;
   const totalShown = filtered.reduce((n, s) => n + s.items.length, 0);
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="browser-modal">
-        <button className="modal-close" type="button" onClick={onClose} aria-label="Close">
-          <X size={18} />
-        </button>
+    <Modal open={open} onClose={onClose} label={title} panelClassName="browser-modal">
         <div className="browser-head">
           <div>
             <h3>{title}</h3>
@@ -109,7 +102,6 @@ export function SpecimenGridModal({
         </div>
 
         {footer && <div className="browser-footer">{footer}</div>}
-      </div>
-    </div>
+    </Modal>
   );
 }
