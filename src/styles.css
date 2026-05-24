@@ -3525,3 +3525,51 @@ a {
 .fc-study-link:hover {
   text-decoration: underline;
 }
+
+/* ===== Shortcuts help ===== */
+.shortcuts-modal {
+  width: min(440px, 100%);
+}
+
+.shortcuts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.shortcuts-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.shortcut-keys {
+  display: inline-flex;
+  gap: 4px;
+  flex: 0 0 96px;
+}
+
+.shortcut-keys kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  background: var(--paper-deep);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1a1f2b;
+}
+
+.shortcut-label {
+  color: #5b6472;
+  font-size: 0.9rem;
+}

@@ -25,8 +25,10 @@ import { Confetti } from "./components/Confetti";
 import { CelebrationBanner } from "./components/CelebrationBanner";
 import { AchievementsPanel } from "./components/AchievementsPanel";
 import { DailyChallenge } from "./components/DailyChallenge";
+import { ShortcutsHelp } from "./components/ShortcutsHelp";
 import { useProgression } from "./hooks/useProgression";
 import { useOverlays } from "./hooks/useOverlays";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
 
 const SpecimenQuiz = lazy(() =>
@@ -120,6 +122,40 @@ export default function App() {
     });
     if (!wasFav) fire({ type: "favorite", favoritesCount: favorites.size + 1 });
   }
+
+  function stepSpecimen(delta: number) {
+    const index = cells.findIndex((c) => c.id === selectedCellId);
+    const next = cells[(index + delta + cells.length) % cells.length];
+    setSelectedCellId(next.id);
+    showToast(`${next.name}`);
+  }
+
+  useKeyboardShortcuts(overlays.active === null, {
+    onPrev: () => stepSpecimen(-1),
+    onNext: () => stepSpecimen(1),
+    onFavorite: () => toggleFavorite(selectedCellId),
+    onReset: () => {
+      setResetKey((key) => key + 1);
+      showToast("View reset.");
+    },
+    onToggleRotate: () => {
+      setAutoRotate((v) => {
+        showToast(v ? "Auto-rotate off." : "Auto-rotate on.");
+        return !v;
+      });
+    },
+    onSurprise: () => {
+      const pool = cells.filter((c) => c.id !== selectedCellId);
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      setSelectedCellId(pick.id);
+      showToast(`Surprise — ${pick.name}!`);
+    },
+    onGallery: () => overlays.open("gallery"),
+    onLibrary: () => overlays.open("library"),
+    onFlashcards: () => overlays.open("flashcards"),
+    onQuiz: () => overlays.open("quiz"),
+    onHelp: () => overlays.open("shortcuts"),
+  });
 
   // Only the 3D-stage tint follows the specimen; UI accent stays clinical blue.
   const shellStyle = {
@@ -326,6 +362,8 @@ export default function App() {
         progress={progress}
         onClose={() => overlays.close()}
       />
+
+      <ShortcutsHelp open={overlays.isOpen("shortcuts")} onClose={() => overlays.close()} />
 
       <CelebrationBanner celebration={banner} />
       <Confetti fireKey={confettiKey} />

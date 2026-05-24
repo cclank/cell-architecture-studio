@@ -10,7 +10,8 @@ export type OverlayId =
   | "notebooks"
   | "flashcards"
   | "achievements"
-  | "comparison";
+  | "comparison"
+  | "shortcuts";
 
 export function useOverlays() {
   const [active, setActive] = useState<OverlayId | null>(null);
