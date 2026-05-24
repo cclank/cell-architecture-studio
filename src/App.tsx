@@ -260,8 +260,8 @@ export default function App() {
               showToast(`Loaded ${getCellById(id).name} on stage.`);
             }}
             onCorrect={(streak) => fire({ type: "quizCorrect", streak })}
-            onComplete={(score, total, bestStreak) =>
-              fire({ type: "quizComplete", score, total, bestStreak })
+            onComplete={(score, total, bestStreak, perfect) =>
+              fire({ type: "quizComplete", score, total, bestStreak, perfect })
             }
           />
         </Suspense>

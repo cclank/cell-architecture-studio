@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
-import { Check, Clock, Keyboard, RotateCcw, Share2, Trophy, Volume2, VolumeX, X, Zap } from "lucide-react";
+import { Check, Clock, Heart, Keyboard, RotateCcw, Share2, Trophy, Volume2, VolumeX, X, Zap } from "lucide-react";
 import { CellScene } from "./CellScene";
 import { CELL_CATEGORY_ORDER, categorize, cells, type CellCategory, type CellItem } from "../data/cells";
 import { playCorrect, playFinish, playWrong } from "../lib/quizSound";
 
 const TOTAL_QUESTIONS = 10;
 const TIMED_SECONDS = 12;
+const SURVIVAL_LIVES = 3;
 const TIMEOUT_SENTINEL = "__timeout__";
 
 // Only quiz specimens that have a rendered thumbnail — guarantees the model
 // loads and reads clearly in the stage.
 const QUIZ_POOL = cells.filter((c) => c.renderImage);
 
-type QuizMode = "casual" | "timed" | "type";
+type QuizMode = "casual" | "timed" | "type" | "survival";
 type CategoryFilter = "All" | CellCategory;
 type Phase = "config" | "playing" | "finished";
 
@@ -180,7 +181,7 @@ export function SpecimenQuiz({
   onExit: () => void;
   onStudySpecimen?: (id: string) => void;
   onCorrect?: (streak: number) => void;
-  onComplete?: (score: number, total: number, bestStreak: number) => void;
+  onComplete?: (score: number, total: number, bestStreak: number, perfect: boolean) => void;
 }) {
   const [phase, setPhase] = useState<Phase>("config");
   const [category, setCategory] = useState<CategoryFilter>("All");
@@ -203,6 +204,7 @@ export function SpecimenQuiz({
   const [misses, setMisses] = useState<CellItem[]>([]);
   const [roundLog, setRoundLog] = useState<boolean[]>([]);
   const [shareLabel, setShareLabel] = useState("Share result");
+  const [lives, setLives] = useState(SURVIVAL_LIVES);
 
   const answered = selected !== null;
   const isCorrect = answered && (selected === question?.target.id || typedWasRight);
@@ -224,6 +226,7 @@ export function SpecimenQuiz({
     setMisses([]);
     setRoundLog([]);
     setShareLabel("Share result");
+    setLives(SURVIVAL_LIVES);
     setPhase("playing");
   }, [category]);
 
@@ -255,10 +258,11 @@ export function SpecimenQuiz({
       } else {
         if (!muted) playWrong();
         setStreak(0);
+        if (mode === "survival") setLives((l) => Math.max(0, l - 1));
         if (question) setMisses((m) => (m.some((c) => c.id === question.target.id) ? m : [...m, question.target]));
       }
     },
-    [muted, question, streak, onCorrect],
+    [muted, question, streak, onCorrect, mode],
   );
 
   const handleAnswer = useCallback(
@@ -280,6 +284,7 @@ export function SpecimenQuiz({
 
   const finishGame = useCallback(
     (finalScore: number) => {
+      const total = mode === "survival" ? finalScore : TOTAL_QUESTIONS;
       const prevBest = readBest(category, mode);
       if (finalScore > prevBest) {
         writeBest(category, mode, finalScore);
@@ -287,14 +292,14 @@ export function SpecimenQuiz({
       }
       const result: QuizResult = {
         score: finalScore,
-        total: TOTAL_QUESTIONS,
+        total,
         category,
         mode,
         ts: Date.now(),
       };
       pushHistory(result);
       setHistory(readHistory());
-      onComplete?.(finalScore, TOTAL_QUESTIONS, bestStreak);
+      onComplete?.(finalScore, total, bestStreak, mode !== "survival" && finalScore === TOTAL_QUESTIONS);
       if (!muted) playFinish();
       setPhase("finished");
     },
@@ -303,7 +308,8 @@ export function SpecimenQuiz({
 
   const handleNext = useCallback(() => {
     if (!question) return;
-    if (questionNumber >= TOTAL_QUESTIONS) {
+    // Survival ends when lives run out; other modes after a fixed count.
+    if (mode === "survival" ? lives <= 0 : questionNumber >= TOTAL_QUESTIONS) {
       finishGame(score);
       return;
     }
@@ -316,7 +322,7 @@ export function SpecimenQuiz({
     setTimeLeft(TIMED_SECONDS);
     setTyped("");
     setTypedWasRight(false);
-  }, [question, questionNumber, score, recent, category, finishGame]);
+  }, [question, questionNumber, score, recent, category, finishGame, mode, lives]);
 
   // Countdown timer for timed mode — auto-reveal (as wrong) when it hits zero.
   useEffect(() => {
@@ -408,12 +414,22 @@ export function SpecimenQuiz({
               >
                 <Keyboard size={14} /> Type it
               </button>
+              <button
+                type="button"
+                className={`quiz-chip ${mode === "survival" ? "is-active" : ""}`}
+                onClick={() => setMode("survival")}
+              >
+                <Heart size={14} /> Survival
+              </button>
             </div>
           </div>
 
           <div className="quiz-config-meta">
             <p className="quiz-config-best">
-              <Trophy size={15} /> Best: {readBest(category, mode)} / {TOTAL_QUESTIONS}
+              <Trophy size={15} /> Best:{" "}
+              {mode === "survival"
+                ? `${readBest(category, mode)} correct`
+                : `${readBest(category, mode)} / ${TOTAL_QUESTIONS}`}
             </p>
             <button
               type="button"
@@ -464,16 +480,26 @@ export function SpecimenQuiz({
   }
 
   if (phase === "finished") {
+    const survival = mode === "survival";
     const pct = Math.round((score / TOTAL_QUESTIONS) * 100);
-    const verdict =
-      pct >= 90 ? "Cell biology master!" : pct >= 60 ? "Solid knowledge." : "Keep exploring!";
+    const verdict = survival
+      ? score >= 15
+        ? "Unstoppable!"
+        : score >= 7
+          ? "Great run!"
+          : "Keep training!"
+      : pct >= 90
+        ? "Cell biology master!"
+        : pct >= 60
+          ? "Solid knowledge."
+          : "Keep exploring!";
     return (
       <div className="quiz-layer" style={shellStyle}>
         <div className="quiz-result">
           <Trophy size={56} />
-          <h2>Quiz complete</h2>
+          <h2>{survival ? "Run over" : "Quiz complete"}</h2>
           <p className="quiz-result-score">
-            {score} / {TOTAL_QUESTIONS}
+            {survival ? `${score} correct` : `${score} / ${TOTAL_QUESTIONS}`}
           </p>
           <p className="quiz-result-verdict">{verdict}</p>
           {newRecord && <p className="quiz-result-record">New best score!</p>}
@@ -532,14 +558,25 @@ export function SpecimenQuiz({
     <div className="quiz-layer" style={shellStyle}>
       <div className="quiz-panel">
         <header className="quiz-header">
-          <div className="quiz-progress">
-            <span className="quiz-progress-label">
-              Question {questionNumber} / {TOTAL_QUESTIONS}
-            </span>
-            <div className="quiz-progress-bar">
-              <i style={{ width: `${(questionNumber / TOTAL_QUESTIONS) * 100}%` }} />
+          {mode === "survival" ? (
+            <div className="quiz-progress">
+              <span className="quiz-progress-label">Survival · Q{questionNumber}</span>
+              <div className="quiz-lives" aria-label={`${lives} lives left`}>
+                {Array.from({ length: SURVIVAL_LIVES }).map((_, i) => (
+                  <Heart key={i} size={18} fill={i < lives ? "currentColor" : "none"} className={i < lives ? "is-alive" : "is-lost"} />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="quiz-progress">
+              <span className="quiz-progress-label">
+                Question {questionNumber} / {TOTAL_QUESTIONS}
+              </span>
+              <div className="quiz-progress-bar">
+                <i style={{ width: `${(questionNumber / TOTAL_QUESTIONS) * 100}%` }} />
+              </div>
+            </div>
+          )}
           <div className="quiz-stats">
             <span className="quiz-stat">
               <Check size={16} />
@@ -645,7 +682,9 @@ export function SpecimenQuiz({
                     : `It was ${question.target.name}.`}
               </span>
               <button type="button" className="quiz-primary" onClick={handleNext}>
-                {questionNumber >= TOTAL_QUESTIONS ? "See results" : "Next"}
+                {(mode === "survival" ? lives <= 0 : questionNumber >= TOTAL_QUESTIONS)
+                  ? "See results"
+                  : "Next"}
               </button>
             </div>
           ) : (

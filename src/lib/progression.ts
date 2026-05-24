@@ -116,7 +116,7 @@ export type ProgressEvent =
   | { type: "viewNew" }
   | { type: "favorite"; favoritesCount: number }
   | { type: "quizCorrect"; streak: number }
-  | { type: "quizComplete"; score: number; total: number; bestStreak: number }
+  | { type: "quizComplete"; score: number; total: number; bestStreak: number; perfect: boolean }
   | { type: "bonus"; amount: number };
 
 export type AwardResult = {
@@ -154,7 +154,7 @@ export function award(current: Progress, event: ProgressEvent): AwardResult {
       gained = XP.quizComplete;
       next.stats.quizzes += 1;
       next.stats.bestStreak = Math.max(next.stats.bestStreak, event.bestStreak);
-      if (event.score === event.total) {
+      if (event.perfect) {
         gained += XP.perfectBonus;
         next.stats.perfect += 1;
       }

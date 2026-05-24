@@ -3380,3 +3380,26 @@ a {
   color: var(--muted);
   white-space: nowrap;
 }
+
+/* ===== Survival lives ===== */
+.quiz-lives {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ef4444;
+}
+
+.quiz-lives .is-alive {
+  color: #ef4444;
+  animation: heart-pop 300ms ease both;
+}
+
+.quiz-lives .is-lost {
+  color: rgba(26, 31, 43, 0.2);
+}
+
+@keyframes heart-pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
