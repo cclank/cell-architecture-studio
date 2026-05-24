@@ -5,6 +5,7 @@ import {
   Gamepad2,
   Grid3X3,
   Info,
+  Layers,
   Library,
   Sparkles,
   type LucideIcon,
@@ -26,6 +27,7 @@ type HeaderProps = {
   onGallery: () => void;
   onLibrary: () => void;
   onNotebooks: () => void;
+  onFlashcards: () => void;
   onAchievements: () => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
@@ -43,6 +45,7 @@ export function Header({
   onGallery,
   onLibrary,
   onNotebooks,
+  onFlashcards,
   onAchievements,
   onClearFavorites,
   onResetAll,
@@ -52,6 +55,7 @@ export function Header({
   const navItems: { id: string; label: string; Icon: LucideIcon; onClick: () => void }[] = [
     { id: "gallery", label: "Gallery", Icon: Grid3X3, onClick: onGallery },
     { id: "library", label: "Library", Icon: Library, onClick: onLibrary },
+    { id: "cards", label: "Cards", Icon: Layers, onClick: onFlashcards },
     { id: "notebooks", label: "Notebooks", Icon: BookOpen, onClick: onNotebooks },
     { id: "about", label: "About", Icon: Info, onClick: onAbout },
   ];

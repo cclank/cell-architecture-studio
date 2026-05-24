@@ -19,6 +19,7 @@ import { ComparisonModal } from "./components/ComparisonModal";
 import { AboutModal } from "./components/AboutModal";
 import { SpecimenGridModal } from "./components/SpecimenGridModal";
 import { NotebooksModal } from "./components/NotebooksModal";
+import { FlashcardsModal } from "./components/FlashcardsModal";
 import { Toast } from "./components/Toast";
 import { Confetti } from "./components/Confetti";
 import { CelebrationBanner } from "./components/CelebrationBanner";
@@ -55,6 +56,7 @@ export default function App() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [notebooksOpen, setNotebooksOpen] = useState(false);
+  const [flashcardsOpen, setFlashcardsOpen] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
   const toastTimer = useRef<number | null>(null);
   const [achievementsOpen, setAchievementsOpen] = useState(false);
@@ -144,6 +146,7 @@ export default function App() {
         onGallery={() => setGalleryOpen(true)}
         onLibrary={() => setLibraryOpen(true)}
         onNotebooks={() => setNotebooksOpen(true)}
+        onFlashcards={() => setFlashcardsOpen(true)}
         onAchievements={() => setAchievementsOpen(true)}
         onClearFavorites={() => {
           setFavorites(new Set());
@@ -313,6 +316,15 @@ export default function App() {
         currentCell={selectedCell}
         onSelect={setSelectedCellId}
         onClose={() => setNotebooksOpen(false)}
+      />
+
+      <FlashcardsModal
+        open={flashcardsOpen}
+        onClose={() => setFlashcardsOpen(false)}
+        onStudySpecimen={(id) => {
+          setSelectedCellId(id);
+          showToast(`Loaded ${getCellById(id).name} on stage.`);
+        }}
       />
 
       <AchievementsPanel
