@@ -98,7 +98,7 @@ export function saveNote(id: string, text: string): NotesMap {
 
 export function clearAllData(): void {
   try {
-    for (const key of [FAVORITES_KEY, LAST_CELL_KEY, RECENT_KEY, NOTES_KEY]) {
+    for (const key of [FAVORITES_KEY, LAST_CELL_KEY, RECENT_KEY, NOTES_KEY, STORAGE_KEYS.accent]) {
       localStorage.removeItem(key);
     }
     // Quiz keys live under cas-quiz-*.

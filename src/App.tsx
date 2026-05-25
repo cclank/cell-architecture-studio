@@ -30,6 +30,7 @@ import { useProgression } from "./hooks/useProgression";
 import { useOverlays } from "./hooks/useOverlays";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
+import { ACCENTS, loadAccent, saveAccent } from "./lib/theme";
 
 const SpecimenQuiz = lazy(() =>
   import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
@@ -58,6 +59,7 @@ export default function App() {
   const toastTimer = useRef<number | null>(null);
   const [dailyClaimed, setDailyClaimed] = useState(() => isDailyClaimed());
   const [dailyStreak, setDailyStreak] = useState(0);
+  const [accent, setAccent] = useState(loadAccent);
   const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
   // Seed with the restored cell so reloading doesn't fire a "viewed" award.
   const firedViews = useRef<Set<string>>(new Set([loadLastCellId()]));
@@ -157,8 +159,11 @@ export default function App() {
     onHelp: () => overlays.open("shortcuts"),
   });
 
-  // Only the 3D-stage tint follows the specimen; UI accent stays clinical blue.
+  // UI accent comes from the chosen theme; the 3D-stage tint follows the specimen.
   const shellStyle = {
+    "--accent": accent.accent,
+    "--accent-soft": accent.accentSoft,
+    "--brand": accent.accent,
     "--cell-color": selectedCell.color,
   } as CSSProperties;
 
@@ -178,6 +183,12 @@ export default function App() {
         onNotebooks={() => overlays.open("notebooks")}
         onFlashcards={() => overlays.open("flashcards")}
         onAchievements={() => overlays.open("achievements")}
+        accentId={accent.id}
+        onAccentChange={(id) => {
+          const next = ACCENTS.find((a) => a.id === id) ?? accent;
+          setAccent(next);
+          saveAccent(next.id);
+        }}
         onClearFavorites={() => {
           setFavorites(new Set());
           showToast("Cleared all favorites.");

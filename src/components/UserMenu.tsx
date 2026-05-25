@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "react";
-import { RotateCcw, Star, Trash2, Trophy } from "lucide-react";
+import { Check, RotateCcw, Star, Trash2, Trophy } from "lucide-react";
+import { ACCENTS } from "../lib/theme";
 
 type UserMenuProps = {
   open: boolean;
   favoritesCount: number;
   exploredCount: number;
   totalCount: number;
+  accentId: string;
+  onAccentChange: (id: string) => void;
   onAchievements: () => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
@@ -17,6 +20,8 @@ export function UserMenu({
   favoritesCount,
   exploredCount,
   totalCount,
+  accentId,
+  onAccentChange,
   onAchievements,
   onClearFavorites,
   onResetAll,
@@ -52,6 +57,24 @@ export function UserMenu({
         <div>
           <strong>{favoritesCount}</strong>
           <span>favorites</span>
+        </div>
+      </div>
+      <div className="user-menu-theme">
+        <span className="user-menu-theme-label">Accent</span>
+        <div className="user-menu-swatches">
+          {ACCENTS.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              className={`user-menu-swatch ${accentId === a.id ? "is-active" : ""}`}
+              style={{ background: a.accent }}
+              onClick={() => onAccentChange(a.id)}
+              aria-label={a.name}
+              title={a.name}
+            >
+              {accentId === a.id && <Check size={13} />}
+            </button>
+          ))}
         </div>
       </div>
       <button type="button" className="user-menu-item" role="menuitem" onClick={onAchievements}>

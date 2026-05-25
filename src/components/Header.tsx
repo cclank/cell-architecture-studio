@@ -29,6 +29,8 @@ type HeaderProps = {
   onNotebooks: () => void;
   onFlashcards: () => void;
   onAchievements: () => void;
+  accentId: string;
+  onAccentChange: (id: string) => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
 };
@@ -47,6 +49,8 @@ export function Header({
   onNotebooks,
   onFlashcards,
   onAchievements,
+  accentId,
+  onAccentChange,
   onClearFavorites,
   onResetAll,
 }: HeaderProps) {
@@ -102,6 +106,8 @@ export function Header({
             favoritesCount={favoritesCount}
             exploredCount={exploredCount}
             totalCount={totalCount}
+            accentId={accentId}
+            onAccentChange={onAccentChange}
             onAchievements={() => {
               onAchievements();
               setMenuOpen(false);

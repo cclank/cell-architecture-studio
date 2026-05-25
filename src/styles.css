@@ -3573,3 +3573,41 @@ a {
   color: #5b6472;
   font-size: 0.9rem;
 }
+
+/* ===== User menu theme swatches ===== */
+.user-menu-theme {
+  display: grid;
+  gap: 7px;
+  padding: 4px 12px 8px;
+}
+
+.user-menu-theme-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.user-menu-swatches {
+  display: flex;
+  gap: 8px;
+}
+
+.user-menu-swatch {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  border: 2px solid transparent;
+  transition: transform 120ms ease, box-shadow 140ms ease;
+}
+
+.user-menu-swatch:hover {
+  transform: scale(1.12);
+}
+
+.user-menu-swatch.is-active {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px rgba(26, 31, 43, 0.45);
+}
