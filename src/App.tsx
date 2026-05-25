@@ -26,11 +26,13 @@ import { CelebrationBanner } from "./components/CelebrationBanner";
 import { AchievementsPanel } from "./components/AchievementsPanel";
 import { DailyChallenge } from "./components/DailyChallenge";
 import { ShortcutsHelp } from "./components/ShortcutsHelp";
+import { WelcomeTour } from "./components/WelcomeTour";
 import { useProgression } from "./hooks/useProgression";
 import { useOverlays } from "./hooks/useOverlays";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
 import { ACCENTS, loadAccent, saveAccent } from "./lib/theme";
+import { STORAGE_KEYS } from "./lib/storageKeys";
 
 const SpecimenQuiz = lazy(() =>
   import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
@@ -67,7 +69,22 @@ export default function App() {
 
   useEffect(() => {
     setDailyStreak(registerVisit().streak);
+    try {
+      if (localStorage.getItem(STORAGE_KEYS.onboarded) !== "1") overlays.open("welcome");
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function closeWelcome() {
+    overlays.close();
+    try {
+      localStorage.setItem(STORAGE_KEYS.onboarded, "1");
+    } catch {
+      /* ignore */
+    }
+  }
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
   const totalOrganelleCount = useMemo(
@@ -80,9 +97,16 @@ export default function App() {
     return Math.round((cellCoverage * 0.42 + organelleCoverage * 0.58) * 100);
   }, [totalOrganelleCount, viewedCells, viewedOrganelleKeys]);
 
+  const prevCellId = useRef(selectedCellId);
   useEffect(() => {
     setActiveOrganelle(selectedCell.defaultOrganelle);
-    overlays.close();
+    // Close overlays only when the specimen actually changes — not on mount
+    // (which would dismiss the welcome tour) and resilient to StrictMode's
+    // double-invoked effects.
+    if (prevCellId.current !== selectedCell.id) {
+      overlays.close();
+      prevCellId.current = selectedCell.id;
+    }
   }, [selectedCell]);
 
   useEffect(() => {
@@ -189,6 +213,7 @@ export default function App() {
           setAccent(next);
           saveAccent(next.id);
         }}
+        onReplayIntro={() => overlays.open("welcome")}
         onClearFavorites={() => {
           setFavorites(new Set());
           showToast("Cleared all favorites.");
@@ -375,6 +400,8 @@ export default function App() {
       />
 
       <ShortcutsHelp open={overlays.isOpen("shortcuts")} onClose={() => overlays.close()} />
+
+      <WelcomeTour open={overlays.isOpen("welcome")} onClose={closeWelcome} />
 
       <CelebrationBanner celebration={banner} />
       <Confetti fireKey={confettiKey} />

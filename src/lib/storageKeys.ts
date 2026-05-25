@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   progress: "cas-progress",
   daily: "cas-daily",
   accent: "cas-accent",
+  onboarded: "cas-onboarded",
   quizMuted: "cas-quiz-muted",
   quizHistory: "cas-quiz-history",
   // Best scores are stored as `cas-quiz-best:<category>:<mode>`.

@@ -31,6 +31,7 @@ type HeaderProps = {
   onAchievements: () => void;
   accentId: string;
   onAccentChange: (id: string) => void;
+  onReplayIntro: () => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
 };
@@ -51,6 +52,7 @@ export function Header({
   onAchievements,
   accentId,
   onAccentChange,
+  onReplayIntro,
   onClearFavorites,
   onResetAll,
 }: HeaderProps) {
@@ -108,6 +110,10 @@ export function Header({
             totalCount={totalCount}
             accentId={accentId}
             onAccentChange={onAccentChange}
+            onReplayIntro={() => {
+              onReplayIntro();
+              setMenuOpen(false);
+            }}
             onAchievements={() => {
               onAchievements();
               setMenuOpen(false);

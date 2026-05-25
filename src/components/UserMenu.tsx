@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Check, RotateCcw, Star, Trash2, Trophy } from "lucide-react";
+import { Check, Compass, RotateCcw, Star, Trash2, Trophy } from "lucide-react";
 import { ACCENTS } from "../lib/theme";
 
 type UserMenuProps = {
@@ -9,6 +9,7 @@ type UserMenuProps = {
   totalCount: number;
   accentId: string;
   onAccentChange: (id: string) => void;
+  onReplayIntro: () => void;
   onAchievements: () => void;
   onClearFavorites: () => void;
   onResetAll: () => void;
@@ -22,6 +23,7 @@ export function UserMenu({
   totalCount,
   accentId,
   onAccentChange,
+  onReplayIntro,
   onAchievements,
   onClearFavorites,
   onResetAll,
@@ -80,6 +82,10 @@ export function UserMenu({
       <button type="button" className="user-menu-item" role="menuitem" onClick={onAchievements}>
         <Trophy size={16} />
         Achievements
+      </button>
+      <button type="button" className="user-menu-item" role="menuitem" onClick={onReplayIntro}>
+        <Compass size={16} />
+        Replay intro
       </button>
       <button type="button" className="user-menu-item" role="menuitem" onClick={onClearFavorites}>
         <Star size={16} />
