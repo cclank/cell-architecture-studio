@@ -6,15 +6,14 @@ import {
   Camera,
   ChevronDown,
   CircleDot,
+  FlaskConical,
   Gauge,
   EyeOff,
   Grid3X3,
   Heart,
   Info,
-  Leaf,
   MessageCircle,
   Library,
-  Microscope,
   Plus,
   RotateCcw,
   Settings,
@@ -24,8 +23,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { CellScene } from "./components/CellScene";
-import { cells, getCellById, type CellItem, type ViewMode } from "./data/cells";
+import { MoleculeScene } from "./components/CellScene";
+import { molecules, getMoleculeById, type MoleculeItem, type ViewMode } from "./data/molecules";
 
 type ModeOption = {
   id: ViewMode;
@@ -38,9 +37,9 @@ const modeOptions: ModeOption[] = [
   { id: "focus", label: "Focus", Icon: CircleDot },
 ];
 
-const initialCell = getCellById("animal");
+const initialMolecule = getMoleculeById("water");
 
-function Header({ cell }: { cell: CellItem }) {
+function Header({ molecule }: { molecule: MoleculeItem }) {
   return (
     <header className="topbar">
       <div className="brand-block">
@@ -48,8 +47,8 @@ function Header({ cell }: { cell: CellItem }) {
           <Sparkles size={26} />
         </div>
         <div>
-          <h1>Cell Architecture Studio</h1>
-          <p>Explore life at the microscopic level</p>
+          <h1>Molecule Structure Studio</h1>
+          <p>Explore chemistry at the molecular level</p>
         </div>
       </div>
 
@@ -71,8 +70,8 @@ function Header({ cell }: { cell: CellItem }) {
           <span>Settings</span>
         </a>
         <button className="avatar-button" type="button" aria-label="User menu">
-          <span className="avatar-core" style={{ background: cell.accentSoft }}>
-            <span style={{ background: cell.accent }} />
+          <span className="avatar-core" style={{ background: molecule.accentSoft }}>
+            <span style={{ background: molecule.accent }} />
           </span>
           <ChevronDown size={20} />
         </button>
@@ -82,33 +81,33 @@ function Header({ cell }: { cell: CellItem }) {
 }
 
 type SidebarProps = {
-  selectedCell: CellItem;
-  activeOrganelle: string;
+  selectedMolecule: MoleculeItem;
+  activeComponent: string;
   favorites: Set<string>;
-  onSelectCell: (id: string) => void;
-  onSelectOrganelle: (id: string) => void;
+  onSelectMolecule: (id: string) => void;
+  onSelectComponent: (id: string) => void;
   onToggleFavorite: (id: string) => void;
 };
 
-function MiniCell({ cell }: { cell: CellItem }) {
-  if (cell.renderImage?.url) {
+function MiniMolecule({ molecule }: { molecule: MoleculeItem }) {
+  if (molecule.renderImage?.url) {
     return (
-      <span className="mini-cell has-preview" style={{ "--thumb": cell.accent } as CSSProperties}>
-        <img src={cell.renderImage.url} alt="" aria-hidden="true" />
+      <span className="mini-cell has-preview" style={{ "--thumb": molecule.accent } as CSSProperties}>
+        <img src={molecule.renderImage.url} alt="" aria-hidden="true" />
       </span>
     );
   }
 
-  if (cell.modelAsset?.previewUrl) {
+  if (molecule.modelAsset?.previewUrl) {
     return (
-      <span className="mini-cell has-preview" style={{ "--thumb": cell.accent } as CSSProperties}>
-        <img src={cell.modelAsset.previewUrl} alt="" aria-hidden="true" />
+      <span className="mini-cell has-preview" style={{ "--thumb": molecule.accent } as CSSProperties}>
+        <img src={molecule.modelAsset.previewUrl} alt="" aria-hidden="true" />
       </span>
     );
   }
 
   return (
-    <span className={`mini-cell mini-cell-${cell.modelKind}`} style={{ "--thumb": cell.accent } as CSSProperties}>
+    <span className={`mini-cell mini-cell-${molecule.modelKind}`} style={{ "--thumb": molecule.accent } as CSSProperties}>
       <span />
       <i />
       <b />
@@ -117,11 +116,11 @@ function MiniCell({ cell }: { cell: CellItem }) {
 }
 
 function Sidebar({
-  selectedCell,
-  activeOrganelle,
+  selectedMolecule,
+  activeComponent,
   favorites,
-  onSelectCell,
-  onSelectOrganelle,
+  onSelectMolecule,
+  onSelectComponent,
   onToggleFavorite,
 }: SidebarProps) {
   return (
@@ -129,36 +128,36 @@ function Sidebar({
       <section className="panel cell-type-panel">
         <div className="panel-heading">
           <span>
-            <Leaf size={18} />
-            Cell Types
+            <FlaskConical size={18} />
+            Molecules
           </span>
           <ChevronDown size={18} />
         </div>
 
         <div className="cell-list">
-          {cells.map((cell) => {
-            const selected = selectedCell.id === cell.id;
+          {molecules.map((molecule) => {
+            const selected = selectedMolecule.id === molecule.id;
             return (
               <button
                 className={`cell-row ${selected ? "is-active" : ""}`}
                 type="button"
-                key={cell.id}
-                onClick={() => onSelectCell(cell.id)}
+                key={molecule.id}
+                onClick={() => onSelectMolecule(molecule.id)}
               >
-                <MiniCell cell={cell} />
+                <MiniMolecule molecule={molecule} />
                 <span className="cell-row-copy">
-                  <strong>{cell.name}</strong>
-                  <span>{cell.type}</span>
+                  <strong>{molecule.name}</strong>
+                  <span>{molecule.type}</span>
                 </span>
                 <span
-                  className={`favorite-dot ${favorites.has(cell.id) ? "is-on" : ""}`}
+                  className={`favorite-dot ${favorites.has(molecule.id) ? "is-on" : ""}`}
                   onClick={(event) => {
                     event.stopPropagation();
-                    onToggleFavorite(cell.id);
+                    onToggleFavorite(molecule.id);
                   }}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Favorite ${cell.name}`}
+                  aria-label={`Favorite ${molecule.name}`}
                 >
                   <Star size={18} fill="currentColor" />
                 </span>
@@ -172,21 +171,21 @@ function Sidebar({
         <div className="panel-heading">
           <span>
             <Sparkles size={16} />
-            Organelles
+            Components
           </span>
           <ChevronDown size={18} />
         </div>
 
         <div className="organelle-list">
-          {selectedCell.organelles.map((organelle) => (
+          {selectedMolecule.components.map((component) => (
             <button
-              className={`organelle-row ${activeOrganelle === organelle.id ? "is-active" : ""}`}
+              className={`organelle-row ${activeComponent === component.id ? "is-active" : ""}`}
               type="button"
-              key={organelle.id}
-              onClick={() => onSelectOrganelle(organelle.id)}
+              key={component.id}
+              onClick={() => onSelectComponent(component.id)}
             >
-              <span className="color-dot" style={{ background: organelle.color }} />
-              <span>{organelle.name}</span>
+              <span className="color-dot" style={{ background: component.color }} />
+              <span>{component.name}</span>
             </button>
           ))}
         </div>
@@ -196,8 +195,8 @@ function Sidebar({
 }
 
 type StageProps = {
-  cell: CellItem;
-  activeOrganelle: string;
+  molecule: MoleculeItem;
+  activeComponent: string;
   viewMode: ViewMode;
   crossSection: boolean;
   autoRotate: boolean;
@@ -210,8 +209,8 @@ type StageProps = {
 };
 
 function Stage({
-  cell,
-  activeOrganelle,
+  molecule,
+  activeComponent,
   viewMode,
   crossSection,
   autoRotate,
@@ -227,8 +226,8 @@ function Stage({
       <section className="stage-panel">
         <div className="stage-title">
           <div>
-            <h2>{cell.name}</h2>
-            <p>{cell.type}</p>
+            <h2>{molecule.name}</h2>
+            <p>{molecule.type}</p>
           </div>
 
           <div className="view-card">
@@ -259,9 +258,9 @@ function Stage({
         </div>
 
         <div className="canvas-wrap">
-          <CellScene
-            cell={cell}
-            activeOrganelle={activeOrganelle}
+          <MoleculeScene
+            molecule={molecule}
+            activeComponent={activeComponent}
             viewMode={viewMode}
             crossSection={crossSection}
             autoRotate={autoRotate}
@@ -293,11 +292,11 @@ function Stage({
         </div>
 
         <div className="export-toolbar">
-          <button type="button" onClick={() => onToast("截图功能这里先做占位。")}>
+          <button type="button" onClick={() => onToast("Screenshot feature coming soon.")}>
             <Camera size={20} />
             Screenshot
           </button>
-          <button type="button" onClick={() => onToast("GLB 导出需要接入模型导出管线。")}>
+          <button type="button" onClick={() => onToast("GLB export pipeline not yet connected.")}>
             <Box size={20} />
             GLB Export
           </button>
@@ -308,71 +307,71 @@ function Stage({
 }
 
 type RightPanelProps = {
-  cell: CellItem;
-  activeOrganelle: string;
+  molecule: MoleculeItem;
+  activeComponent: string;
   favorites: Set<string>;
   mastery: number;
-  viewedCellCount: number;
-  viewedOrganelleCount: number;
-  totalOrganelleCount: number;
+  viewedMoleculeCount: number;
+  viewedComponentCount: number;
+  totalComponentCount: number;
   tutorPrompt: string;
   onToggleFavorite: (id: string) => void;
   onTutorPrompt: (prompt: string) => void;
 };
 
-function buildTutorPrompts(cell: CellItem, organelle: CellItem["organelles"][number]) {
+function buildTutorPrompts(molecule: MoleculeItem, component: MoleculeItem["components"][number]) {
   return [
-    `Explain how ${organelle.name} helps a ${cell.name} stay alive.`,
-    `Quiz me on the visual differences between ${cell.name} and ${getCellById(cell.comparison).name}.`,
-    `Guide me through finding ${organelle.name} inside the 3D model.`,
+    `Explain the role of ${component.name} in ${molecule.name} and why it matters.`,
+    `Quiz me on the structural differences between ${molecule.name} and ${getMoleculeById(molecule.comparison).name}.`,
+    `Guide me through identifying ${component.name} in the 3D model.`,
   ];
 }
 
 function RightPanel({
-  cell,
-  activeOrganelle,
+  molecule,
+  activeComponent,
   favorites,
   mastery,
-  viewedCellCount,
-  viewedOrganelleCount,
-  totalOrganelleCount,
+  viewedMoleculeCount,
+  viewedComponentCount,
+  totalComponentCount,
   tutorPrompt,
   onToggleFavorite,
   onTutorPrompt,
 }: RightPanelProps) {
-  const organelle = cell.organelles.find((item) => item.id === activeOrganelle) ?? cell.organelles[0];
-  const tutorPrompts = buildTutorPrompts(cell, organelle);
+  const component = molecule.components.find((item) => item.id === activeComponent) ?? molecule.components[0];
+  const tutorPrompts = buildTutorPrompts(molecule, component);
 
   return (
     <aside className="right-rail">
       <section className="panel details-panel">
         <div className="panel-heading detail-heading">
-          <span>Organelle Details</span>
-          <button type="button" onClick={() => onToggleFavorite(cell.id)} aria-label="Toggle favorite">
-            <Heart size={22} fill={favorites.has(cell.id) ? "currentColor" : "none"} />
+          <span>Component Details</span>
+          <button type="button" onClick={() => onToggleFavorite(molecule.id)} aria-label="Toggle favorite">
+            <Heart size={22} fill={favorites.has(molecule.id) ? "currentColor" : "none"} />
           </button>
         </div>
 
         <div className="detail-hero">
-          <span className="organelle-orb" style={{ background: organelle.color }} />
+          <span className="organelle-orb" style={{ background: component.color }} />
           <div>
-            <h3>{organelle.name}</h3>
-            <p>{organelle.subtitle}</p>
+            <h3>{component.name}</h3>
+            <p>{component.subtitle}</p>
           </div>
         </div>
 
         <dl className="attribute-list">
-          {organelle.attributes.map((item) => (
+          {component.attributes.map((item) => (
             <div key={item.label}>
               <dt>{item.label}</dt>
               <dd>{item.value}</dd>
             </div>
           ))}
           <div>
-            <dt>Label</dt>
+            <dt>Highlight</dt>
             <dd>
               <span className="mini-toggle is-on" />
-              <span className="detail-dot" style={{ background: organelle.color }} />
+              <span className="detail-dot" style={{ background: component.color }} />
             </dd>
           </div>
         </dl>
@@ -380,11 +379,11 @@ function RightPanel({
 
       <section className="panel notes-panel">
         <div className="panel-heading">
-          <span>Biological Notes</span>
+          <span>Chemistry Notes</span>
         </div>
-        <p>{organelle.note}</p>
+        <p>{component.note}</p>
         <div className="fun-fact">
-          <span>Fun Fact: {organelle.fact}</span>
+          <span>Fun Fact: {component.fact}</span>
           <Sparkles size={18} />
         </div>
       </section>
@@ -407,7 +406,7 @@ function RightPanel({
             <b />
           </i>
           <small>
-            {viewedCellCount}/{cells.length} cells explored · {viewedOrganelleCount}/{totalOrganelleCount} organelles inspected
+            {viewedMoleculeCount}/{molecules.length} molecules explored · {viewedComponentCount}/{totalComponentCount} components inspected
           </small>
         </div>
 
@@ -417,8 +416,8 @@ function RightPanel({
             Current lesson focus
           </span>
           <p>
-            Locate <strong>{organelle.name}</strong>, explain its role, then compare it with the matching structure in{" "}
-            {getCellById(cell.comparison).name}.
+            Identify <strong>{component.name}</strong>, describe its chemistry, then compare it with the equivalent feature in{" "}
+            {getMoleculeById(molecule.comparison).name}.
           </p>
         </div>
 
@@ -441,40 +440,40 @@ function RightPanel({
 
       <section className="panel occurrence-panel">
         <div className="panel-heading">
-          <span>Where It Occurs</span>
+          <span>Found In</span>
         </div>
-        <div className={`occurrence-art occurrence-${cell.occurrence.motif}`}>
+        <div className={`occurrence-art occurrence-${molecule.occurrence.motif}`}>
           <span />
           <i />
           <b />
         </div>
-        <h4>{cell.occurrence.title}</h4>
-        <p>{cell.occurrence.body}</p>
+        <h4>{molecule.occurrence.title}</h4>
+        <p>{molecule.occurrence.body}</p>
       </section>
     </aside>
   );
 }
 
 type BottomPanelsProps = {
-  cell: CellItem;
+  molecule: MoleculeItem;
   onCompare: () => void;
   onToast: (message: string) => void;
 };
 
-function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
-  const comparedCell = getCellById(cell.comparison);
+function BottomPanels({ molecule, onCompare, onToast }: BottomPanelsProps) {
+  const comparedMolecule = getMoleculeById(molecule.comparison);
 
   return (
     <section className="bottom-grid">
       <div className="panel microscope-panel">
         <div className="panel-heading">
           <span>
-            Microscope View
+            Spectroscopy
             <Info size={16} />
           </span>
         </div>
         <div className="micro-card-row">
-          {cell.microscope.map((image) => (
+          {molecule.spectroscopy.map((image) => (
             <button
               type="button"
               key={image.label}
@@ -486,9 +485,9 @@ function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
               <strong>{image.label}</strong>
             </button>
           ))}
-          <button type="button" className="micro-card add-card" onClick={() => onToast("Image upload is a planned step.")}>
+          <button type="button" className="micro-card add-card" onClick={() => onToast("Spectrum upload is a planned feature.")}>
             <Plus size={28} />
-            <strong>Add Image</strong>
+            <strong>Add Spectrum</strong>
           </button>
         </div>
       </div>
@@ -496,25 +495,25 @@ function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
       <div className="panel compare-panel">
         <div className="panel-heading">
           <span>
-            Compare Cells
+            Compare Molecules
             <Info size={16} />
           </span>
         </div>
         <div className="compare-row">
           <div>
-            <MiniCell cell={cell} />
+            <MiniMolecule molecule={molecule} />
             <span>
-              <strong>{cell.name}</strong>
+              <strong>{molecule.name}</strong>
               <em>You are here</em>
             </span>
           </div>
           <b>VS</b>
           <div>
             <span>
-              <strong>{comparedCell.name}</strong>
-              <em>{comparedCell.type}</em>
+              <strong>{comparedMolecule.name}</strong>
+              <em>{comparedMolecule.type}</em>
             </span>
-            <MiniCell cell={comparedCell} />
+            <MiniMolecule molecule={comparedMolecule} />
           </div>
         </div>
         <button type="button" className="comparison-button" onClick={onCompare}>
@@ -527,23 +526,23 @@ function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
 }
 
 type ComparisonModalProps = {
-  cell: CellItem;
+  molecule: MoleculeItem;
   open: boolean;
   onClose: () => void;
 };
 
-function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
-  const comparedCell = getCellById(cell.comparison);
+function ComparisonModal({ molecule, open, onClose }: ComparisonModalProps) {
+  const comparedMolecule = getMoleculeById(molecule.comparison);
   if (!open) {
     return null;
   }
 
-  const currentOrganelle = cell.organelles.find((item) => item.id === cell.defaultOrganelle) ?? cell.organelles[0];
-  const comparedOrganelle =
-    comparedCell.organelles.find((item) => item.id === comparedCell.defaultOrganelle) ?? comparedCell.organelles[0];
+  const currentComponent = molecule.components.find((item) => item.id === molecule.defaultComponent) ?? molecule.components[0];
+  const comparedComponent =
+    comparedMolecule.components.find((item) => item.id === comparedMolecule.defaultComponent) ?? comparedMolecule.components[0];
 
   return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Cell comparison">
+    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Molecule comparison">
       <div className="comparison-modal">
         <button className="modal-close" type="button" onClick={onClose}>
           Close
@@ -551,28 +550,28 @@ function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
         <div className="comparison-modal-head">
           <h3>Comparison View</h3>
           <p>
-            {cell.name} compared with {comparedCell.name}
+            {molecule.name} compared with {comparedMolecule.name}
           </p>
         </div>
         <div className="comparison-columns">
-          {[cell, comparedCell].map((item) => {
-            const organelle = item.id === cell.id ? currentOrganelle : comparedOrganelle;
+          {[molecule, comparedMolecule].map((item) => {
+            const component = item.id === molecule.id ? currentComponent : comparedComponent;
             return (
               <section key={item.id}>
-                <MiniCell cell={item} />
+                <MiniMolecule molecule={item} />
                 <h4>{item.name}</h4>
                 <p>{item.type}</p>
                 <dl>
                   <div>
-                    <dt>Default focus</dt>
-                    <dd>{organelle.name}</dd>
+                    <dt>Key feature</dt>
+                    <dd>{component.name}</dd>
                   </div>
                   <div>
-                    <dt>Main note</dt>
-                    <dd>{organelle.subtitle}</dd>
+                    <dt>Description</dt>
+                    <dd>{component.subtitle}</dd>
                   </div>
                   <div>
-                    <dt>Occurs in</dt>
+                    <dt>Found in</dt>
                     <dd>{item.occurrence.title}</dd>
                   </div>
                 </dl>
@@ -593,52 +592,52 @@ function Toast({ message }: { message: string | null }) {
 }
 
 export default function App() {
-  const [selectedCellId, setSelectedCellId] = useState(initialCell.id);
-  const [activeOrganelle, setActiveOrganelle] = useState(initialCell.defaultOrganelle);
+  const [selectedMoleculeId, setSelectedMoleculeId] = useState(initialMolecule.id);
+  const [activeComponent, setActiveComponent] = useState(initialMolecule.defaultComponent);
   const [viewMode, setViewMode] = useState<ViewMode>("mesh");
   const [crossSection, setCrossSection] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [resetKey, setResetKey] = useState(0);
-  const [favorites, setFavorites] = useState<Set<string>>(() => new Set([initialCell.id]));
-  const [viewedCells, setViewedCells] = useState<Set<string>>(() => new Set([initialCell.id]));
-  const [viewedOrganelleKeys, setViewedOrganelleKeys] = useState<Set<string>>(
-    () => new Set([`${initialCell.id}:${initialCell.defaultOrganelle}`]),
+  const [favorites, setFavorites] = useState<Set<string>>(() => new Set([initialMolecule.id]));
+  const [viewedMolecules, setViewedMolecules] = useState<Set<string>>(() => new Set([initialMolecule.id]));
+  const [viewedComponentKeys, setViewedComponentKeys] = useState<Set<string>>(
+    () => new Set([`${initialMolecule.id}:${initialMolecule.defaultComponent}`]),
   );
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const [tutorPrompt, setTutorPrompt] = useState(
-    `Guide me through finding ${initialCell.organelles[0].name} inside the 3D model.`,
+    `Guide me through identifying ${initialMolecule.components[0].name} in the 3D model.`,
   );
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<number | null>(null);
 
-  const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
-  const totalOrganelleCount = useMemo(
-    () => cells.reduce((total, cell) => total + cell.organelles.length, 0),
+  const selectedMolecule = useMemo(() => getMoleculeById(selectedMoleculeId), [selectedMoleculeId]);
+  const totalComponentCount = useMemo(
+    () => molecules.reduce((total, molecule) => total + molecule.components.length, 0),
     [],
   );
   const mastery = useMemo(() => {
-    const cellCoverage = viewedCells.size / cells.length;
-    const organelleCoverage = viewedOrganelleKeys.size / totalOrganelleCount;
-    return Math.round((cellCoverage * 0.42 + organelleCoverage * 0.58) * 100);
-  }, [totalOrganelleCount, viewedCells, viewedOrganelleKeys]);
+    const moleculeCoverage = viewedMolecules.size / molecules.length;
+    const componentCoverage = viewedComponentKeys.size / totalComponentCount;
+    return Math.round((moleculeCoverage * 0.42 + componentCoverage * 0.58) * 100);
+  }, [totalComponentCount, viewedMolecules, viewedComponentKeys]);
 
   useEffect(() => {
-    setActiveOrganelle(selectedCell.defaultOrganelle);
+    setActiveComponent(selectedMolecule.defaultComponent);
     setComparisonOpen(false);
-  }, [selectedCell]);
+  }, [selectedMolecule]);
 
   useEffect(() => {
-    setViewedCells((current) => {
+    setViewedMolecules((current) => {
       const next = new Set(current);
-      next.add(selectedCell.id);
+      next.add(selectedMolecule.id);
       return next;
     });
-    setViewedOrganelleKeys((current) => {
+    setViewedComponentKeys((current) => {
       const next = new Set(current);
-      next.add(`${selectedCell.id}:${activeOrganelle}`);
+      next.add(`${selectedMolecule.id}:${activeComponent}`);
       return next;
     });
-  }, [activeOrganelle, selectedCell.id]);
+  }, [activeComponent, selectedMolecule.id]);
 
   function showToast(message: string) {
     setToast(message);
@@ -661,29 +660,29 @@ export default function App() {
   }
 
   const shellStyle = {
-    "--accent": selectedCell.accent,
-    "--accent-soft": selectedCell.accentSoft,
-    "--cell-color": selectedCell.color,
+    "--accent": selectedMolecule.accent,
+    "--accent-soft": selectedMolecule.accentSoft,
+    "--cell-color": selectedMolecule.color,
   } as CSSProperties;
 
   return (
     <div className="app-shell" style={shellStyle}>
-      <Header cell={selectedCell} />
+      <Header molecule={selectedMolecule} />
 
       <div className="app-grid">
         <Sidebar
-          selectedCell={selectedCell}
-          activeOrganelle={activeOrganelle}
+          selectedMolecule={selectedMolecule}
+          activeComponent={activeComponent}
           favorites={favorites}
-          onSelectCell={setSelectedCellId}
-          onSelectOrganelle={setActiveOrganelle}
+          onSelectMolecule={setSelectedMoleculeId}
+          onSelectComponent={setActiveComponent}
           onToggleFavorite={toggleFavorite}
         />
 
         <div className="center-stack">
           <Stage
-            cell={selectedCell}
-            activeOrganelle={activeOrganelle}
+            molecule={selectedMolecule}
+            activeComponent={activeComponent}
             viewMode={viewMode}
             crossSection={crossSection}
             autoRotate={autoRotate}
@@ -698,20 +697,20 @@ export default function App() {
             onToast={showToast}
           />
           <BottomPanels
-            cell={selectedCell}
+            molecule={selectedMolecule}
             onCompare={() => setComparisonOpen(true)}
             onToast={showToast}
           />
         </div>
 
         <RightPanel
-          cell={selectedCell}
-          activeOrganelle={activeOrganelle}
+          molecule={selectedMolecule}
+          activeComponent={activeComponent}
           favorites={favorites}
           mastery={mastery}
-          viewedCellCount={viewedCells.size}
-          viewedOrganelleCount={viewedOrganelleKeys.size}
-          totalOrganelleCount={totalOrganelleCount}
+          viewedMoleculeCount={viewedMolecules.size}
+          viewedComponentCount={viewedComponentKeys.size}
+          totalComponentCount={totalComponentCount}
           tutorPrompt={tutorPrompt}
           onToggleFavorite={toggleFavorite}
           onTutorPrompt={(prompt) => {
@@ -721,7 +720,7 @@ export default function App() {
         />
       </div>
 
-      <ComparisonModal cell={selectedCell} open={comparisonOpen} onClose={() => setComparisonOpen(false)} />
+      <ComparisonModal molecule={selectedMolecule} open={comparisonOpen} onClose={() => setComparisonOpen(false)} />
       <Toast message={toast} />
     </div>
   );

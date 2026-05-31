@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Center, ContactShadows, Float, Html, OrbitControls, RoundedBox, useGLTF, useProgress } from "@react-three/drei";
+import { Center, ContactShadows, Float, Html, OrbitControls, useGLTF, useProgress } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import {
   Color,
@@ -14,11 +14,11 @@ import {
   type Material,
   type MeshStandardMaterialParameters,
 } from "three";
-import type { CellItem, CellModelAsset, ViewMode } from "../data/cells";
+import type { MoleculeItem, MoleculeModelAsset, ViewMode } from "../data/molecules";
 
-type CellSceneProps = {
-  cell: CellItem;
-  activeOrganelle: string;
+type MoleculeSceneProps = {
+  molecule: MoleculeItem;
+  activeComponent: string;
   viewMode: ViewMode;
   crossSection: boolean;
   autoRotate: boolean;
@@ -27,7 +27,7 @@ type CellSceneProps = {
 
 type MaterialProps = {
   id: string;
-  activeOrganelle: string;
+  activeComponent: string;
   viewMode: ViewMode;
   color: string;
   opacity?: number;
@@ -35,93 +35,97 @@ type MaterialProps = {
   metalness?: number;
 };
 
-function CellMaterial({
+function AtomMaterial({
   id,
-  activeOrganelle,
+  activeComponent,
   viewMode,
   color,
   opacity = 1,
-  roughness = 0.66,
-  metalness = 0.03,
+  roughness = 0.38,
+  metalness = 0.12,
 }: MaterialProps) {
-  const active = id === activeOrganelle;
+  const active = id === activeComponent;
   const dimmed = viewMode === "focus" && !active;
   const material: MeshStandardMaterialParameters = {
     color,
     roughness,
     metalness,
     transparent: opacity < 1 || dimmed,
-    opacity: dimmed ? Math.min(opacity, 0.18) : opacity,
+    opacity: dimmed ? Math.min(opacity, 0.14) : opacity,
     emissive: active ? color : "#000000",
-    emissiveIntensity: active ? 0.34 : 0,
+    emissiveIntensity: active ? 0.42 : 0,
   };
 
   return <meshStandardMaterial {...material} />;
 }
 
-type TubeProps = {
-  id: string;
-  color: string;
-  points: Array<[number, number, number]>;
-  radius?: number;
-  activeOrganelle: string;
-  viewMode: ViewMode;
-};
-
-function CurveTube({
-  id,
-  color,
-  points,
-  radius = 0.035,
-  activeOrganelle,
-  viewMode,
-}: TubeProps) {
-  const geometry = useMemo(() => {
-    const curve = new CatmullRomCurve3(
-      points.map((point) => new Vector3(point[0], point[1], point[2])),
-    );
-    return new TubeGeometry(curve, 80, radius, 12, false);
-  }, [points, radius]);
-
-  return (
-    <mesh geometry={geometry} castShadow receiveShadow>
-      <CellMaterial
-        id={id}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        color={color}
-        roughness={0.58}
-      />
-    </mesh>
-  );
-}
-
 type CommonModelProps = {
-  activeOrganelle: string;
+  activeComponent: string;
   viewMode: ViewMode;
   crossSection: boolean;
 };
 
-function applyAssetVertexColors(mesh: Mesh, cell: CellItem) {
+type AtomProps = CommonModelProps & {
+  id: string;
+  position: [number, number, number];
+  radius: number;
+  color: string;
+  opacity?: number;
+};
+
+function Atom({ id, position, radius, color, opacity = 1, activeComponent, viewMode, crossSection }: AtomProps) {
+  return (
+    <mesh position={position} castShadow receiveShadow>
+      <sphereGeometry args={[radius, 36, 36]} />
+      <AtomMaterial id={id} activeComponent={activeComponent} viewMode={viewMode} color={color} opacity={opacity} />
+    </mesh>
+  );
+}
+
+type BondProps = CommonModelProps & {
+  id: string;
+  from: [number, number, number];
+  to: [number, number, number];
+  radius?: number;
+  color: string;
+};
+
+function Bond({ id, from, to, radius = 0.055, color, activeComponent, viewMode, crossSection }: BondProps) {
+  const geometry = useMemo(() => {
+    const mid: [number, number, number] = [
+      (from[0] + to[0]) / 2,
+      (from[1] + to[1]) / 2,
+      (from[2] + to[2]) / 2,
+    ];
+    const curve = new CatmullRomCurve3([from, mid, to].map(([x, y, z]) => new Vector3(x, y, z)));
+    return new TubeGeometry(curve, 24, radius, 10, false);
+  }, [from, to, radius]);
+
+  return (
+    <mesh geometry={geometry} castShadow receiveShadow>
+      <AtomMaterial id={id} activeComponent={activeComponent} viewMode={viewMode} color={color} roughness={0.44} />
+    </mesh>
+  );
+}
+
+// ── Procedural asset pipeline (kept for optional GLB molecules) ──────────────
+
+function applyAssetVertexColors(mesh: Mesh, molecule: MoleculeItem) {
   const geometry = mesh.geometry;
   const position = geometry.getAttribute("position");
-  if (!position) {
-    return;
-  }
+  if (!position) return;
 
   geometry.computeBoundingBox();
   const box = geometry.boundingBox;
-  if (!box) {
-    return;
-  }
+  if (!box) return;
 
   const sizeX = Math.max(box.max.x - box.min.x, 0.001);
   const sizeY = Math.max(box.max.y - box.min.y, 0.001);
   const sizeZ = Math.max(box.max.z - box.min.z, 0.001);
   const palette = [
-    new Color(cell.color),
-    new Color(cell.accent),
-    ...cell.organelles.map((organelle) => new Color(organelle.color)),
+    new Color(molecule.color),
+    new Color(molecule.accent),
+    ...molecule.components.map((c) => new Color(c.color)),
   ];
   const highlight = new Color("#fff4d8");
   const shadow = new Color("#3d4a72");
@@ -136,7 +140,7 @@ function applyAssetVertexColors(mesh: Mesh, cell: CellItem) {
     const nz = (z - box.min.z) / sizeZ;
     const flow = Math.sin(nx * 11.6 + ny * 4.8) + Math.cos(ny * 9.4 + nz * 7.2);
     const paletteIndex = Math.abs(Math.floor((flow + nx * 3.2 + ny * 2.6) * palette.length)) % palette.length;
-    const color = new Color(cell.color).lerp(palette[paletteIndex], 0.48);
+    const color = new Color(molecule.color).lerp(palette[paletteIndex], 0.48);
     color.lerp(highlight, Math.max(0, nz - 0.24) * 0.22);
     color.lerp(shadow, Math.max(0, 0.32 - nz) * 0.12);
     colors.push(color.r, color.g, color.b);
@@ -147,13 +151,12 @@ function applyAssetVertexColors(mesh: Mesh, cell: CellItem) {
 
 function createAssetMaterial({
   original,
-  cell,
-  meshIndex,
+  molecule,
   viewMode,
   crossSection,
 }: {
   original: Mesh["material"];
-  cell: CellItem;
+  molecule: MoleculeItem;
   meshIndex: number;
   viewMode: ViewMode;
   crossSection: boolean;
@@ -172,11 +175,10 @@ function createAssetMaterial({
     opacity: crossSection ? 0.92 : viewMode === "focus" ? 0.95 : sourceMaterial.opacity ?? 1,
     roughness: Math.min(0.82, sourceMaterial.roughness ?? 0.46),
     metalness: Math.min(0.12, sourceMaterial.metalness ?? 0.03),
-    emissive: new Color(cell.accent).lerp(new Color("#ffffff"), 0.58),
+    emissive: new Color(molecule.accent).lerp(new Color("#ffffff"), 0.58),
     emissiveIntensity: viewMode === "focus" ? 0.045 : 0.016,
   });
-
-  material.envMapIntensity = 0.75 * (cell.modelAsset?.exposure ?? 1);
+  material.envMapIntensity = 0.75 * (molecule.modelAsset?.exposure ?? 1);
   material.needsUpdate = true;
   return material;
 }
@@ -187,7 +189,7 @@ function createNativeAssetMaterial({
   crossSection,
 }: {
   original: Mesh["material"];
-  asset: CellModelAsset;
+  asset: MoleculeModelAsset;
   crossSection: boolean;
 }) {
   const cloneMaterial = (source: Material) => {
@@ -195,7 +197,6 @@ function createNativeAssetMaterial({
     material.side = DoubleSide;
     material.transparent = crossSection || material.transparent;
     material.opacity = crossSection ? Math.min(material.opacity, 0.86) : material.opacity;
-
     if (material instanceof MeshStandardMaterial) {
       const displayMap = material.map ?? null;
       if (displayMap) {
@@ -211,65 +212,44 @@ function createNativeAssetMaterial({
       material.metalness = Math.min(material.metalness, 0.08);
       material.color.setRGB(1.04, 1.035, 1.02);
     }
-
     material.needsUpdate = true;
     return material;
   };
-
   return Array.isArray(original) ? original.map(cloneMaterial) : cloneMaterial(original);
 }
 
-function AssetCellModel({
-  cell,
+function AssetMoleculeModel({
+  molecule,
   asset,
   viewMode,
   crossSection,
 }: CommonModelProps & {
-  cell: CellItem;
-  asset: CellModelAsset;
+  molecule: MoleculeItem;
+  asset: MoleculeModelAsset;
 }) {
   const { scene } = useGLTF(asset.url);
   const clonedScene = useMemo(() => {
     const clone = scene.clone(true);
     let meshIndex = 0;
-
     clone.traverse((node) => {
       const mesh = node as Mesh;
-      if (!mesh.isMesh) {
-        return;
-      }
-
+      if (!mesh.isMesh) return;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       if (asset.materialMode === "native") {
-        mesh.material = createNativeAssetMaterial({
-          original: mesh.material,
-          asset,
-          crossSection,
-        });
+        mesh.material = createNativeAssetMaterial({ original: mesh.material, asset, crossSection });
       } else {
         mesh.geometry.computeVertexNormals();
-        applyAssetVertexColors(mesh, cell);
-        mesh.material = createAssetMaterial({
-          original: mesh.material,
-          cell,
-          meshIndex,
-          viewMode,
-          crossSection,
-        });
+        applyAssetVertexColors(mesh, molecule);
+        mesh.material = createAssetMaterial({ original: mesh.material, molecule, meshIndex, viewMode, crossSection });
       }
       meshIndex += 1;
     });
-
     return clone;
-  }, [cell, scene, viewMode, crossSection]);
+  }, [molecule, scene, viewMode, crossSection]);
 
   return (
-    <group
-      position={asset.position ?? [0, 0, 0]}
-      rotation={asset.rotation ?? [0, 0, 0]}
-      scale={[asset.scale, asset.scale, asset.scale]}
-    >
+    <group position={asset.position ?? [0, 0, 0]} rotation={asset.rotation ?? [0, 0, 0]} scale={[asset.scale, asset.scale, asset.scale]}>
       <Center>
         <primitive object={clonedScene} />
       </Center>
@@ -277,618 +257,241 @@ function AssetCellModel({
   );
 }
 
-function Dots({
-  id,
-  color,
-  activeOrganelle,
-  viewMode,
-  count,
-  spread,
-}: CommonModelProps & {
-  id: string;
-  color: string;
-  count: number;
-  spread: [number, number, number];
-}) {
-  const dots = useMemo(
-    () =>
-      Array.from({ length: count }, (_, index) => {
-        const a = index * 1.71;
-        const b = index * 2.37;
-        return [
-          Math.sin(a) * spread[0],
-          Math.cos(b) * spread[1],
-          Math.sin(a + b) * spread[2],
-        ] as [number, number, number];
-      }),
-    [count, spread],
-  );
+// ── Molecular models ─────────────────────────────────────────────────────────
 
+// H₂O — bent, 104.5° bond angle, two lone pairs shown as faint lobes
+function WaterModel({ activeComponent, viewMode, crossSection }: CommonModelProps) {
   return (
-    <>
-      {dots.map((position, index) => (
-        <mesh key={`${id}-${index}`} position={position} castShadow>
-          <sphereGeometry args={[0.055 + (index % 3) * 0.018, 18, 18]} />
-          <CellMaterial
-            id={id}
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            color={color}
-            opacity={0.92}
-          />
-        </mesh>
-      ))}
-    </>
-  );
-}
-
-function Nucleus({
-  id = "nucleus",
-  position,
-  scale,
-  activeOrganelle,
-  viewMode,
-  color = "#7047a8",
-}: CommonModelProps & {
-  id?: string;
-  position: [number, number, number];
-  scale: [number, number, number];
-  color?: string;
-}) {
-  return (
-    <group position={position} scale={scale}>
-      <mesh castShadow receiveShadow>
-        <sphereGeometry args={[1, 48, 48]} />
-        <CellMaterial
-          id={id}
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color={color}
-          opacity={0.92}
-          roughness={0.44}
-        />
-      </mesh>
-      <mesh position={[0.2, 0.16, 0.38]} castShadow>
-        <sphereGeometry args={[0.23, 28, 28]} />
-        <CellMaterial
-          id={id}
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#b56ad8"
-          opacity={0.9}
-        />
-      </mesh>
+    <group rotation={[0.1, -0.3, 0.05]} scale={[1.05, 1.05, 1.05]}>
+      {/* Oxygen */}
+      <Atom id="ohBond" position={[0, 0, 0]} radius={0.6} color="#cc3322" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Hydrogen atoms at 104.5° */}
+      <Atom id="ohBond" position={[1.35, 1.02, 0]} radius={0.32} color="#e8e8e8" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="ohBond" position={[-1.35, 1.02, 0]} radius={0.32} color="#e8e8e8" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* O–H bonds */}
+      <Bond id="ohBond" from={[0, 0, 0]} to={[1.35, 1.02, 0]} radius={0.055} color="#cc8866" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="ohBond" from={[0, 0, 0]} to={[-1.35, 1.02, 0]} radius={0.055} color="#cc8866" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Lone pair lobes */}
+      <Atom id="lonePair" position={[0.52, -0.72, 0.58]} radius={0.3} color="#9966cc" opacity={0.52} activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="lonePair" position={[-0.52, -0.72, -0.58]} radius={0.3} color="#9966cc" opacity={0.52} activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Dipole arrow (tube pointing toward O) */}
+      <Bond id="dipole" from={[0, 0.75, 0]} to={[0, -0.55, 0]} radius={0.04} color="#2266bb" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="dipole" position={[0, -0.7, 0]} radius={0.1} color="#2266bb" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
     </group>
   );
 }
 
-function Mitochondrion({
-  id = "mitochondrion",
-  position,
-  rotation = [0, 0, 0],
-  scale = [1, 1, 1],
-  activeOrganelle,
-  viewMode,
-}: CommonModelProps & {
-  id?: string;
-  position: [number, number, number];
-  rotation?: [number, number, number];
-  scale?: [number, number, number];
-}) {
-  return (
-    <group position={position} rotation={rotation} scale={scale}>
-      <mesh castShadow receiveShadow>
-        <capsuleGeometry args={[0.16, 0.46, 10, 24]} />
-        <CellMaterial
-          id={id}
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#cf7042"
-        />
-      </mesh>
-      {[0, 1, 2].map((item) => (
-        <mesh key={item} position={[0, -0.18 + item * 0.18, 0.02]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.09, 0.012, 8, 18]} />
-          <CellMaterial
-            id={id}
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            color="#f0b074"
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
+// CH₄ — tetrahedral, four C–H bonds, faint VdW sphere
+function MethaneModel({ activeComponent, viewMode, crossSection }: CommonModelProps) {
+  const hPositions: [number, number, number][] = [
+    [1.3, 1.3, 1.3],
+    [1.3, -1.3, -1.3],
+    [-1.3, 1.3, -1.3],
+    [-1.3, -1.3, 1.3],
+  ];
 
-function PlantModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
   return (
-    <group rotation={[0.1, -0.28, 0]}>
-      <RoundedBox args={[4.7, 2.7, 0.42]} radius={0.18} smoothness={8} position={[0, 0, 0]}>
-        <CellMaterial
-          id="cellWall"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#84ad4a"
-          opacity={crossSection ? 0.34 : 0.5}
-        />
-      </RoundedBox>
-      <RoundedBox args={[4.18, 2.24, 0.24]} radius={0.12} smoothness={8} position={[0.02, 0.02, 0.08]}>
-        <CellMaterial
-          id="cellWall"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#4f9f83"
-          opacity={0.24}
-        />
-      </RoundedBox>
-      <mesh position={[-0.45, -0.12, 0.32]} scale={[1.05, 0.78, 0.28]} castShadow>
-        <sphereGeometry args={[0.78, 46, 46]} />
-        <CellMaterial
-          id="vacuole"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#62bdd2"
-          opacity={0.74}
-        />
+    <group rotation={[0.15, -0.25, 0.08]} scale={[0.88, 0.88, 0.88]}>
+      {/* Van der Waals surface */}
+      <mesh>
+        <sphereGeometry args={[2.18, 48, 48]} />
+        <AtomMaterial id="vdw" activeComponent={activeComponent} viewMode={viewMode} color="#aaccff" opacity={crossSection ? 0.06 : 0.1} />
       </mesh>
-      <Nucleus
-        position={[0.92, 0.42, 0.45]}
-        scale={[0.52, 0.52, 0.38]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      {[
-        [-1.65, 0.48, 0.28],
-        [1.68, -0.38, 0.3],
-        [-1.52, -0.62, 0.22],
-      ].map((position, index) => (
-        <group key={index} position={position as [number, number, number]} rotation={[0, 0, index * 0.7]}>
-          <mesh scale={[0.35, 0.18, 0.12]} castShadow>
-            <sphereGeometry args={[1, 30, 20]} />
-            <CellMaterial
-              id="chloroplast"
-              activeOrganelle={activeOrganelle}
-              viewMode={viewMode}
-              color="#67ad46"
-            />
-          </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.82, 1]}>
-            <torusGeometry args={[0.22, 0.012, 8, 42]} />
-            <CellMaterial
-              id="chloroplast"
-              activeOrganelle={activeOrganelle}
-              viewMode={viewMode}
-              color="#9ed36a"
-            />
-          </mesh>
+      {/* Central carbon */}
+      <Atom id="carbon" position={[0, 0, 0]} radius={0.5} color="#555555" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Hydrogen atoms and C–H bonds */}
+      {hPositions.map((pos, i) => (
+        <group key={i}>
+          <Atom id="chBond" position={pos} radius={0.3} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+          <Bond id="chBond" from={[0, 0, 0]} to={pos} radius={0.048} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
         </group>
       ))}
-      <Mitochondrion
-        position={[0.28, -0.72, 0.42]}
-        rotation={[0.3, 0.2, 1.35]}
-        scale={[0.95, 0.95, 0.95]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      <CurveTube
-        id="nucleus"
-        color="#ce785c"
-        points={[
-          [0.42, 0.12, 0.42],
-          [0.62, -0.06, 0.5],
-          [1.05, -0.08, 0.46],
-          [1.44, 0.06, 0.38],
-        ]}
-        radius={0.05}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-      />
-      <Dots
-        id="vacuole"
-        color="#c76ac5"
-        count={18}
-        spread={[1.72, 0.92, 0.42]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
     </group>
   );
 }
 
-function WhiteBloodModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
+// C₆H₁₂O₆ — pyranose ring with OH groups
+function GlucoseModel({ activeComponent, viewMode, crossSection }: CommonModelProps) {
+  // Hexagonal ring in XZ plane (5C + 1O)
+  const ringAtoms: Array<{ id: string; pos: [number, number, number]; color: string; radius: number }> = [
+    { id: "anomericC", pos: [1.5, 0, 0], color: "#555555", radius: 0.38 },       // C1 anomeric
+    { id: "ring", pos: [0.75, 0, 1.3], color: "#555555", radius: 0.38 },          // C2
+    { id: "ring", pos: [-0.75, 0, 1.3], color: "#555555", radius: 0.38 },         // C3
+    { id: "ring", pos: [-1.5, 0, 0], color: "#555555", radius: 0.38 },            // C4
+    { id: "ring", pos: [-0.75, 0, -1.3], color: "#555555", radius: 0.38 },        // C5
+    { id: "ring", pos: [0.75, 0, -1.3], color: "#cc4411", radius: 0.34 },         // Ring O
+  ];
+
+  // OH groups hanging below ring from each C
+  const ohOxygens: [number, number, number][] = [
+    [1.5, -1.15, 0.1],    // C1-OH
+    [0.75, -1.15, 1.4],   // C2-OH
+    [-0.75, -1.15, 1.4],  // C3-OH
+    [-1.5, -1.15, 0.1],   // C4-OH
+    [-0.75, -1.15, -1.4], // C5-OH (actually CH2OH direction)
+  ];
+
   return (
-    <group scale={[1.2, 1.2, 1.2]}>
-      <mesh castShadow receiveShadow>
-        <sphereGeometry args={[1.35, 64, 64]} />
-        <CellMaterial
-          id="membrane"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#d6d7e6"
-          opacity={crossSection ? 0.28 : 0.45}
-        />
-      </mesh>
-      {[
-        [-0.42, 0.22, 0.34],
-        [0.28, 0.06, 0.36],
-        [0.02, -0.42, 0.28],
-      ].map((position, index) => (
-        <Nucleus
-          key={index}
-          id="nucleus"
-          position={position as [number, number, number]}
-          scale={[0.42, 0.36, 0.28]}
-          color="#6c35a0"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          crossSection={crossSection}
-        />
+    <group rotation={[0.38, -0.32, 0.04]} scale={[0.95, 0.95, 0.95]}>
+      {/* Ring bonds */}
+      {ringAtoms.map((atom, i) => {
+        const next = ringAtoms[(i + 1) % 6];
+        return (
+          <Bond key={`rb-${i}`} id="ring" from={atom.pos} to={next.pos} radius={0.05} color="#776644" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+        );
+      })}
+      {/* Ring atoms */}
+      {ringAtoms.map((atom, i) => (
+        <Atom key={`ra-${i}`} id={atom.id} position={atom.pos} radius={atom.radius} color={atom.color} activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
       ))}
-      <Dots
-        id="granules"
-        color="#c06696"
-        count={30}
-        spread={[1.05, 1.02, 0.72]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      <Dots
-        id="lysosome"
-        color="#8b54b7"
-        count={12}
-        spread={[0.92, 0.88, 0.62]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
+      {/* OH groups (only on C atoms, not ring O) */}
+      {ohOxygens.map((pos, i) => (
+        <group key={`oh-${i}`}>
+          <Bond id="hydroxyl" from={ringAtoms[i].pos} to={pos} radius={0.04} color="#cc8866" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+          <Atom id="hydroxyl" position={pos} radius={0.3} color="#cc4411" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+        </group>
+      ))}
+      {/* CH2OH exo group off C5 */}
+      <Atom id="ring" position={[-0.75, 0.08, -2.5]} radius={0.34} color="#555555" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="ring" from={[-0.75, 0, -1.3]} to={[-0.75, 0.08, -2.5]} radius={0.04} color="#776644" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="hydroxyl" position={[-0.75, -1.1, -2.5]} radius={0.3} color="#cc4411" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="hydroxyl" from={[-0.75, 0.08, -2.5]} to={[-0.75, -1.1, -2.5]} radius={0.04} color="#cc8866" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
     </group>
   );
 }
 
-function NeuronModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
+// NH₃ — trigonal pyramidal, lone pair shown at apex
+function AmmoniaModel({ activeComponent, viewMode, crossSection }: CommonModelProps) {
+  const hPositions: [number, number, number][] = [
+    [1.22, -0.58, 0],
+    [-0.61, -0.58, 1.06],
+    [-0.61, -0.58, -1.06],
+  ];
+
   return (
-    <group rotation={[0.02, -0.2, 0]} scale={[1.05, 1.05, 1.05]}>
-      <Nucleus
-        id="soma"
-        position={[-0.55, 0, 0.08]}
-        scale={[0.64, 0.58, 0.44]}
-        color="#774eb2"
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      <mesh position={[-0.55, 0, 0]} scale={[0.94, 0.82, 0.62]} castShadow receiveShadow>
-        <sphereGeometry args={[1, 52, 52]} />
-        <CellMaterial
-          id="soma"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#8db5d8"
-          opacity={crossSection ? 0.36 : 0.55}
-        />
-      </mesh>
-      <CurveTube
-        id="axon"
-        color="#6b7dc6"
-        points={[
-          [0.04, 0.02, 0.04],
-          [0.72, -0.02, 0.02],
-          [1.56, 0.04, 0.02],
-          [2.35, -0.04, 0],
-        ]}
-        radius={0.08}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-      />
-      {[0.55, 1.06, 1.58, 2.08].map((x, index) => (
-        <mesh key={index} position={[x, 0, 0.02]} rotation={[0, 0, Math.PI / 2]} castShadow>
-          <capsuleGeometry args={[0.16, 0.24, 8, 24]} />
-          <CellMaterial
-            id="axon"
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            color="#bfd1df"
-            opacity={0.94}
-          />
-        </mesh>
+    <group rotation={[0.08, -0.28, 0.05]} scale={[1.05, 1.05, 1.05]}>
+      {/* Lone pair lobe at apex */}
+      <Atom id="lonePair" position={[0, 1.25, 0]} radius={0.34} color="#9966cc" opacity={0.52} activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Nitrogen */}
+      <Atom id="nhBond" position={[0, 0.32, 0]} radius={0.52} color="#2255aa" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Hydrogen atoms and N–H bonds */}
+      {hPositions.map((pos, i) => (
+        <group key={i}>
+          <Bond id="nhBond" from={[0, 0.32, 0]} to={pos} radius={0.052} color="#6688cc" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+          <Atom id="nhBond" position={pos} radius={0.3} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+        </group>
       ))}
-      {[
-        [
-          [-1.08, 0.28, 0],
-          [-1.55, 0.82, 0.08],
-          [-2.1, 1.03, 0],
-        ],
-        [
-          [-1.16, -0.18, 0],
-          [-1.7, -0.54, 0.05],
-          [-2.2, -0.9, 0],
-        ],
-        [
-          [-0.78, 0.58, 0.04],
-          [-0.82, 1.16, 0.02],
-          [-1.12, 1.58, 0],
-        ],
-        [
-          [-0.9, -0.55, 0.04],
-          [-0.92, -1.04, 0],
-          [-1.2, -1.44, 0.02],
-        ],
-      ].map((points, index) => (
-        <CurveTube
-          key={index}
-          id="dendrites"
-          color="#7d9bcf"
-          points={points as Array<[number, number, number]>}
-          radius={0.052}
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-        />
-      ))}
-      <Dots
-        id="dendrites"
-        color="#b46ac7"
-        count={12}
-        spread={[2.2, 1.4, 0.2]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
+      {/* Dipole arrow (pointing toward lone pair) */}
+      <Bond id="dipole" from={[0, -0.6, 0]} to={[0, 0.72, 0]} radius={0.038} color="#2266bb" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="dipole" position={[0, 0.86, 0]} radius={0.09} color="#2266bb" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
     </group>
   );
 }
 
-function EpithelialModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
+// C₆H₆ — hexagonal ring, sp² C atoms, π cloud rings above/below
+function BenzeneModel({ activeComponent, viewMode, crossSection }: CommonModelProps) {
+  const r = 1.42; // ring radius
+  const angles = [0, 60, 120, 180, 240, 300].map((deg) => (deg * Math.PI) / 180);
+  const cPositions: [number, number, number][] = angles.map((a) => [r * Math.cos(a), 0, r * Math.sin(a)]);
+  const hPositions: [number, number, number][] = angles.map((a) => [2.5 * Math.cos(a), 0, 2.5 * Math.sin(a)]);
+
   return (
-    <group rotation={[0.08, -0.22, 0]} scale={[1.08, 1.08, 1.08]}>
-      <RoundedBox args={[2.4, 2.0, 0.72]} radius={0.1} smoothness={8} position={[0, -0.12, 0]}>
-        <CellMaterial
-          id="membrane"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#d79baa"
-          opacity={crossSection ? 0.32 : 0.52}
-        />
-      </RoundedBox>
-      {Array.from({ length: 12 }, (_, index) => (
-        <mesh
-          key={index}
-          position={[-1.1 + index * 0.2, 1.04, 0.08]}
-          rotation={[0, 0, 0]}
-          castShadow
-        >
-          <capsuleGeometry args={[0.045, 0.34, 8, 14]} />
-          <CellMaterial
-            id="microvilli"
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            color="#c86f80"
-          />
-        </mesh>
+    <group rotation={[0.35, -0.18, 0.06]} scale={[1.0, 1.0, 1.0]}>
+      {/* π electron cloud — flat tori above and below ring */}
+      <mesh position={[0, 0.32, 0]}>
+        <torusGeometry args={[1.38, 0.14, 12, 60]} />
+        <AtomMaterial id="piCloud" activeComponent={activeComponent} viewMode={viewMode} color="#9933cc" opacity={crossSection ? 0.18 : 0.32} roughness={0.28} metalness={0.18} />
+      </mesh>
+      <mesh position={[0, -0.32, 0]}>
+        <torusGeometry args={[1.38, 0.14, 12, 60]} />
+        <AtomMaterial id="piCloud" activeComponent={activeComponent} viewMode={viewMode} color="#9933cc" opacity={crossSection ? 0.18 : 0.32} roughness={0.28} metalness={0.18} />
+      </mesh>
+      {/* C–C ring bonds */}
+      {cPositions.map((pos, i) => {
+        const next = cPositions[(i + 1) % 6];
+        return (
+          <Bond key={`cc-${i}`} id="ring" from={pos} to={next} radius={0.055} color="#c09030" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+        );
+      })}
+      {/* Carbon atoms */}
+      {cPositions.map((pos, i) => (
+        <Atom key={`c-${i}`} id="ring" position={pos} radius={0.36} color="#555555" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
       ))}
-      <Nucleus
-        position={[0.15, -0.2, 0.32]}
-        scale={[0.55, 0.5, 0.36]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      <CurveTube
-        id="junctions"
-        color="#9f6cbd"
-        points={[
-          [-1.18, 0.74, 0.38],
-          [-0.6, 0.7, 0.44],
-          [0.1, 0.73, 0.4],
-          [0.96, 0.68, 0.42],
-        ]}
-        radius={0.04}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-      />
-      <Dots
-        id="nucleus"
-        color="#d082a2"
-        count={18}
-        spread={[0.96, 0.72, 0.38]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
+      {/* C–H bonds and H atoms */}
+      {cPositions.map((pos, i) => (
+        <group key={`ch-${i}`}>
+          <Bond id="chBond" from={pos} to={hPositions[i]} radius={0.042} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+          <Atom id="chBond" position={hPositions[i]} radius={0.28} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+        </group>
+      ))}
     </group>
   );
 }
 
-function BacteriaModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
+// CH₃CH₂OH — C–C–O chain, highlighted OH group
+function EthanolModel({ activeComponent, viewMode, crossSection }: CommonModelProps) {
   return (
-    <group rotation={[0.02, 0.1, -0.02]} scale={[1.12, 1.12, 1.12]}>
-      <mesh rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
-        <capsuleGeometry args={[0.78, 2.9, 14, 48]} />
-        <CellMaterial
-          id="cellWall"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#65b8ae"
-          opacity={crossSection ? 0.36 : 0.62}
-        />
-      </mesh>
-      <mesh rotation={[0, 0, Math.PI / 2]} scale={[0.88, 0.88, 0.82]}>
-        <capsuleGeometry args={[0.62, 2.6, 12, 40]} />
-        <CellMaterial
-          id="cellWall"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#235a74"
-          opacity={0.44}
-        />
-      </mesh>
-      <CurveTube
-        id="nucleoid"
-        color="#7a43ad"
-        points={[
-          [-0.9, 0.12, 0.3],
-          [-0.42, -0.14, 0.38],
-          [0.1, 0.18, 0.34],
-          [0.62, -0.12, 0.36],
-          [1.02, 0.06, 0.32],
-        ]}
-        radius={0.12}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-      />
-      <CurveTube
-        id="flagellum"
-        color="#b87438"
-        points={[
-          [1.82, -0.22, 0.08],
-          [2.35, -0.72, 0],
-          [2.95, -0.5, 0.02],
-          [3.55, -0.95, 0],
-        ]}
-        radius={0.055}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-      />
-      <Dots
-        id="nucleoid"
-        color="#e59b3a"
-        count={34}
-        spread={[1.42, 0.48, 0.36]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
+    <group rotation={[0.12, -0.38, 0.08]} scale={[1.05, 1.05, 1.05]}>
+      {/* Oxygen */}
+      <Atom id="hydroxyl" position={[-1.72, 0.28, 0.18]} radius={0.45} color="#cc3322" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* O–H hydrogen */}
+      <Atom id="hydroxyl" position={[-2.28, 0.88, 0.56]} radius={0.26} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="hydroxyl" from={[-1.72, 0.28, 0.18]} to={[-2.28, 0.88, 0.56]} radius={0.046} color="#cc8866" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* C1 (methylene, bonded to O) */}
+      <Atom id="alkyl" position={[-0.2, 0.04, 0]} radius={0.42} color="#555555" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="hydroxyl" from={[-0.2, 0.04, 0]} to={[-1.72, 0.28, 0.18]} radius={0.056} color="#aa6644" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* C1 hydrogens */}
+      <Atom id="alkyl" position={[-0.08, -0.48, -1.05]} radius={0.26} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="alkyl" from={[-0.2, 0.04, 0]} to={[-0.08, -0.48, -1.05]} radius={0.042} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="alkyl" position={[-0.08, 1.15, -0.55]} radius={0.26} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="alkyl" from={[-0.2, 0.04, 0]} to={[-0.08, 1.15, -0.55]} radius={0.042} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* C2 (methyl) */}
+      <Atom id="alkyl" position={[1.32, -0.08, 0.04]} radius={0.42} color="#555555" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="alkyl" from={[-0.2, 0.04, 0]} to={[1.32, -0.08, 0.04]} radius={0.056} color="#888888" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* C2 methyl hydrogens */}
+      <Atom id="alkyl" position={[1.55, -1.1, 0.62]} radius={0.26} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="alkyl" from={[1.32, -0.08, 0.04]} to={[1.55, -1.1, 0.62]} radius={0.042} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="alkyl" position={[1.88, 0.82, 0.62]} radius={0.26} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="alkyl" from={[1.32, -0.08, 0.04]} to={[1.88, 0.82, 0.62]} radius={0.042} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Atom id="alkyl" position={[1.62, -0.22, -1.04]} radius={0.26} color="#e0e0e0" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="alkyl" from={[1.32, -0.08, 0.04]} to={[1.62, -0.22, -1.04]} radius={0.042} color="#999999" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Hydrogen-bond dashed indicator */}
+      <Bond id="hBond" from={[-1.72, 0.28, 0.18]} to={[-2.95, -0.42, -0.38]} radius={0.022} color="#5599dd" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
     </group>
   );
 }
 
-function AnimalModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
+// O=C=O — linear, two C=O double bonds shown as paired tubes
+function CO2Model({ activeComponent, viewMode, crossSection }: CommonModelProps) {
   return (
-    <group rotation={[0.06, -0.34, 0]} scale={[1.08, 1.08, 1.08]}>
-      <mesh scale={[1.7, 1.25, 0.72]} castShadow receiveShadow>
-        <sphereGeometry args={[1, 64, 64]} />
-        <CellMaterial
-          id="membrane"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#9db6dc"
-          opacity={crossSection ? 0.28 : 0.48}
-        />
-      </mesh>
-      <Nucleus
-        position={[0.22, 0.18, 0.36]}
-        scale={[0.55, 0.55, 0.42]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      <Mitochondrion
-        position={[-0.82, 0.44, 0.32]}
-        rotation={[0.4, 0.1, 1.12]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      <Mitochondrion
-        position={[0.82, -0.42, 0.25]}
-        rotation={[0.1, 0.35, -0.75]}
-        scale={[0.9, 0.9, 0.9]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
-      {[0, 1, 2, 3].map((index) => (
-        <mesh key={index} position={[-0.24 + index * 0.18, -0.56 + index * 0.08, 0.46]} rotation={[0.2, 0, 0.7]}>
-          <torusGeometry args={[0.38 + index * 0.035, 0.025, 10, 52]} />
-          <CellMaterial
-            id="golgi"
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            color="#d49057"
-          />
-        </mesh>
-      ))}
-      <Dots
-        id="nucleus"
-        color="#b35fc8"
-        count={28}
-        spread={[1.25, 0.85, 0.46]}
-        activeOrganelle={activeOrganelle}
-        viewMode={viewMode}
-        crossSection={crossSection}
-      />
+    <group rotation={[0.1, -0.22, 0.06]} scale={[1.08, 1.08, 1.08]}>
+      {/* Linear geometry indicator */}
+      <Bond id="linear" from={[-2.6, 0, 0]} to={[2.6, 0, 0]} radius={0.022} color="#44aaaa" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Left oxygen */}
+      <Atom id="doubleBond" position={[-1.98, 0, 0]} radius={0.5} color="#cc3322" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Right oxygen */}
+      <Atom id="doubleBond" position={[1.98, 0, 0]} radius={0.5} color="#cc3322" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Central carbon */}
+      <Atom id="carbon" position={[0, 0, 0]} radius={0.42} color="#444444" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Left C=O — two parallel bond tubes (σ + π) */}
+      <Bond id="doubleBond" from={[0, 0.11, 0]} to={[-1.98, 0.11, 0]} radius={0.052} color="#dd5533" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="doubleBond" from={[0, -0.11, 0]} to={[-1.98, -0.11, 0]} radius={0.052} color="#dd5533" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      {/* Right C=O — two parallel bond tubes */}
+      <Bond id="doubleBond" from={[0, 0.11, 0]} to={[1.98, 0.11, 0]} radius={0.052} color="#dd5533" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
+      <Bond id="doubleBond" from={[0, -0.11, 0]} to={[1.98, -0.11, 0]} radius={0.052} color="#dd5533" activeComponent={activeComponent} viewMode={viewMode} crossSection={crossSection} />
     </group>
   );
 }
 
-function MuscleModel({ activeOrganelle, viewMode, crossSection }: CommonModelProps) {
-  return (
-    <group rotation={[0.15, -0.26, -0.03]} scale={[1.08, 1.08, 1.08]}>
-      <mesh rotation={[0, 0, Math.PI / 2]} scale={[0.95, 1, 0.82]} castShadow receiveShadow>
-        <capsuleGeometry args={[0.76, 2.9, 14, 48]} />
-        <CellMaterial
-          id="sarcolemma"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          color="#d7b284"
-          opacity={crossSection ? 0.26 : 0.42}
-        />
-      </mesh>
-      {[-0.42, 0, 0.42].map((y, row) =>
-        [-0.58, 0.24, 1.06].map((x, index) => (
-          <mesh key={`${row}-${index}`} position={[x, y, 0.15]} rotation={[0, Math.PI / 2, 0]} castShadow>
-            <cylinderGeometry args={[0.13, 0.13, 0.86, 24]} />
-            <CellMaterial
-              id="myofibril"
-              activeOrganelle={activeOrganelle}
-              viewMode={viewMode}
-              color={index % 2 === 0 ? "#bd3d51" : "#cf6272"}
-            />
-          </mesh>
-        )),
-      )}
-      {[-1.1, 1.42].map((x, index) => (
-        <Nucleus
-          key={index}
-          id="mitochondria"
-          position={[x, 0.54 - index * 0.92, 0.36]}
-          scale={[0.26, 0.2, 0.18]}
-          color="#cf7042"
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-          crossSection={crossSection}
-        />
-      ))}
-      {[0, 1, 2, 3, 4].map((index) => (
-        <CurveTube
-          key={index}
-          id="sarcolemma"
-          color="#ead2a7"
-          points={[
-            [-1.55 + index * 0.65, -0.86, 0.26],
-            [-1.45 + index * 0.65, -0.24, 0.34],
-            [-1.55 + index * 0.65, 0.72, 0.28],
-          ]}
-          radius={0.035}
-          activeOrganelle={activeOrganelle}
-          viewMode={viewMode}
-        />
-      ))}
-    </group>
-  );
-}
+// ── Model router ─────────────────────────────────────────────────────────────
 
-function CellModel({
-  cell,
-  activeOrganelle,
+function MoleculeModel({
+  molecule,
+  activeComponent,
   viewMode,
   crossSection,
   autoRotate,
-}: Omit<CellSceneProps, "resetKey">) {
+}: Omit<MoleculeSceneProps, "resetKey">) {
   const group = useRef<Group>(null);
 
   useFrame((_, delta) => {
@@ -897,36 +500,36 @@ function CellModel({
     }
   });
 
-  const common = { activeOrganelle, viewMode, crossSection };
+  const common = { activeComponent, viewMode, crossSection };
 
   return (
     <group ref={group} position={[0, 0, 0]}>
-      {cell.modelAsset ? (
-        <AssetCellModel cell={cell} asset={cell.modelAsset} {...common} />
+      {molecule.modelAsset ? (
+        <AssetMoleculeModel molecule={molecule} asset={molecule.modelAsset} {...common} />
       ) : (
         <>
-          {cell.modelKind === "plant" && <PlantModel {...common} />}
-          {cell.modelKind === "whiteBlood" && <WhiteBloodModel {...common} />}
-          {cell.modelKind === "neuron" && <NeuronModel {...common} />}
-          {cell.modelKind === "epithelial" && <EpithelialModel {...common} />}
-          {cell.modelKind === "bacteria" && <BacteriaModel {...common} />}
-          {cell.modelKind === "animal" && <AnimalModel {...common} />}
-          {cell.modelKind === "muscle" && <MuscleModel {...common} />}
+          {molecule.modelKind === "water" && <WaterModel {...common} />}
+          {molecule.modelKind === "methane" && <MethaneModel {...common} />}
+          {molecule.modelKind === "glucose" && <GlucoseModel {...common} />}
+          {molecule.modelKind === "ammonia" && <AmmoniaModel {...common} />}
+          {molecule.modelKind === "benzene" && <BenzeneModel {...common} />}
+          {molecule.modelKind === "ethanol" && <EthanolModel {...common} />}
+          {molecule.modelKind === "co2" && <CO2Model {...common} />}
         </>
       )}
     </group>
   );
 }
 
-function ModelLoadingOverlay({ cell }: { cell: CellItem }) {
+function ModelLoadingOverlay({ molecule }: { molecule: MoleculeItem }) {
   const { progress } = useProgress();
   const displayProgress = Math.max(8, Math.min(100, Math.round(progress)));
 
   return (
     <Html center className="model-loader">
       <div>
-        <span>Loading 3D specimen</span>
-        <strong>{cell.name}</strong>
+        <span>Loading 3D model</span>
+        <strong>{molecule.name}</strong>
         <i>
           <b style={{ width: `${displayProgress}%` }} />
         </i>
@@ -936,15 +539,15 @@ function ModelLoadingOverlay({ cell }: { cell: CellItem }) {
   );
 }
 
-export function CellScene({
-  cell,
-  activeOrganelle,
+export function MoleculeScene({
+  molecule,
+  activeComponent,
   viewMode,
   crossSection,
   autoRotate,
   resetKey,
-}: CellSceneProps) {
-  const nativeMaterial = cell.modelAsset?.materialMode === "native";
+}: MoleculeSceneProps) {
+  const nativeMaterial = molecule.modelAsset?.materialMode === "native";
 
   return (
     <Canvas
@@ -956,43 +559,33 @@ export function CellScene({
       camera={{ position: [0, 0.2, 5.8], fov: 38 }}
     >
       {!nativeMaterial && <color attach="background" args={["#fbf7ee"]} />}
-      <ambientLight intensity={nativeMaterial ? 1.42 : 1.28} />
+      <ambientLight intensity={nativeMaterial ? 1.42 : 1.32} />
       <hemisphereLight
         args={[
           nativeMaterial ? "#fffaf0" : "#fff8ea",
           nativeMaterial ? "#efe3d2" : "#e3ded2",
-          nativeMaterial ? 1.26 : 1.18,
+          nativeMaterial ? 1.26 : 1.22,
         ]}
       />
-      <directionalLight
-        position={[4.2, 5.2, 5.8]}
-        intensity={nativeMaterial ? 2.72 : 2.75}
-        castShadow
-      />
-      {nativeMaterial && (
-        <directionalLight
-          position={[-4.4, 2.2, 3.6]}
-          intensity={0.82}
-          color="#fff1df"
-        />
-      )}
+      <directionalLight position={[4.2, 5.2, 5.8]} intensity={nativeMaterial ? 2.72 : 2.6} castShadow />
+      {nativeMaterial && <directionalLight position={[-4.4, 2.2, 3.6]} intensity={0.82} color="#fff1df" />}
       <spotLight
         position={[-3.6, 3.2, 4.6]}
         angle={0.42}
         penumbra={0.74}
-        intensity={nativeMaterial ? 0.78 : 1.45}
-        color={nativeMaterial ? "#fff8ec" : cell.accentSoft}
+        intensity={nativeMaterial ? 0.78 : 1.38}
+        color={nativeMaterial ? "#fff8ec" : molecule.accentSoft}
       />
       <pointLight
         position={[2.8, -1.2, 3.2]}
-        intensity={nativeMaterial ? 0.46 : 0.6}
-        color={nativeMaterial ? "#ffffff" : cell.accent}
+        intensity={nativeMaterial ? 0.46 : 0.58}
+        color={nativeMaterial ? "#ffffff" : molecule.accent}
       />
-      <Suspense fallback={<ModelLoadingOverlay cell={cell} />}>
+      <Suspense fallback={<ModelLoadingOverlay molecule={molecule} />}>
         <Float speed={1.25} rotationIntensity={0.08} floatIntensity={0.18}>
-          <CellModel
-            cell={cell}
-            activeOrganelle={activeOrganelle}
+          <MoleculeModel
+            molecule={molecule}
+            activeComponent={activeComponent}
             viewMode={viewMode}
             crossSection={crossSection}
             autoRotate={autoRotate}
@@ -1000,8 +593,8 @@ export function CellScene({
         </Float>
         <ContactShadows
           position={[0, -1.8, 0]}
-          opacity={nativeMaterial ? 0.18 : 0.26}
-          scale={nativeMaterial ? 7.8 : 7.2}
+          opacity={nativeMaterial ? 0.18 : 0.24}
+          scale={nativeMaterial ? 7.8 : 7.0}
           blur={nativeMaterial ? 3.2 : 2.4}
           far={4.2}
         />
