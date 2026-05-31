@@ -1,8 +1,10 @@
 # Chemistry Variant
 
-[![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://eychem.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://ewchem.vercel.app/)
 
 Chemistry variant with molecules instead of cells. All made for EW ;)
+
+[Full prod link.](https://ewchem-k9ulmpxuk-cmutsites-8435s-projects.vercel.app)
 
 ----
 # Cell Architecture Studio
