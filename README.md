@@ -1,3 +1,10 @@
+# Chemistry Variant
+
+[![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://eychem.vercel.app/)
+
+Chemistry variant with molecules instead of cells. All made for EW ;)
+
+----
 # Cell Architecture Studio
 
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=111)
