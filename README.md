@@ -1,12 +1,47 @@
-# Chemistry Variant
+# Active Deployments
+
+- [Bio Demo](https://ewbio.vercel.app/)
+- [Chem Demo](https://ewchem.vercel.app/)
+<!-- [![Star Demo](https://img.shields.io/badge/live-demo-16a34a)]() -->
+
+## Chemistry Variant
 
 [![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://ewchem.vercel.app/)
 
 Chemistry variant with molecules instead of cells. All made for EW ;)
 
-[Full prod link.](https://ewchem-k9ulmpxuk-cmutsites-8435s-projects.vercel.app)
+----
+## Deployment Steps
+
+### Chemistry Branch
+
+[![Chem Demo](https://img.shields.io/badge/live-demo-16a34a)](https://ewchem.vercel.app/)
+
+Deploy the chemistry branch to [https://ewchem.vercel.app/](https://ewchem.vercel.app/):
+```bash
+git checkout chemistry
+npm i -g vercel
+vercel
+```
+
+[Full prod link (chem).](https://ewchem-k9ulmpxuk-cmutsites-8435s-projects.vercel.app)
+
+### Bio Branch
+
+[![Bio Demo](https://img.shields.io/badge/live-demo-16a34a)](https://ewbio.vercel.app/)
+
+We want the bio deployment to be at [https://ewbio.vercel.app/](https://ewbio.vercel.app/) so we need to remove the gitignored `.vercel/` dir:
+
+```bash
+git checkout main
+rm -rf .vercel
+vercel
+```
+
+[Full prod link (bio).](https://ewbio-po8c1lcm6-cmutsites-8435s-projects.vercel.app)
 
 ----
+
 # Cell Architecture Studio
 
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=111)
