@@ -1,10 +1,13 @@
 # Active Deployments
 
+All deployments are still works in progress. At this time, they are meant for quick demo purposes only.
+
 - [Bio Demo](https://ewbio.vercel.app/)
 - [Chem Demo](https://ewchem.vercel.app/)
 <!-- [![Star Demo](https://img.shields.io/badge/live-demo-16a34a)]() -->
+- [Astro Demo](https://ewastro.vercel.app/)
 
-## Chemistry Variant
+## Chemistry Variant (This Branch)
 
 [![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://ewchem.vercel.app/)
 
@@ -39,6 +42,28 @@ vercel
 ```
 
 [Full prod link (bio).](https://ewbio-po8c1lcm6-cmutsites-8435s-projects.vercel.app)
+
+----
+### Astro Branch
+
+[![Astro Demo](https://img.shields.io/badge/live-demo-16a34a)](https://ewastro.vercel.app)
+
+The astro work was branched off `chemistry`, not `main`:
+```bash
+git checkout chemistry
+git checkout -b astro
+```
+
+We want the astro deployment to be at [https://ewastro.vercel.app](https://ewastro.vercel.app) so we:
+
+```bash
+git checkout astro
+rm -rf .vercel/      # gitignored dir
+npm i -g vercel
+vercel
+```
+
+[Full prod link (astro).](https://ewastro-q69bmo1hv-cmutsites-8435s-projects.vercel.app)
 
 ----
 ## Dev Work
