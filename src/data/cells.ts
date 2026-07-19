@@ -31,7 +31,7 @@ export type CellModelAsset = {
   rotation?: [number, number, number];
   position?: [number, number, number];
   exposure?: number;
-  materialMode?: "studio" | "native";
+  materialMode?: "studio" | "native" | "solid";
 };
 
 export type CellRenderImage = {
@@ -631,4 +631,35 @@ export const cells: CellItem[] = [
 
 export function getCellById(id: string) {
   return cells.find((cell) => cell.id === id) ?? cells[0];
+}
+
+export type CellCategory =
+  | "Cells"
+  | "Organs"
+  | "Body Systems"
+  | "Bones & Joints"
+  | "Macromolecules"
+  | "Viruses"
+  | "Botanical Specimens";
+
+export const CELL_CATEGORY_ORDER: CellCategory[] = [
+  "Cells",
+  "Organs",
+  "Body Systems",
+  "Bones & Joints",
+  "Macromolecules",
+  "Viruses",
+  "Botanical Specimens",
+];
+
+export function categorize(cell: CellItem): CellCategory {
+  const t = cell.type.toLowerCase();
+  if (t.includes("virus")) return "Viruses";
+  if (t.includes("botanical") || t.includes("pollen")) return "Botanical Specimens";
+  if (t.includes("macromolecule")) return "Macromolecules";
+  if (t.includes("bone") || t.includes("joint")) return "Bones & Joints";
+  if (t.includes("system")) return "Body Systems";
+  if (t.includes("cell") || t.includes("fiber")) return "Cells";
+  if (t.includes("organ")) return "Organs";
+  return "Cells";
 }

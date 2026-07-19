@@ -26,6 +26,9 @@ An interactive cell architecture gallery built with React, Vite, Three.js, and s
 - High fidelity Plant Cell and White Blood Cell GLB rendering with native texture preservation.
 - Mesh first experience with 3D canvas rendering as the default view.
 - AI Tutor panel with learning prompts, lesson focus, and mastery tracking.
+- Quiz modes, flashcards, searchable gallery, favorites library, and study notebooks.
+- Local XP progression, attainable achievements, daily challenges, and keyboard shortcuts.
+- Screenshot and GLB export tools for the active specimen.
 - Model loading overlay for large GLB assets on slower networks.
 - Procedural fallback geometry for specimens that do not yet have production GLB assets.
 - Detail panel for organelles, microscope modes, specimen metadata, and comparison workflow.
@@ -148,9 +151,8 @@ Current coverage includes:
 ## Roadmap
 
 - Add production quality GLB models for the remaining specimens.
-- Add lazy loading and route level code splitting for 3D bundles.
+- Further reduce and lazy-load the 3D vendor bundles.
 - Expand educational annotations for each organelle.
-- Add screenshot export and 3D export workflows.
 - Add asset license metadata directly into the UI.
 
 ## License
@@ -160,5 +162,7 @@ The application code is licensed under the MIT License. Included GLB models and 
 ## Credits
 
 Special thanks to the original creator [@DilumSanjaya](https://x.com/DilumSanjaya) for the source inspiration and visual direction.
+
+The modular interface, study tools, progression system, and rendering improvements were contributed by [@niccomann](https://github.com/niccomann) in [PR #4](https://github.com/cclank/cell-architecture-studio/pull/4).
 
 Additional 3D model provenance is documented in `docs/ASSETS.md`.

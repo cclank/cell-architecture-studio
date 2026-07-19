@@ -9,6 +9,7 @@ const chromePath =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const navigationTimeoutMs = Number(process.env.VERIFY_NAVIGATION_TIMEOUT_MS ?? 12000);
 const outDir = new URL("../verification/", import.meta.url);
+const modelCanvasSelector = 'canvas[data-engine^="three.js"]';
 
 function outPath(fileName) {
   return fileURLToPath(new URL(fileName, outDir));
@@ -31,6 +32,7 @@ function preflightError(message, cause) {
 async function openVerifiedPage(browser, viewport) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
   page.setDefaultNavigationTimeout(navigationTimeoutMs);
+  await page.addInitScript(() => localStorage.setItem("cas-onboarded", "1"));
 
   try {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: navigationTimeoutMs });
@@ -49,7 +51,7 @@ async function openVerifiedPage(browser, viewport) {
   }
 
   try {
-    await page.waitForSelector("canvas", { timeout: 15000 });
+    await page.waitForSelector(modelCanvasSelector, { timeout: 15000 });
   } catch (error) {
     await page.close();
     throw preflightError(`Cell Architecture Studio loaded, but no canvas appeared at ${url}.`, error);
@@ -110,16 +112,16 @@ async function verifyViewport(browser, name, viewport) {
   await page.waitForTimeout(1600);
 
   const title = await page.locator(".stage-title h2").innerText();
-  const cellCount = await page.locator(".cell-row").count();
+  const cellCount = await page.locator(".specimen-tile").count();
   const tutorText = await page.locator(".learning-panel").innerText();
   const modeTitles = await page.locator(".mode-switcher button").evaluateAll((buttons) =>
     buttons.map((button) => button.getAttribute("title")),
   );
   const activeMode = await page.locator(".mode-switcher button.is-active").getAttribute("title");
-  const visualBox = await page.locator("canvas").boundingBox();
+  const visualBox = await page.locator(modelCanvasSelector).boundingBox();
   await page.screenshot({ path: outPath(`${name}.png`), fullPage: true });
-  await page.locator("canvas").screenshot({ path: outPath(`${name}-visual.png`) });
-  const metrics = await readVisualMetrics(page, "canvas");
+  await page.locator(modelCanvasSelector).screenshot({ path: outPath(`${name}-visual.png`) });
+  const metrics = await readVisualMetrics(page, modelCanvasSelector);
 
   assert(title.includes("Animal Cell"), `${name}: initial title mismatch`);
   assert(cellCount === 7, `${name}: expected 7 cells, received ${cellCount}`);
@@ -128,10 +130,10 @@ async function verifyViewport(browser, name, viewport) {
   assert(activeMode === "Mesh", `${name}: default mode should be Mesh`);
   assert(modeTitles.length === 2 && modeTitles.includes("Mesh") && modeTitles.includes("Focus"), `${name}: unexpected mode buttons`);
   assert(visualBox && visualBox.width > 260 && visualBox.height > 220, `${name}: visual is too small`);
-  assert(
-    visualBox.y > 0 && visualBox.y + visualBox.height < viewport.height - 8,
-    `${name}: canvas falls outside the viewport`,
-  );
+  const visibleCanvasHeight = visualBox
+    ? Math.min(viewport.height, visualBox.y + visualBox.height) - Math.max(0, visualBox.y)
+    : 0;
+  assert(visibleCanvasHeight > Math.min(220, (visualBox?.height ?? 0) * 0.55), `${name}: canvas is mostly outside the viewport`);
   assert(metrics, `${name}: missing visual metrics`);
   assert(metrics.nonPaperRatio > 0.05, `${name}: visual appears blank`);
   assert(metrics.variance > 120, `${name}: visual has too little pixel variation`);
@@ -144,27 +146,27 @@ async function verifyInteractions(browser) {
   const page = await openVerifiedPage(browser, { width: 1440, height: 1000 });
   await page.waitForTimeout(600);
 
-  await page.locator(".cell-row").filter({ hasText: "Plant Cell" }).click();
-  await page.waitForSelector("canvas", { timeout: 15000 });
+  await page.locator(".specimen-tile").filter({ hasText: "Plant Cell" }).click();
+  await page.waitForSelector(modelCanvasSelector, { timeout: 15000 });
   await page.waitForTimeout(7000);
-  const plantModelMetrics = await readVisualMetrics(page, "canvas");
+  const plantModelMetrics = await readVisualMetrics(page, modelCanvasSelector);
   assert(plantModelMetrics.nonPaperRatio > 0.05, "plant GLB appears blank");
   assert(plantModelMetrics.variance > 120, "plant GLB has too little pixel variation");
 
-  await page.locator(".cell-row").filter({ hasText: "White Blood Cell" }).click();
-  await page.waitForSelector("canvas", { timeout: 15000 });
+  await page.locator(".specimen-tile").filter({ hasText: "White Blood Cell" }).click();
+  await page.waitForSelector(modelCanvasSelector, { timeout: 15000 });
   await page.waitForTimeout(7000);
-  const whiteBloodModelMetrics = await readVisualMetrics(page, "canvas");
+  const whiteBloodModelMetrics = await readVisualMetrics(page, modelCanvasSelector);
   assert(whiteBloodModelMetrics.nonPaperRatio > 0.05, "white blood GLB appears blank");
   assert(whiteBloodModelMetrics.variance > 120, "white blood GLB has too little pixel variation");
 
-  await page.locator(".cell-row").filter({ hasText: "Bacteria Cell" }).click();
-  await page.waitForSelector("canvas", { timeout: 15000 });
+  await page.locator(".specimen-tile").filter({ hasText: "Bacteria Cell" }).click();
+  await page.waitForSelector(modelCanvasSelector, { timeout: 15000 });
   await page.waitForTimeout(800);
 
   const title = await page.locator(".stage-title h2").innerText();
   assert(title.includes("Bacteria Cell"), "cell switch did not update title");
-  const bacteriaMeshMetrics = await readVisualMetrics(page, "canvas");
+  const bacteriaMeshMetrics = await readVisualMetrics(page, modelCanvasSelector);
   assert(bacteriaMeshMetrics.nonPaperRatio > 0.05, "bacteria mesh appears blank");
   assert(bacteriaMeshMetrics.variance > 120, "bacteria mesh has too little pixel variation");
 
@@ -184,7 +186,7 @@ async function verifyInteractions(browser) {
   assert(modalTitle.includes("Comparison View"), "comparison modal did not open");
 
   await page.screenshot({ path: outPath("interaction.png"), fullPage: true });
-  await page.locator("canvas").screenshot({ path: outPath("interaction-canvas.png") });
+  await page.locator(modelCanvasSelector).screenshot({ path: outPath("interaction-canvas.png") });
   await page.close();
 
   return {

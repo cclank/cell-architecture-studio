@@ -1,620 +1,90 @@
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { cells, getCellById, type ViewMode } from "./data/cells";
 import {
-  ArrowRight,
-  BookOpen,
-  Box,
-  Brain,
-  Camera,
-  ChevronDown,
-  CircleDot,
-  Gauge,
-  EyeOff,
-  Grid3X3,
-  Heart,
-  Info,
-  Leaf,
-  MessageCircle,
-  Library,
-  Microscope,
-  Plus,
-  RotateCcw,
-  Settings,
-  Sparkles,
-  Star,
-  Target,
-  type LucideIcon,
-} from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { CellScene } from "./components/CellScene";
-import { cells, getCellById, type CellItem, type ViewMode } from "./data/cells";
+  clearAllData,
+  loadFavorites,
+  loadLastCellId,
+  loadRecentIds,
+  pushRecentId,
+  saveFavorites,
+  saveLastCellId,
+} from "./lib/storage";
+import { Header } from "./components/Header";
+import { SpecimenStrip } from "./components/SpecimenStrip";
+import { Sidebar } from "./components/Sidebar";
+import { Stage } from "./components/Stage";
+import { RightPanel } from "./components/RightPanel";
+import { BottomPanels } from "./components/BottomPanels";
+import { ComparisonModal } from "./components/ComparisonModal";
+import { AboutModal } from "./components/AboutModal";
+import { SpecimenGridModal } from "./components/SpecimenGridModal";
+import { NotebooksModal } from "./components/NotebooksModal";
+import { FlashcardsModal } from "./components/FlashcardsModal";
+import { Toast } from "./components/Toast";
+import { Confetti } from "./components/Confetti";
+import { CelebrationBanner } from "./components/CelebrationBanner";
+import { AchievementsPanel } from "./components/AchievementsPanel";
+import { DailyChallenge } from "./components/DailyChallenge";
+import { ShortcutsHelp } from "./components/ShortcutsHelp";
+import { WelcomeTour } from "./components/WelcomeTour";
+import { useProgression } from "./hooks/useProgression";
+import { useOverlays } from "./hooks/useOverlays";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
+import { ACCENTS, loadAccent, saveAccent } from "./lib/theme";
+import { STORAGE_KEYS } from "./lib/storageKeys";
 
-type ModeOption = {
-  id: ViewMode;
-  label: string;
-  Icon: LucideIcon;
-};
-
-const modeOptions: ModeOption[] = [
-  { id: "mesh", label: "Mesh", Icon: Box },
-  { id: "focus", label: "Focus", Icon: CircleDot },
-];
+const SpecimenQuiz = lazy(() =>
+  import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
+);
 
 const initialCell = getCellById("animal");
 
-function Header({ cell }: { cell: CellItem }) {
-  return (
-    <header className="topbar">
-      <div className="brand-block">
-        <div className="brand-orb" aria-hidden="true">
-          <Sparkles size={26} />
-        </div>
-        <div>
-          <h1>Cell Architecture Studio</h1>
-          <p>Explore life at the microscopic level</p>
-        </div>
-      </div>
-
-      <nav className="top-nav" aria-label="Primary">
-        <a href="#gallery">
-          <Grid3X3 size={24} />
-          <span>Gallery</span>
-        </a>
-        <a href="#library">
-          <Library size={24} />
-          <span>Library</span>
-        </a>
-        <a href="#notebooks">
-          <BookOpen size={24} />
-          <span>Notebooks</span>
-        </a>
-        <a href="#settings">
-          <Settings size={24} />
-          <span>Settings</span>
-        </a>
-        <button className="avatar-button" type="button" aria-label="User menu">
-          <span className="avatar-core" style={{ background: cell.accentSoft }}>
-            <span style={{ background: cell.accent }} />
-          </span>
-          <ChevronDown size={20} />
-        </button>
-      </nav>
-    </header>
-  );
-}
-
-type SidebarProps = {
-  selectedCell: CellItem;
-  activeOrganelle: string;
-  favorites: Set<string>;
-  onSelectCell: (id: string) => void;
-  onSelectOrganelle: (id: string) => void;
-  onToggleFavorite: (id: string) => void;
-};
-
-function MiniCell({ cell }: { cell: CellItem }) {
-  if (cell.renderImage?.url) {
-    return (
-      <span className="mini-cell has-preview" style={{ "--thumb": cell.accent } as CSSProperties}>
-        <img src={cell.renderImage.url} alt="" aria-hidden="true" />
-      </span>
-    );
-  }
-
-  if (cell.modelAsset?.previewUrl) {
-    return (
-      <span className="mini-cell has-preview" style={{ "--thumb": cell.accent } as CSSProperties}>
-        <img src={cell.modelAsset.previewUrl} alt="" aria-hidden="true" />
-      </span>
-    );
-  }
-
-  return (
-    <span className={`mini-cell mini-cell-${cell.modelKind}`} style={{ "--thumb": cell.accent } as CSSProperties}>
-      <span />
-      <i />
-      <b />
-    </span>
-  );
-}
-
-function Sidebar({
-  selectedCell,
-  activeOrganelle,
-  favorites,
-  onSelectCell,
-  onSelectOrganelle,
-  onToggleFavorite,
-}: SidebarProps) {
-  return (
-    <aside className="left-rail">
-      <section className="panel cell-type-panel">
-        <div className="panel-heading">
-          <span>
-            <Leaf size={18} />
-            Cell Types
-          </span>
-          <ChevronDown size={18} />
-        </div>
-
-        <div className="cell-list">
-          {cells.map((cell) => {
-            const selected = selectedCell.id === cell.id;
-            return (
-              <button
-                className={`cell-row ${selected ? "is-active" : ""}`}
-                type="button"
-                key={cell.id}
-                onClick={() => onSelectCell(cell.id)}
-              >
-                <MiniCell cell={cell} />
-                <span className="cell-row-copy">
-                  <strong>{cell.name}</strong>
-                  <span>{cell.type}</span>
-                </span>
-                <span
-                  className={`favorite-dot ${favorites.has(cell.id) ? "is-on" : ""}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onToggleFavorite(cell.id);
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Favorite ${cell.name}`}
-                >
-                  <Star size={18} fill="currentColor" />
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="panel organelle-panel">
-        <div className="panel-heading">
-          <span>
-            <Sparkles size={16} />
-            Organelles
-          </span>
-          <ChevronDown size={18} />
-        </div>
-
-        <div className="organelle-list">
-          {selectedCell.organelles.map((organelle) => (
-            <button
-              className={`organelle-row ${activeOrganelle === organelle.id ? "is-active" : ""}`}
-              type="button"
-              key={organelle.id}
-              onClick={() => onSelectOrganelle(organelle.id)}
-            >
-              <span className="color-dot" style={{ background: organelle.color }} />
-              <span>{organelle.name}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-    </aside>
-  );
-}
-
-type StageProps = {
-  cell: CellItem;
-  activeOrganelle: string;
-  viewMode: ViewMode;
-  crossSection: boolean;
-  autoRotate: boolean;
-  resetKey: number;
-  onModeChange: (mode: ViewMode) => void;
-  onCrossSectionChange: (value: boolean) => void;
-  onAutoRotateChange: (value: boolean) => void;
-  onReset: () => void;
-  onToast: (message: string) => void;
-};
-
-function Stage({
-  cell,
-  activeOrganelle,
-  viewMode,
-  crossSection,
-  autoRotate,
-  resetKey,
-  onModeChange,
-  onCrossSectionChange,
-  onAutoRotateChange,
-  onReset,
-  onToast,
-}: StageProps) {
-  return (
-    <main className="stage-column">
-      <section className="stage-panel">
-        <div className="stage-title">
-          <div>
-            <h2>{cell.name}</h2>
-            <p>{cell.type}</p>
-          </div>
-
-          <div className="view-card">
-            <span>View Mode</span>
-            <div className="mode-switcher">
-              {modeOptions.map(({ id, label, Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={viewMode === id ? "is-active" : ""}
-                  onClick={() => onModeChange(id)}
-                  title={label}
-                >
-                  <Icon size={22} />
-                </button>
-              ))}
-            </div>
-            <label className="toggle-line">
-              <span>Cross Section</span>
-              <input
-                type="checkbox"
-                checked={crossSection}
-                onChange={(event) => onCrossSectionChange(event.target.checked)}
-              />
-              <i />
-            </label>
-          </div>
-        </div>
-
-        <div className="canvas-wrap">
-          <CellScene
-            cell={cell}
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            crossSection={crossSection}
-            autoRotate={autoRotate}
-            resetKey={resetKey}
-          />
-        </div>
-
-        <div className="stage-toolbar">
-          <button
-            type="button"
-            className={autoRotate ? "is-active" : ""}
-            onClick={() => onAutoRotateChange(!autoRotate)}
-          >
-            <RotateCcw size={20} />
-            Rotate
-          </button>
-          <button type="button" onClick={() => onModeChange("focus")}>
-            <CircleDot size={20} />
-            Isolate
-          </button>
-          <button type="button" onClick={() => onModeChange("focus")}>
-            <EyeOff size={20} />
-            Hide Others
-          </button>
-          <button type="button" onClick={onReset}>
-            <RotateCcw size={20} />
-            Reset View
-          </button>
-        </div>
-
-        <div className="export-toolbar">
-          <button type="button" onClick={() => onToast("截图功能这里先做占位。")}>
-            <Camera size={20} />
-            Screenshot
-          </button>
-          <button type="button" onClick={() => onToast("GLB 导出需要接入模型导出管线。")}>
-            <Box size={20} />
-            GLB Export
-          </button>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-type RightPanelProps = {
-  cell: CellItem;
-  activeOrganelle: string;
-  favorites: Set<string>;
-  mastery: number;
-  viewedCellCount: number;
-  viewedOrganelleCount: number;
-  totalOrganelleCount: number;
-  tutorPrompt: string;
-  onToggleFavorite: (id: string) => void;
-  onTutorPrompt: (prompt: string) => void;
-};
-
-function buildTutorPrompts(cell: CellItem, organelle: CellItem["organelles"][number]) {
-  return [
-    `Explain how ${organelle.name} helps a ${cell.name} stay alive.`,
-    `Quiz me on the visual differences between ${cell.name} and ${getCellById(cell.comparison).name}.`,
-    `Guide me through finding ${organelle.name} inside the 3D model.`,
-    `Connect ${cell.name} structure to one clinical observation without giving medical advice.`,
-  ];
-}
-
-function RightPanel({
-  cell,
-  activeOrganelle,
-  favorites,
-  mastery,
-  viewedCellCount,
-  viewedOrganelleCount,
-  totalOrganelleCount,
-  tutorPrompt,
-  onToggleFavorite,
-  onTutorPrompt,
-}: RightPanelProps) {
-  const organelle = cell.organelles.find((item) => item.id === activeOrganelle) ?? cell.organelles[0];
-  const tutorPrompts = buildTutorPrompts(cell, organelle);
-
-  return (
-    <aside className="right-rail">
-      <section className="panel details-panel">
-        <div className="panel-heading detail-heading">
-          <span>Organelle Details</span>
-          <button type="button" onClick={() => onToggleFavorite(cell.id)} aria-label="Toggle favorite">
-            <Heart size={22} fill={favorites.has(cell.id) ? "currentColor" : "none"} />
-          </button>
-        </div>
-
-        <div className="detail-hero">
-          <span className="organelle-orb" style={{ background: organelle.color }} />
-          <div>
-            <h3>{organelle.name}</h3>
-            <p>{organelle.subtitle}</p>
-          </div>
-        </div>
-
-        <dl className="attribute-list">
-          {organelle.attributes.map((item) => (
-            <div key={item.label}>
-              <dt>{item.label}</dt>
-              <dd>{item.value}</dd>
-            </div>
-          ))}
-          <div>
-            <dt>Label</dt>
-            <dd>
-              <span className="mini-toggle is-on" />
-              <span className="detail-dot" style={{ background: organelle.color }} />
-            </dd>
-          </div>
-        </dl>
-      </section>
-
-      <section className="panel notes-panel">
-        <div className="panel-heading">
-          <span>Biological Notes</span>
-        </div>
-        <p>{organelle.note}</p>
-        <div className="clinical-context">
-          <span>Clinical Context</span>
-          <p>{cell.clinicalContext}</p>
-        </div>
-        <div className="fun-fact">
-          <span>Fun Fact: {organelle.fact}</span>
-          <Sparkles size={18} />
-        </div>
-      </section>
-
-      <section className="panel learning-panel">
-        <div className="panel-heading">
-          <span>
-            <Brain size={17} />
-            AI Tutor
-          </span>
-        </div>
-
-        <div className="mastery-meter" style={{ "--progress": `${mastery}%` } as CSSProperties}>
-          <div>
-            <Gauge size={18} />
-            <span>Mastery</span>
-            <strong>{mastery}%</strong>
-          </div>
-          <i>
-            <b />
-          </i>
-          <small>
-            {viewedCellCount}/{cells.length} cells explored · {viewedOrganelleCount}/{totalOrganelleCount} organelles inspected
-          </small>
-        </div>
-
-        <div className="lesson-focus">
-          <span>
-            <Target size={17} />
-            Current lesson focus
-          </span>
-          <p>
-            Locate <strong>{organelle.name}</strong>, explain its role, then compare it with the matching structure in{" "}
-            {getCellById(cell.comparison).name}.
-          </p>
-        </div>
-
-        <div className="tutor-prompt">
-          <span>
-            <MessageCircle size={17} />
-            Prompt staged for AI tutor
-          </span>
-          <p>{tutorPrompt}</p>
-        </div>
-
-        <div className="prompt-list">
-          {tutorPrompts.map((prompt) => (
-            <button type="button" key={prompt} onClick={() => onTutorPrompt(prompt)}>
-              {prompt}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="panel occurrence-panel">
-        <div className="panel-heading">
-          <span>Where It Occurs</span>
-        </div>
-        <div className={`occurrence-art occurrence-${cell.occurrence.motif}`}>
-          <span />
-          <i />
-          <b />
-        </div>
-        <h4>{cell.occurrence.title}</h4>
-        <p>{cell.occurrence.body}</p>
-      </section>
-    </aside>
-  );
-}
-
-type BottomPanelsProps = {
-  cell: CellItem;
-  onCompare: () => void;
-  onToast: (message: string) => void;
-};
-
-function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
-  const comparedCell = getCellById(cell.comparison);
-
-  return (
-    <section className="bottom-grid">
-      <div className="panel microscope-panel">
-        <div className="panel-heading">
-          <span>
-            Microscope View
-            <Info size={16} />
-          </span>
-        </div>
-        <div className="micro-card-row">
-          {cell.microscope.map((image) => (
-            <button
-              type="button"
-              key={image.label}
-              className={`micro-card pattern-${image.pattern}`}
-              style={{ "--micro": image.tone } as CSSProperties}
-              onClick={() => onToast(`${image.label} selected.`)}
-            >
-              <span />
-              <strong>{image.label}</strong>
-            </button>
-          ))}
-          <button type="button" className="micro-card add-card" onClick={() => onToast("Image upload is a planned step.")}>
-            <Plus size={28} />
-            <strong>Add Image</strong>
-          </button>
-        </div>
-      </div>
-
-      <div className="panel compare-panel">
-        <div className="panel-heading">
-          <span>
-            Compare Cells
-            <Info size={16} />
-          </span>
-        </div>
-        <div className="compare-row">
-          <div>
-            <MiniCell cell={cell} />
-            <span>
-              <strong>{cell.name}</strong>
-              <em>You are here</em>
-            </span>
-          </div>
-          <b>VS</b>
-          <div>
-            <span>
-              <strong>{comparedCell.name}</strong>
-              <em>{comparedCell.type}</em>
-            </span>
-            <MiniCell cell={comparedCell} />
-          </div>
-        </div>
-        <button type="button" className="comparison-button" onClick={onCompare}>
-          Open Comparison View
-          <ArrowRight size={20} />
-        </button>
-      </div>
-    </section>
-  );
-}
-
-type ComparisonModalProps = {
-  cell: CellItem;
-  open: boolean;
-  onClose: () => void;
-};
-
-function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
-  const comparedCell = getCellById(cell.comparison);
-  if (!open) {
-    return null;
-  }
-
-  const currentOrganelle = cell.organelles.find((item) => item.id === cell.defaultOrganelle) ?? cell.organelles[0];
-  const comparedOrganelle =
-    comparedCell.organelles.find((item) => item.id === comparedCell.defaultOrganelle) ?? comparedCell.organelles[0];
-
-  return (
-    <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Cell comparison">
-      <div className="comparison-modal">
-        <button className="modal-close" type="button" onClick={onClose}>
-          Close
-        </button>
-        <div className="comparison-modal-head">
-          <h3>Comparison View</h3>
-          <p>
-            {cell.name} compared with {comparedCell.name}
-          </p>
-        </div>
-        <div className="comparison-columns">
-          {[cell, comparedCell].map((item) => {
-            const organelle = item.id === cell.id ? currentOrganelle : comparedOrganelle;
-            return (
-              <section key={item.id}>
-                <MiniCell cell={item} />
-                <h4>{item.name}</h4>
-                <p>{item.type}</p>
-                <dl>
-                  <div>
-                    <dt>Default focus</dt>
-                    <dd>{organelle.name}</dd>
-                  </div>
-                  <div>
-                    <dt>Main note</dt>
-                    <dd>{organelle.subtitle}</dd>
-                  </div>
-                  <div>
-                    <dt>Occurs in</dt>
-                    <dd>{item.occurrence.title}</dd>
-                  </div>
-                </dl>
-              </section>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Toast({ message }: { message: string | null }) {
-  if (!message) {
-    return null;
-  }
-  return <div className="toast">{message}</div>;
-}
-
 export default function App() {
-  const [selectedCellId, setSelectedCellId] = useState(initialCell.id);
+  const [selectedCellId, setSelectedCellId] = useState(loadLastCellId);
   const [activeOrganelle, setActiveOrganelle] = useState(initialCell.defaultOrganelle);
   const [viewMode, setViewMode] = useState<ViewMode>("mesh");
   const [crossSection, setCrossSection] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [resetKey, setResetKey] = useState(0);
-  const [favorites, setFavorites] = useState<Set<string>>(() => new Set([initialCell.id]));
+  const [favorites, setFavorites] = useState<Set<string>>(loadFavorites);
   const [viewedCells, setViewedCells] = useState<Set<string>>(() => new Set([initialCell.id]));
   const [viewedOrganelleKeys, setViewedOrganelleKeys] = useState<Set<string>>(
     () => new Set([`${initialCell.id}:${initialCell.defaultOrganelle}`]),
   );
-  const [comparisonOpen, setComparisonOpen] = useState(false);
+  const overlays = useOverlays();
   const [tutorPrompt, setTutorPrompt] = useState(
     `Guide me through finding ${initialCell.organelles[0].name} inside the 3D model.`,
   );
   const [toast, setToast] = useState<string | null>(null);
+  const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
   const toastTimer = useRef<number | null>(null);
+  const [dailyClaimed, setDailyClaimed] = useState(() => isDailyClaimed());
+  const [dailyStreak, setDailyStreak] = useState(0);
+  const [accent, setAccent] = useState(loadAccent);
+  const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
+  // Seed with the restored cell so reloading doesn't fire a "viewed" award.
+  const firedViews = useRef<Set<string>>(new Set([loadLastCellId()]));
+  const dailyCell = useMemo(() => specimenOfTheDay(), []);
+
+  useEffect(() => {
+    setDailyStreak(registerVisit().streak);
+    try {
+      if (localStorage.getItem(STORAGE_KEYS.onboarded) !== "1") overlays.open("welcome");
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function closeWelcome() {
+    overlays.close();
+    try {
+      localStorage.setItem(STORAGE_KEYS.onboarded, "1");
+    } catch {
+      /* ignore */
+    }
+  }
 
   const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
   const totalOrganelleCount = useMemo(
@@ -627,22 +97,34 @@ export default function App() {
     return Math.round((cellCoverage * 0.42 + organelleCoverage * 0.58) * 100);
   }, [totalOrganelleCount, viewedCells, viewedOrganelleKeys]);
 
+  const prevCellId = useRef(selectedCellId);
   useEffect(() => {
     setActiveOrganelle(selectedCell.defaultOrganelle);
-    setComparisonOpen(false);
+    // Close overlays only when the specimen actually changes — not on mount
+    // (which would dismiss the welcome tour) and resilient to StrictMode's
+    // double-invoked effects.
+    if (prevCellId.current !== selectedCell.id) {
+      overlays.close();
+      prevCellId.current = selectedCell.id;
+    }
   }, [selectedCell]);
 
   useEffect(() => {
-    setViewedCells((current) => {
-      const next = new Set(current);
-      next.add(selectedCell.id);
-      return next;
-    });
-    setViewedOrganelleKeys((current) => {
-      const next = new Set(current);
-      next.add(`${selectedCell.id}:${activeOrganelle}`);
-      return next;
-    });
+    saveLastCellId(selectedCellId);
+    setRecentIds(pushRecentId(selectedCellId));
+    if (!firedViews.current.has(selectedCellId)) {
+      firedViews.current.add(selectedCellId);
+      fire({ type: "viewNew" });
+    }
+  }, [selectedCellId, fire]);
+
+  useEffect(() => {
+    saveFavorites(favorites);
+  }, [favorites]);
+
+  useEffect(() => {
+    setViewedCells((current) => new Set(current).add(selectedCell.id));
+    setViewedOrganelleKeys((current) => new Set(current).add(`${selectedCell.id}:${activeOrganelle}`));
   }, [activeOrganelle, selectedCell.id]);
 
   function showToast(message: string) {
@@ -654,6 +136,7 @@ export default function App() {
   }
 
   function toggleFavorite(id: string) {
+    const wasFav = favorites.has(id);
     setFavorites((current) => {
       const next = new Set(current);
       if (next.has(id)) {
@@ -663,26 +146,118 @@ export default function App() {
       }
       return next;
     });
+    if (!wasFav) fire({ type: "favorite", favoritesCount: favorites.size + 1 });
   }
 
+  function stepSpecimen(delta: number) {
+    const index = cells.findIndex((c) => c.id === selectedCellId);
+    const next = cells[(index + delta + cells.length) % cells.length];
+    setSelectedCellId(next.id);
+    showToast(`${next.name}`);
+  }
+
+  useKeyboardShortcuts(overlays.active === null, {
+    onPrev: () => stepSpecimen(-1),
+    onNext: () => stepSpecimen(1),
+    onFavorite: () => toggleFavorite(selectedCellId),
+    onReset: () => {
+      setResetKey((key) => key + 1);
+      showToast("View reset.");
+    },
+    onToggleRotate: () => {
+      setAutoRotate((v) => {
+        showToast(v ? "Auto-rotate off." : "Auto-rotate on.");
+        return !v;
+      });
+    },
+    onSurprise: () => {
+      const pool = cells.filter((c) => c.id !== selectedCellId);
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      setSelectedCellId(pick.id);
+      showToast(`Surprise — ${pick.name}!`);
+    },
+    onGallery: () => overlays.open("gallery"),
+    onLibrary: () => overlays.open("library"),
+    onFlashcards: () => overlays.open("flashcards"),
+    onQuiz: () => overlays.open("quiz"),
+    onHelp: () => overlays.open("shortcuts"),
+  });
+
+  // UI accent comes from the chosen theme; the 3D-stage tint follows the specimen.
   const shellStyle = {
-    "--accent": selectedCell.accent,
-    "--accent-soft": selectedCell.accentSoft,
+    "--accent": accent.accent,
+    "--accent-soft": accent.accentSoft,
+    "--brand": accent.accent,
     "--cell-color": selectedCell.color,
   } as CSSProperties;
 
   return (
     <div className="app-shell" style={shellStyle}>
-      <Header cell={selectedCell} />
+      <Header
+        cell={selectedCell}
+        favoritesCount={favorites.size}
+        exploredCount={viewedCells.size}
+        totalCount={cells.length}
+        progress={progress}
+        xpPulse={xpPulse}
+        onPlayQuiz={() => overlays.open("quiz")}
+        onAbout={() => overlays.open("about")}
+        onGallery={() => overlays.open("gallery")}
+        onLibrary={() => overlays.open("library")}
+        onNotebooks={() => overlays.open("notebooks")}
+        onFlashcards={() => overlays.open("flashcards")}
+        onAchievements={() => overlays.open("achievements")}
+        accentId={accent.id}
+        onAccentChange={(id) => {
+          const next = ACCENTS.find((a) => a.id === id) ?? accent;
+          setAccent(next);
+          saveAccent(next.id);
+        }}
+        onReplayIntro={() => overlays.open("welcome")}
+        onClearFavorites={() => {
+          setFavorites(new Set());
+          showToast("Cleared all favorites.");
+        }}
+        onResetAll={() => {
+          clearAllData();
+          resetProgress();
+          setFavorites(new Set());
+          setRecentIds([]);
+          showToast("All saved data reset.");
+        }}
+      />
+
+      <SpecimenStrip
+        selectedCell={selectedCell}
+        favorites={favorites}
+        onSelectCell={setSelectedCellId}
+        onToggleFavorite={toggleFavorite}
+        onToast={showToast}
+      />
 
       <div className="app-grid">
         <Sidebar
           selectedCell={selectedCell}
           activeOrganelle={activeOrganelle}
-          favorites={favorites}
-          onSelectCell={setSelectedCellId}
           onSelectOrganelle={setActiveOrganelle}
-          onToggleFavorite={toggleFavorite}
+          onToast={showToast}
+          topSlot={
+            <DailyChallenge
+              cell={dailyCell}
+              streak={dailyStreak}
+              claimed={dailyClaimed}
+              onStudy={() => {
+                setSelectedCellId(dailyCell.id);
+                if (!dailyClaimed && claimDaily()) {
+                  setDailyClaimed(true);
+                  fire({ type: "bonus", amount: 15 });
+                  showToast(`Daily specimen — ${dailyCell.name}! +15 XP`);
+                } else {
+                  showToast(`Loaded ${dailyCell.name} on stage.`);
+                }
+              }}
+            />
+          }
         />
 
         <div className="center-stack">
@@ -704,7 +279,12 @@ export default function App() {
           />
           <BottomPanels
             cell={selectedCell}
-            onCompare={() => setComparisonOpen(true)}
+            onCompare={() => {
+              overlays.open("comparison");
+              showToast(
+                `Opened comparison: ${selectedCell.name} vs ${getCellById(selectedCell.comparison).name}.`,
+              );
+            }}
             onToast={showToast}
           />
         </div>
@@ -718,7 +298,12 @@ export default function App() {
           viewedOrganelleCount={viewedOrganelleKeys.size}
           totalOrganelleCount={totalOrganelleCount}
           tutorPrompt={tutorPrompt}
-          onToggleFavorite={toggleFavorite}
+          onToggleFavorite={(id) => {
+            const wasOn = favorites.has(id);
+            toggleFavorite(id);
+            const name = getCellById(id).name;
+            showToast(wasOn ? `Removed ${name} from favorites.` : `Added ${name} to favorites.`);
+          }}
           onTutorPrompt={(prompt) => {
             setTutorPrompt(prompt);
             showToast("AI tutor prompt staged.");
@@ -726,7 +311,100 @@ export default function App() {
         />
       </div>
 
-      <ComparisonModal cell={selectedCell} open={comparisonOpen} onClose={() => setComparisonOpen(false)} />
+      <ComparisonModal
+        cell={selectedCell}
+        open={overlays.isOpen("comparison")}
+        onClose={() => {
+          overlays.close();
+          showToast("Closed comparison view.");
+        }}
+      />
+      {overlays.isOpen("quiz") && (
+        <Suspense fallback={<div className="quiz-layer quiz-loading">Loading quiz…</div>}>
+          <SpecimenQuiz
+            onExit={() => overlays.close()}
+            onStudySpecimen={(id) => {
+              setSelectedCellId(id);
+              overlays.close();
+              showToast(`Loaded ${getCellById(id).name} on stage.`);
+            }}
+            onCorrect={(streak) => fire({ type: "quizCorrect", streak })}
+            onComplete={(score, total, bestStreak, perfect) =>
+              fire({ type: "quizComplete", score, total, bestStreak, perfect })
+            }
+          />
+        </Suspense>
+      )}
+      <AboutModal open={overlays.isOpen("about")} onClose={overlays.close} />
+
+      <SpecimenGridModal
+        title="Gallery"
+        subtitle={`Browse all ${cells.length} specimens`}
+        open={overlays.isOpen("gallery")}
+        searchable
+        selectedId={selectedCellId}
+        sections={[{ label: "All specimens", items: cells }]}
+        onSelect={(id) => {
+          setSelectedCellId(id);
+          overlays.close();
+          showToast(`Loaded ${getCellById(id).name} on stage.`);
+        }}
+        onClose={() => overlays.close()}
+      />
+
+      <SpecimenGridModal
+        title="Your Library"
+        subtitle="Favorites and recently viewed specimens"
+        open={overlays.isOpen("library")}
+        selectedId={selectedCellId}
+        sections={[
+          {
+            label: "Favorites",
+            items: cells.filter((c) => favorites.has(c.id)),
+            emptyHint: "No favorites yet — tap the star on a specimen.",
+          },
+          {
+            label: "Recently viewed",
+            items: recentIds.map(getCellById),
+            emptyHint: "Specimens you open will appear here.",
+          },
+        ]}
+        onSelect={(id) => {
+          setSelectedCellId(id);
+          overlays.close();
+          showToast(`Loaded ${getCellById(id).name} on stage.`);
+        }}
+        onClose={() => overlays.close()}
+      />
+
+      <NotebooksModal
+        open={overlays.isOpen("notebooks")}
+        currentCell={selectedCell}
+        onSelect={setSelectedCellId}
+        onClose={() => overlays.close()}
+      />
+
+      <FlashcardsModal
+        open={overlays.isOpen("flashcards")}
+        onClose={() => overlays.close()}
+        onStudySpecimen={(id) => {
+          setSelectedCellId(id);
+          showToast(`Loaded ${getCellById(id).name} on stage.`);
+        }}
+      />
+
+      <AchievementsPanel
+        open={overlays.isOpen("achievements")}
+        progress={progress}
+        onClose={() => overlays.close()}
+      />
+
+      <ShortcutsHelp open={overlays.isOpen("shortcuts")} onClose={() => overlays.close()} />
+
+      <WelcomeTour open={overlays.isOpen("welcome")} onClose={closeWelcome} />
+
+      <CelebrationBanner celebration={banner} />
+      <Confetti fireKey={confettiKey} />
       <Toast message={toast} />
     </div>
   );
