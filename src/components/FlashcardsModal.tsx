@@ -10,7 +10,12 @@ import {
 import { Modal } from "./Modal";
 
 const DECK_BASE = cells.filter((c) => c.renderImage);
-const CATEGORY_FILTERS: ("All" | CellCategory)[] = ["All", ...CELL_CATEGORY_ORDER];
+const CATEGORY_FILTERS: ("All" | CellCategory)[] = [
+  "All",
+  ...CELL_CATEGORY_ORDER.filter((category) =>
+    DECK_BASE.some((cell) => categorize(cell) === category),
+  ),
+];
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];

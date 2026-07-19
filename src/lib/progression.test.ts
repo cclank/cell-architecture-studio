@@ -46,6 +46,19 @@ describe("award", () => {
     expect(r.unlocked.map((a) => a.id)).toContain("sharp");
   });
 
+  it("keeps specimen achievements attainable within the seven-item catalog", () => {
+    const start: Progress = {
+      xp: 0,
+      unlocked: [],
+      stats: { viewed: 2, favorites: 0, quizzes: 0, bestStreak: 0, perfect: 0 },
+    };
+    const explored = award(start, { type: "viewNew" });
+    expect(explored.unlocked.map((a) => a.id)).toContain("explorer");
+
+    const collected = award(explored.progress, { type: "favorite", favoritesCount: 3 });
+    expect(collected.unlocked.map((a) => a.id)).toContain("collector");
+  });
+
   it("adds a perfect bonus only when perfect is true", () => {
     const perfect = award(fresh(), { type: "quizComplete", score: 10, total: 10, bestStreak: 3, perfect: true });
     expect(perfect.gainedXp).toBe(XP.quizComplete + XP.perfectBonus);

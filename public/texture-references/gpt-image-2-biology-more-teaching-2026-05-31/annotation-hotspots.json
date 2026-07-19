@@ -1,0 +1,284 @@
+{
+  "generator": "official-codex-image-gen",
+  "createdDate": "2026-05-31",
+  "coordinateSystem": "percent",
+  "coordinatesApproximate": true,
+  "purposeZh": "生物课程 3D 模型参考图与网站叠加标注数据",
+  "images": [
+    {
+      "id": "neuron-synapse-transmission",
+      "titleZh": "神经突触与递质释放",
+      "titleEn": "Neuron Synapse and Neurotransmitter Release",
+      "png": "png/neuron-synapse-transmission-teaching.png",
+      "jpg": "jpg/neuron-synapse-transmission-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示突触前膜释放神经递质、递质跨越突触间隙并激活突触后膜受体的过程。",
+      "hotspots": [
+        { "labelZh": "突触前轴突末梢", "x": 27, "y": 35 },
+        { "labelZh": "突触小泡", "x": 38, "y": 44 },
+        { "labelZh": "线粒体", "x": 18, "y": 52 },
+        { "labelZh": "囊泡融合位点", "x": 52, "y": 43 },
+        { "labelZh": "突触间隙", "x": 60, "y": 48 },
+        { "labelZh": "神经递质", "x": 64, "y": 52 },
+        { "labelZh": "突触后膜", "x": 80, "y": 44 },
+        { "labelZh": "受体通道", "x": 75, "y": 58 }
+      ]
+    },
+    {
+      "id": "chloroplast-photosynthesis",
+      "titleZh": "叶绿体与光合作用结构",
+      "titleEn": "Chloroplast and Photosynthesis Structures",
+      "png": "png/chloroplast-photosynthesis-teaching.png",
+      "jpg": "jpg/chloroplast-photosynthesis-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示叶绿体双层膜、基质、类囊体堆叠和光合作用相关结构。",
+      "hotspots": [
+        { "labelZh": "光照方向", "x": 8, "y": 8 },
+        { "labelZh": "叶绿体外膜", "x": 49, "y": 14 },
+        { "labelZh": "双层膜包被", "x": 33, "y": 24 },
+        { "labelZh": "基粒", "x": 54, "y": 45 },
+        { "labelZh": "类囊体堆叠", "x": 67, "y": 48 },
+        { "labelZh": "基质片层", "x": 46, "y": 51 },
+        { "labelZh": "基质", "x": 62, "y": 64 },
+        { "labelZh": "环状叶绿体 DNA", "x": 50, "y": 62 },
+        { "labelZh": "淀粉粒", "x": 63, "y": 78 },
+        { "labelZh": "氧气释放", "x": 91, "y": 17 }
+      ]
+    },
+    {
+      "id": "antibody-antigen-binding",
+      "titleZh": "抗体与抗原结合",
+      "titleEn": "Antibody and Antigen Binding",
+      "png": "png/antibody-antigen-binding-teaching.png",
+      "jpg": "jpg/antibody-antigen-binding-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示 IgG 抗体的 Y 形结构、Fab/Fc 区域，以及抗体结合抗原表位的空间匹配。",
+      "hotspots": [
+        { "labelZh": "抗原颗粒", "x": 54, "y": 15 },
+        { "labelZh": "表面抗原", "x": 67, "y": 22 },
+        { "labelZh": "抗原表位", "x": 46, "y": 31 },
+        { "labelZh": "Fab 臂", "x": 36, "y": 45 },
+        { "labelZh": "抗原结合位点", "x": 45, "y": 38 },
+        { "labelZh": "铰链区", "x": 50, "y": 57 },
+        { "labelZh": "重链与轻链", "x": 42, "y": 58 },
+        { "labelZh": "Fc 段", "x": 52, "y": 80 }
+      ]
+    },
+    {
+      "id": "alveoli-gas-exchange",
+      "titleZh": "肺泡与气体交换",
+      "titleEn": "Alveoli and Gas Exchange",
+      "png": "png/alveoli-gas-exchange-teaching.png",
+      "jpg": "jpg/alveoli-gas-exchange-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示肺泡薄壁、毛细血管网、红细胞和气血屏障的空间关系。",
+      "hotspots": [
+        { "labelZh": "肺泡腔", "x": 35, "y": 46 },
+        { "labelZh": "肺泡壁", "x": 21, "y": 37 },
+        { "labelZh": "I 型肺泡细胞", "x": 29, "y": 36 },
+        { "labelZh": "II 型肺泡细胞", "x": 24, "y": 28 },
+        { "labelZh": "表面活性物质薄膜", "x": 41, "y": 34 },
+        { "labelZh": "毛细血管网", "x": 60, "y": 37 },
+        { "labelZh": "红细胞", "x": 68, "y": 66 },
+        { "labelZh": "气体分子", "x": 51, "y": 54 },
+        { "labelZh": "气血屏障", "x": 64, "y": 59 }
+      ]
+    },
+    {
+      "id": "nephron-glomerulus-filtration",
+      "titleZh": "肾小球与滤过作用",
+      "titleEn": "Glomerulus and Filtration",
+      "png": "png/nephron-glomerulus-filtration-teaching.png",
+      "jpg": "jpg/nephron-glomerulus-filtration-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示鲍曼囊、肾小球毛细血管丛、足细胞和滤过裂隙的关系。",
+      "hotspots": [
+        { "labelZh": "入球小动脉", "x": 15, "y": 51 },
+        { "labelZh": "出球小动脉", "x": 16, "y": 26 },
+        { "labelZh": "鲍曼囊", "x": 59, "y": 35 },
+        { "labelZh": "肾小球毛细血管丛", "x": 55, "y": 45 },
+        { "labelZh": "足细胞", "x": 55, "y": 27 },
+        { "labelZh": "足突与滤过裂隙", "x": 53, "y": 47 },
+        { "labelZh": "红细胞", "x": 62, "y": 46 },
+        { "labelZh": "鲍曼囊腔", "x": 72, "y": 59 },
+        { "labelZh": "近端小管起始", "x": 86, "y": 59 }
+      ]
+    },
+    {
+      "id": "root-tip-mitosis",
+      "titleZh": "根尖结构与有丝分裂",
+      "titleEn": "Root Tip and Mitosis",
+      "png": "png/root-tip-mitosis-teaching.png",
+      "jpg": "jpg/root-tip-mitosis-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示根冠、分生区、伸长区、分化区，以及根尖细胞有丝分裂阶段。",
+      "hotspots": [
+        { "labelZh": "根冠", "x": 27, "y": 79 },
+        { "labelZh": "分生区", "x": 36, "y": 60 },
+        { "labelZh": "有丝分裂细胞", "x": 42, "y": 53 },
+        { "labelZh": "染色体", "x": 45, "y": 52 },
+        { "labelZh": "细胞壁", "x": 52, "y": 43 },
+        { "labelZh": "细胞核", "x": 67, "y": 33 },
+        { "labelZh": "伸长区", "x": 58, "y": 37 },
+        { "labelZh": "分化区", "x": 72, "y": 25 },
+        { "labelZh": "根毛", "x": 83, "y": 17 }
+      ]
+    },
+    {
+      "id": "dna-replication-fork",
+      "titleZh": "DNA 复制叉",
+      "titleEn": "DNA Replication Fork",
+      "png": "png/dna-replication-fork-teaching.png",
+      "jpg": "jpg/dna-replication-fork-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示 DNA 双链解旋、前导链连续合成、后随链片段合成和复制相关酶的空间关系。",
+      "hotspots": [
+        { "labelZh": "复制叉", "x": 52, "y": 36 },
+        { "labelZh": "解旋酶", "x": 47, "y": 43 },
+        { "labelZh": "单链结合蛋白", "x": 61, "y": 44 },
+        { "labelZh": "前导链", "x": 27, "y": 64 },
+        { "labelZh": "DNA 聚合酶", "x": 23, "y": 59 },
+        { "labelZh": "滑动夹", "x": 14, "y": 63 },
+        { "labelZh": "后随链", "x": 72, "y": 64 },
+        { "labelZh": "冈崎片段", "x": 76, "y": 66 },
+        { "labelZh": "RNA 引物", "x": 67, "y": 58 }
+      ]
+    },
+    {
+      "id": "meiosis-crossing-over",
+      "titleZh": "减数分裂与同源染色体交换",
+      "titleEn": "Meiosis Crossing Over",
+      "png": "png/meiosis-crossing-over-teaching.png",
+      "jpg": "jpg/meiosis-crossing-over-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示减数分裂 I 前期同源染色体联会、四分体形成和非姐妹染色单体交换。",
+      "hotspots": [
+        { "labelZh": "细胞核", "x": 50, "y": 48 },
+        { "labelZh": "核膜", "x": 75, "y": 24 },
+        { "labelZh": "同源染色体", "x": 39, "y": 45 },
+        { "labelZh": "姐妹染色单体", "x": 58, "y": 40 },
+        { "labelZh": "四分体", "x": 50, "y": 44 },
+        { "labelZh": "交叉互换点", "x": 51, "y": 55 },
+        { "labelZh": "交换片段", "x": 47, "y": 58 },
+        { "labelZh": "中心体", "x": 12, "y": 48 },
+        { "labelZh": "纺锤丝", "x": 78, "y": 45 }
+      ]
+    },
+    {
+      "id": "enzyme-catalysis-active-site",
+      "titleZh": "酶催化与活性位点",
+      "titleEn": "Enzyme Catalysis and Active Site",
+      "png": "png/enzyme-catalysis-active-site-teaching.png",
+      "jpg": "jpg/enzyme-catalysis-active-site-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示酶活性位点、底物专一性、酶-底物复合物和产物释放。",
+      "hotspots": [
+        { "labelZh": "酶蛋白表面", "x": 30, "y": 31 },
+        { "labelZh": "活性位点", "x": 39, "y": 43 },
+        { "labelZh": "底物", "x": 44, "y": 52 },
+        { "labelZh": "催化残基", "x": 35, "y": 55 },
+        { "labelZh": "弱相互作用", "x": 39, "y": 50 },
+        { "labelZh": "酶-底物复合物", "x": 49, "y": 53 },
+        { "labelZh": "产物释放", "x": 82, "y": 44 },
+        { "labelZh": "产物分子", "x": 90, "y": 67 }
+      ]
+    },
+    {
+      "id": "bacterial-cell-structure",
+      "titleZh": "细菌细胞结构",
+      "titleEn": "Bacterial Cell Structure",
+      "png": "png/bacterial-cell-structure-teaching.png",
+      "jpg": "jpg/bacterial-cell-structure-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示原核细胞没有成形细胞核，遗传物质位于拟核区，并具有细胞壁、质膜、质粒、菌毛和鞭毛。",
+      "hotspots": [
+        { "labelZh": "荚膜", "x": 42, "y": 24 },
+        { "labelZh": "细胞壁", "x": 44, "y": 31 },
+        { "labelZh": "细胞膜", "x": 45, "y": 36 },
+        { "labelZh": "细胞质", "x": 50, "y": 47 },
+        { "labelZh": "拟核区", "x": 48, "y": 50 },
+        { "labelZh": "环状染色体 DNA", "x": 49, "y": 48 },
+        { "labelZh": "质粒", "x": 69, "y": 38 },
+        { "labelZh": "核糖体", "x": 63, "y": 55 },
+        { "labelZh": "菌毛", "x": 33, "y": 20 },
+        { "labelZh": "鞭毛", "x": 82, "y": 51 }
+      ]
+    },
+    {
+      "id": "crispr-cas9-gene-editing",
+      "titleZh": "CRISPR-Cas9 基因编辑",
+      "titleEn": "CRISPR-Cas9 Gene Editing",
+      "png": "png/crispr-cas9-gene-editing-teaching.png",
+      "jpg": "jpg/crispr-cas9-gene-editing-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示 Cas9 蛋白在引导 RNA 帮助下识别目标 DNA 并切开双链。",
+      "hotspots": [
+        { "labelZh": "Cas9 蛋白", "x": 53, "y": 42 },
+        { "labelZh": "目标 DNA", "x": 31, "y": 52 },
+        { "labelZh": "引导 RNA", "x": 65, "y": 38 },
+        { "labelZh": "RNA-DNA 配对区", "x": 57, "y": 52 },
+        { "labelZh": "切割位点", "x": 48, "y": 51 },
+        { "labelZh": "断裂 DNA 端", "x": 50, "y": 59 },
+        { "labelZh": "金属离子辅因子", "x": 48, "y": 57 },
+        { "labelZh": "双链 DNA", "x": 83, "y": 59 }
+      ]
+    },
+    {
+      "id": "plant-vascular-bundle-transport",
+      "titleZh": "植物维管束运输",
+      "titleEn": "Plant Vascular Bundle Transport",
+      "png": "png/plant-vascular-bundle-transport-teaching.png",
+      "jpg": "jpg/plant-vascular-bundle-transport-teaching.jpg",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "teachingGoalZh": "演示茎横切面中的木质部、韧皮部、形成层和水分/有机物运输结构。",
+      "hotspots": [
+        { "labelZh": "表皮", "x": 82, "y": 20 },
+        { "labelZh": "皮层", "x": 76, "y": 32 },
+        { "labelZh": "维管束环", "x": 59, "y": 25 },
+        { "labelZh": "髓", "x": 57, "y": 41 },
+        { "labelZh": "木质部导管", "x": 27, "y": 62 },
+        { "labelZh": "水分运输", "x": 26, "y": 50 },
+        { "labelZh": "形成层", "x": 48, "y": 66 },
+        { "labelZh": "韧皮部筛管", "x": 63, "y": 68 },
+        { "labelZh": "伴胞", "x": 69, "y": 68 },
+        { "labelZh": "有机物运输", "x": 74, "y": 60 }
+      ]
+    }
+  ]
+}

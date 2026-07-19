@@ -8,7 +8,7 @@ const STEPS: Step[] = [
   {
     Icon: Sparkles,
     title: "Welcome to Cell Architecture Studio",
-    body: "Explore 272 interactive 3D specimens — cells, organs, bones, viruses, macromolecules and botanical scans — rendered in your browser.",
+    body: "Explore seven interactive cell specimens, inspect their organelles, and compare how cellular structures support different biological roles.",
   },
   {
     Icon: Layers,

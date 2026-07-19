@@ -1,7 +1,5 @@
 # Cell Architecture Studio
 
-> Last updated: 2026-05-16 16:00
-
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=111)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=fff)
 ![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite&logoColor=fff)
@@ -10,24 +8,27 @@
 ![Verification](https://img.shields.io/badge/verification-playwright%20screenshots-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Status](https://img.shields.io/badge/status-local%20prototype-f59e0b)
-[![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://cell-architecture-studio-inky.vercel.app)
+[![Live Demo](https://img.shields.io/badge/live-demo-16a34a)](https://cell-architecture-studio.lanshuagent.com/)
 
 An interactive cell architecture gallery built with React, Vite, Three.js, and staged GLB or procedural 3D cell assets. The project recreates a premium educational biology interface with selectable cell types, organelle details, comparison mode, responsive layout, and visual verification coverage.
 
 ## Live Demo
 
-[Open the live Vercel deployment](https://cell-architecture-studio-inky.vercel.app)
+[Open the live deployment](https://cell-architecture-studio.lanshuagent.com/)
 
-[![Cell Architecture Studio demo](docs/media/cell-architecture-studio-demo.gif)](https://cell-architecture-studio-inky.vercel.app)
+[![Cell Architecture Studio demo](docs/media/cell-architecture-studio-demo.gif)](https://cell-architecture-studio.lanshuagent.com/)
 
 [View the MP4 demo file](docs/media/cell-architecture-studio-demo.mp4)
 
 ## Highlights
 
-- 300+ specimens across cells, organs, body systems, bones, macromolecules, viruses, and botanical specimens — sourced from the NIH 3D Print Exchange and rendered with the studio's solid/native material modes. The original seven hand-built cells (plant, white blood, neuron, epithelial, bacteria, animal, muscle) anchor the gallery.
+- Seven specimen views: plant cell, white blood cell, neuron, epithelial cell, bacteria cell, animal cell, and muscle cell.
 - High fidelity Plant Cell and White Blood Cell GLB rendering with native texture preservation.
 - Mesh first experience with 3D canvas rendering as the default view.
 - AI Tutor panel with learning prompts, lesson focus, and mastery tracking.
+- Quiz modes, flashcards, searchable gallery, favorites library, and study notebooks.
+- Local XP progression, attainable achievements, daily challenges, and keyboard shortcuts.
+- Screenshot and GLB export tools for the active specimen.
 - Model loading overlay for large GLB assets on slower networks.
 - Procedural fallback geometry for specimens that do not yet have production GLB assets.
 - Detail panel for organelles, microscope modes, specimen metadata, and comparison workflow.
@@ -119,7 +120,25 @@ Transparent PNG references in `public/cell-renders-transparent/` are used for th
 
 ## Verification
 
-`npm run verify` launches the local app, captures desktop, compact, mobile, and interaction screenshots, then checks canvas pixel metrics to catch blank renders or major layout regressions.
+`npm run verify` expects the local app to already be running, captures desktop, compact, mobile, and interaction screenshots, then checks canvas pixel metrics to catch blank renders or major layout regressions.
+
+Start the app before running visual verification:
+
+```bash
+npm run dev
+```
+
+By default, verification opens `http://127.0.0.1:5173/`. If Vite uses another port, pass the app URL explicitly:
+
+```bash
+APP_URL=http://127.0.0.1:5174/ npm run verify
+```
+
+The script uses Google Chrome through Playwright Core. If Chrome is installed in a non-default location, pass the executable path:
+
+```bash
+CHROME_PATH="/path/to/Google Chrome" npm run verify
+```
 
 Current coverage includes:
 
@@ -132,9 +151,8 @@ Current coverage includes:
 ## Roadmap
 
 - Add production quality GLB models for the remaining specimens.
-- Add lazy loading and route level code splitting for 3D bundles.
+- Further reduce and lazy-load the 3D vendor bundles.
 - Expand educational annotations for each organelle.
-- Add screenshot export and 3D export workflows.
 - Add asset license metadata directly into the UI.
 
 ## License
@@ -144,5 +162,7 @@ The application code is licensed under the MIT License. Included GLB models and 
 ## Credits
 
 Special thanks to the original creator [@DilumSanjaya](https://x.com/DilumSanjaya) for the source inspiration and visual direction.
+
+The modular interface, study tools, progression system, and rendering improvements were contributed by [@niccomann](https://github.com/niccomann) in [PR #4](https://github.com/cclank/cell-architecture-studio/pull/4).
 
 Additional 3D model provenance is documented in `docs/ASSETS.md`.

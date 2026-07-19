@@ -1270,6 +1270,29 @@ a {
   line-height: 1.65;
 }
 
+.clinical-context {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, rgba(87, 78, 64, 0.14));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-soft) 42%, rgba(255, 255, 255, 0.54));
+}
+
+.clinical-context > span {
+  color: color-mix(in srgb, var(--accent) 70%, #3b3329);
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clinical-context p {
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
 .fun-fact {
   display: flex;
   align-items: center;
@@ -1897,28 +1920,33 @@ a {
 
 @media (max-width: 720px) {
   .brand-orb {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
   }
 
   .brand-block {
-    align-items: flex-start;
+    align-items: center;
+    gap: 12px;
   }
 
   .brand-block h1 {
-    font-size: 2.35rem;
+    font-size: 1.8rem;
   }
 
   .brand-block p {
-    font-size: 0.98rem;
+    font-size: 0.82rem;
   }
 
-  .top-nav a span {
+  .top-nav > button:not(.avatar-button) span {
     display: none;
   }
 
-  .top-nav a {
+  .top-nav > button:not(.avatar-button) {
     min-width: 44px;
+  }
+
+  .specimen-strip {
+    padding: 10px 14px 12px;
   }
 
   .avatar-core {
@@ -1949,12 +1977,25 @@ a {
   }
 
   .stage-panel {
-    min-height: 800px;
-    padding: 20px;
+    min-height: 700px;
+    padding: 16px;
   }
 
   .stage-title h2 {
-    font-size: 3rem;
+    font-size: 2.4rem;
+  }
+
+  .stage-title {
+    gap: 12px;
+  }
+
+  .view-card {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .mode-switcher button {
+    min-height: 40px;
   }
 
   .tip-note {
@@ -1968,7 +2009,7 @@ a {
   }
 
   .canvas-wrap {
-    inset: 326px 10px 170px;
+    inset: 235px 10px 150px;
   }
 
   .stage-toolbar,

@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>生物 3D 教学参考图 | 2026-05-31</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #17202a;
+        --muted: #5d6673;
+        --line: #d9dee7;
+        --accent: #0f7c72;
+        --accent-2: #9c432f;
+        --marker: #f5c542;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      main {
+        width: min(1440px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      header {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(26px, 3vw, 42px);
+        font-weight: 760;
+      }
+
+      .subhead {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: #384252;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 900px), 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        overflow: clip;
+        box-shadow: 0 18px 45px rgb(23 32 42 / 0.08);
+      }
+
+      .card-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 16px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .title-block {
+        display: grid;
+        gap: 3px;
+      }
+
+      h2 {
+        font-size: 18px;
+        font-weight: 720;
+      }
+
+      .en {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .links {
+        display: flex;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .links a {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        color: #17202a;
+        padding: 5px 9px;
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      .links a:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .stage {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(176px, 220px);
+        gap: 12px;
+        padding: 12px;
+        background: #e9edf2;
+      }
+
+      .stage > img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+      }
+
+      .image-panel {
+        position: relative;
+        z-index: 2;
+        aspect-ratio: 3 / 2;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #dce3eb;
+      }
+
+      .image-panel img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .hotspot {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translate(-50%, -50%);
+        z-index: 5;
+      }
+
+      .dot {
+        display: grid;
+        width: 21px;
+        height: 21px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 2px solid #fff;
+        border-radius: 999px;
+        background: var(--marker);
+        color: #17202a;
+        font-size: 10px;
+        font-weight: 760;
+        line-height: 1;
+        box-shadow:
+          0 0 0 1px rgb(23 32 42 / 0.35),
+          0 2px 7px rgb(0 0 0 / 0.25);
+        opacity: 0.78;
+        transition:
+          opacity 140ms ease,
+          transform 140ms ease,
+          box-shadow 140ms ease;
+      }
+
+      .label {
+        display: none;
+      }
+
+      .leader-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .leader-line {
+        fill: none;
+        stroke: var(--callout-color, var(--accent));
+        stroke-linecap: round;
+        stroke-width: 1.8;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .leader-line-bg {
+        fill: none;
+        stroke: rgb(255 255 255 / 0.72);
+        stroke-linecap: round;
+        stroke-width: 4;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .callout-rail {
+        position: relative;
+        z-index: 5;
+        min-height: 100%;
+        border-left: 1px solid rgb(23 32 42 / 0.14);
+      }
+
+      .callout {
+        position: absolute;
+        left: 10px;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid rgb(23 32 42 / 0.18);
+        border-radius: 7px;
+        background: rgb(255 255 255 / 0.94);
+        color: #111820;
+        padding: 5px 7px;
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.18;
+        box-shadow: 0 4px 12px rgb(23 32 42 / 0.12);
+        backdrop-filter: blur(7px);
+        cursor: default;
+        opacity: 0.78;
+        transition:
+          border-color 140ms ease,
+          box-shadow 140ms ease,
+          opacity 140ms ease,
+          transform 140ms ease;
+      }
+
+      .callout-number {
+        display: grid;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--callout-color, var(--accent));
+        color: #fff;
+        font-size: 10px;
+        font-weight: 760;
+      }
+
+      .callout-text {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .hotspot.is-active .dot {
+        opacity: 1;
+        transform: scale(1.18);
+        box-shadow:
+          0 0 0 2px rgb(255 255 255 / 0.9),
+          0 0 0 5px color-mix(in srgb, var(--callout-color, var(--accent)) 28%, transparent),
+          0 5px 14px rgb(0 0 0 / 0.28);
+      }
+
+      .callout.is-active {
+        border-color: color-mix(in srgb, var(--callout-color, var(--accent)) 62%, #ffffff);
+        opacity: 1;
+        transform: translateX(-3px);
+        box-shadow: 0 8px 18px rgb(23 32 42 / 0.18);
+      }
+
+      .stage.has-active .callout:not(.is-active),
+      .stage.has-active .hotspot:not(.is-active) .dot {
+        opacity: 0.42;
+      }
+
+      .body {
+        display: grid;
+        gap: 10px;
+        padding: 14px 16px 16px;
+      }
+
+      .goal {
+        color: #2d3745;
+        font-size: 14px;
+      }
+
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .tag {
+        border-radius: 7px;
+        background: #eef6f4;
+        color: #155b54;
+        padding: 4px 7px;
+        font-size: 12px;
+      }
+
+      .tag:nth-child(3n) {
+        background: #f8eee9;
+        color: #7c3724;
+      }
+
+      .tag:nth-child(3n + 2) {
+        background: #eef1fb;
+        color: #334a7d;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          width: min(100% - 20px, 720px);
+          padding-top: 20px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card-head {
+          display: grid;
+        }
+
+        .stage {
+          grid-template-columns: 1fr;
+          gap: 10px;
+          padding: 8px;
+        }
+
+        .leader-layer {
+          display: none;
+        }
+
+        .callout-rail {
+          display: grid;
+          gap: 6px;
+          border-left: 0;
+        }
+
+        .callout {
+          position: static;
+          left: auto;
+          right: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>生物 3D 教学参考图</h1>
+        <p class="subhead">官方内置 image_gen 生成。图上保留轻量编号点，中文名称放在侧栏，适合老师演示、模型制作参考与站内标注。</p>
+        <div class="meta">
+          <span class="chip">生成日期：2026-05-31</span>
+          <span class="chip">图片数量：12</span>
+          <span class="chip">尺寸：1536 x 1024</span>
+          <span class="chip">标注坐标：百分比</span>
+          <span class="chip">编号点 + 名称列表</span>
+        </div>
+      </header>
+
+      <section class="grid" aria-label="biology teaching references">
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>神经突触与递质释放</h2>
+              <p class="en">Neuron Synapse and Neurotransmitter Release</p>
+            </div>
+            <div class="links">
+              <a href="png/neuron-synapse-transmission-teaching.png">PNG</a>
+              <a href="jpg/neuron-synapse-transmission-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/neuron-synapse-transmission-teaching.png" alt="神经突触与递质释放 3D 教学参考图" />
+            <span class="hotspot" style="--x: 27%; --y: 35%"><span class="dot"></span><span class="label">突触前轴突末梢</span></span>
+            <span class="hotspot" style="--x: 38%; --y: 44%"><span class="dot"></span><span class="label">突触小泡</span></span>
+            <span class="hotspot" style="--x: 18%; --y: 52%"><span class="dot"></span><span class="label">线粒体</span></span>
+            <span class="hotspot" style="--x: 52%; --y: 43%"><span class="dot"></span><span class="label">囊泡融合位点</span></span>
+            <span class="hotspot" style="--x: 60%; --y: 48%"><span class="dot"></span><span class="label">突触间隙</span></span>
+            <span class="hotspot" style="--x: 64%; --y: 52%"><span class="dot"></span><span class="label">神经递质</span></span>
+            <span class="hotspot" style="--x: 80%; --y: 44%"><span class="dot"></span><span class="label">突触后膜</span></span>
+            <span class="hotspot" style="--x: 75%; --y: 58%"><span class="dot"></span><span class="label">受体通道</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示突触前膜释放神经递质、递质跨越突触间隙并激活突触后膜受体的过程。</p>
+            <div class="tag-list">
+              <span class="tag">神经系统</span>
+              <span class="tag">信息传递</span>
+              <span class="tag">细胞膜受体</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>叶绿体与光合作用结构</h2>
+              <p class="en">Chloroplast and Photosynthesis Structures</p>
+            </div>
+            <div class="links">
+              <a href="png/chloroplast-photosynthesis-teaching.png">PNG</a>
+              <a href="jpg/chloroplast-photosynthesis-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/chloroplast-photosynthesis-teaching.png" alt="叶绿体与光合作用结构 3D 教学参考图" />
+            <span class="hotspot" style="--x: 8%; --y: 8%"><span class="dot"></span><span class="label">光照方向</span></span>
+            <span class="hotspot" style="--x: 49%; --y: 14%"><span class="dot"></span><span class="label">叶绿体外膜</span></span>
+            <span class="hotspot" style="--x: 33%; --y: 24%"><span class="dot"></span><span class="label">双层膜包被</span></span>
+            <span class="hotspot" style="--x: 54%; --y: 45%"><span class="dot"></span><span class="label">基粒</span></span>
+            <span class="hotspot" style="--x: 67%; --y: 48%"><span class="dot"></span><span class="label">类囊体堆叠</span></span>
+            <span class="hotspot" style="--x: 46%; --y: 51%"><span class="dot"></span><span class="label">基质片层</span></span>
+            <span class="hotspot" style="--x: 62%; --y: 64%"><span class="dot"></span><span class="label">基质</span></span>
+            <span class="hotspot" style="--x: 50%; --y: 62%"><span class="dot"></span><span class="label">环状叶绿体 DNA</span></span>
+            <span class="hotspot" style="--x: 63%; --y: 78%"><span class="dot"></span><span class="label">淀粉粒</span></span>
+            <span class="hotspot" style="--x: 91%; --y: 17%"><span class="dot"></span><span class="label">氧气释放</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示叶绿体双层膜、基质、类囊体堆叠和光合作用相关结构。</p>
+            <div class="tag-list">
+              <span class="tag">植物细胞</span>
+              <span class="tag">能量转换</span>
+              <span class="tag">光合作用</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>抗体与抗原结合</h2>
+              <p class="en">Antibody and Antigen Binding</p>
+            </div>
+            <div class="links">
+              <a href="png/antibody-antigen-binding-teaching.png">PNG</a>
+              <a href="jpg/antibody-antigen-binding-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/antibody-antigen-binding-teaching.png" alt="抗体与抗原结合 3D 教学参考图" />
+            <span class="hotspot" style="--x: 54%; --y: 15%"><span class="dot"></span><span class="label">抗原颗粒</span></span>
+            <span class="hotspot" style="--x: 67%; --y: 22%"><span class="dot"></span><span class="label">表面抗原</span></span>
+            <span class="hotspot" style="--x: 46%; --y: 31%"><span class="dot"></span><span class="label">抗原表位</span></span>
+            <span class="hotspot" style="--x: 36%; --y: 45%"><span class="dot"></span><span class="label">Fab 臂</span></span>
+            <span class="hotspot" style="--x: 45%; --y: 38%"><span class="dot"></span><span class="label">抗原结合位点</span></span>
+            <span class="hotspot" style="--x: 50%; --y: 57%"><span class="dot"></span><span class="label">铰链区</span></span>
+            <span class="hotspot" style="--x: 42%; --y: 58%"><span class="dot"></span><span class="label">重链与轻链</span></span>
+            <span class="hotspot" style="--x: 52%; --y: 80%"><span class="dot"></span><span class="label">Fc 段</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示 IgG 抗体的 Y 形结构、Fab/Fc 区域，以及抗体结合抗原表位的空间匹配。</p>
+            <div class="tag-list">
+              <span class="tag">免疫系统</span>
+              <span class="tag">蛋白质结构</span>
+              <span class="tag">特异性识别</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>肺泡与气体交换</h2>
+              <p class="en">Alveoli and Gas Exchange</p>
+            </div>
+            <div class="links">
+              <a href="png/alveoli-gas-exchange-teaching.png">PNG</a>
+              <a href="jpg/alveoli-gas-exchange-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/alveoli-gas-exchange-teaching.png" alt="肺泡与气体交换 3D 教学参考图" />
+            <span class="hotspot" style="--x: 35%; --y: 46%"><span class="dot"></span><span class="label">肺泡腔</span></span>
+            <span class="hotspot" style="--x: 21%; --y: 37%"><span class="dot"></span><span class="label">肺泡壁</span></span>
+            <span class="hotspot" style="--x: 29%; --y: 36%"><span class="dot"></span><span class="label">I 型肺泡细胞</span></span>
+            <span class="hotspot" style="--x: 24%; --y: 28%"><span class="dot"></span><span class="label">II 型肺泡细胞</span></span>
+            <span class="hotspot" style="--x: 41%; --y: 34%"><span class="dot"></span><span class="label">表面活性物质薄膜</span></span>
+            <span class="hotspot" style="--x: 60%; --y: 37%"><span class="dot"></span><span class="label">毛细血管网</span></span>
+            <span class="hotspot" style="--x: 68%; --y: 66%"><span class="dot"></span><span class="label">红细胞</span></span>
+            <span class="hotspot" style="--x: 51%; --y: 54%"><span class="dot"></span><span class="label">气体分子</span></span>
+            <span class="hotspot" style="--x: 64%; --y: 59%"><span class="dot"></span><span class="label">气血屏障</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示肺泡薄壁、毛细血管网、红细胞和气血屏障的空间关系。</p>
+            <div class="tag-list">
+              <span class="tag">呼吸系统</span>
+              <span class="tag">物质交换</span>
+              <span class="tag">结构与功能</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>肾小球与滤过作用</h2>
+              <p class="en">Glomerulus and Filtration</p>
+            </div>
+            <div class="links">
+              <a href="png/nephron-glomerulus-filtration-teaching.png">PNG</a>
+              <a href="jpg/nephron-glomerulus-filtration-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/nephron-glomerulus-filtration-teaching.png" alt="肾小球与滤过作用 3D 教学参考图" />
+            <span class="hotspot" style="--x: 15%; --y: 51%"><span class="dot"></span><span class="label">入球小动脉</span></span>
+            <span class="hotspot" style="--x: 16%; --y: 26%"><span class="dot"></span><span class="label">出球小动脉</span></span>
+            <span class="hotspot" style="--x: 59%; --y: 35%"><span class="dot"></span><span class="label">鲍曼囊</span></span>
+            <span class="hotspot" style="--x: 55%; --y: 45%"><span class="dot"></span><span class="label">肾小球毛细血管丛</span></span>
+            <span class="hotspot" style="--x: 55%; --y: 27%"><span class="dot"></span><span class="label">足细胞</span></span>
+            <span class="hotspot" style="--x: 53%; --y: 47%"><span class="dot"></span><span class="label">足突与滤过裂隙</span></span>
+            <span class="hotspot" style="--x: 62%; --y: 46%"><span class="dot"></span><span class="label">红细胞</span></span>
+            <span class="hotspot" style="--x: 72%; --y: 59%"><span class="dot"></span><span class="label">鲍曼囊腔</span></span>
+            <span class="hotspot" style="--x: 86%; --y: 59%"><span class="dot"></span><span class="label">近端小管起始</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示鲍曼囊、肾小球毛细血管丛、足细胞和滤过裂隙的关系。</p>
+            <div class="tag-list">
+              <span class="tag">泌尿系统</span>
+              <span class="tag">肾单位</span>
+              <span class="tag">滤过作用</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>根尖结构与有丝分裂</h2>
+              <p class="en">Root Tip and Mitosis</p>
+            </div>
+            <div class="links">
+              <a href="png/root-tip-mitosis-teaching.png">PNG</a>
+              <a href="jpg/root-tip-mitosis-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/root-tip-mitosis-teaching.png" alt="根尖结构与有丝分裂 3D 教学参考图" />
+            <span class="hotspot" style="--x: 27%; --y: 79%"><span class="dot"></span><span class="label">根冠</span></span>
+            <span class="hotspot" style="--x: 36%; --y: 60%"><span class="dot"></span><span class="label">分生区</span></span>
+            <span class="hotspot" style="--x: 42%; --y: 53%"><span class="dot"></span><span class="label">有丝分裂细胞</span></span>
+            <span class="hotspot" style="--x: 45%; --y: 52%"><span class="dot"></span><span class="label">染色体</span></span>
+            <span class="hotspot" style="--x: 52%; --y: 43%"><span class="dot"></span><span class="label">细胞壁</span></span>
+            <span class="hotspot" style="--x: 67%; --y: 33%"><span class="dot"></span><span class="label">细胞核</span></span>
+            <span class="hotspot" style="--x: 58%; --y: 37%"><span class="dot"></span><span class="label">伸长区</span></span>
+            <span class="hotspot" style="--x: 72%; --y: 25%"><span class="dot"></span><span class="label">分化区</span></span>
+            <span class="hotspot" style="--x: 83%; --y: 17%"><span class="dot"></span><span class="label">根毛</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示根冠、分生区、伸长区、分化区，以及根尖细胞有丝分裂阶段。</p>
+            <div class="tag-list">
+              <span class="tag">植物生长</span>
+              <span class="tag">细胞分裂</span>
+              <span class="tag">组织分区</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>DNA 复制叉</h2>
+              <p class="en">DNA Replication Fork</p>
+            </div>
+            <div class="links">
+              <a href="png/dna-replication-fork-teaching.png">PNG</a>
+              <a href="jpg/dna-replication-fork-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/dna-replication-fork-teaching.png" alt="DNA 复制叉 3D 教学参考图" />
+            <span class="hotspot" style="--x: 52%; --y: 36%"><span class="dot"></span><span class="label">复制叉</span></span>
+            <span class="hotspot" style="--x: 47%; --y: 43%"><span class="dot"></span><span class="label">解旋酶</span></span>
+            <span class="hotspot" style="--x: 61%; --y: 44%"><span class="dot"></span><span class="label">单链结合蛋白</span></span>
+            <span class="hotspot" style="--x: 27%; --y: 64%"><span class="dot"></span><span class="label">前导链</span></span>
+            <span class="hotspot" style="--x: 23%; --y: 59%"><span class="dot"></span><span class="label">DNA 聚合酶</span></span>
+            <span class="hotspot" style="--x: 14%; --y: 63%"><span class="dot"></span><span class="label">滑动夹</span></span>
+            <span class="hotspot" style="--x: 72%; --y: 64%"><span class="dot"></span><span class="label">后随链</span></span>
+            <span class="hotspot" style="--x: 76%; --y: 66%"><span class="dot"></span><span class="label">冈崎片段</span></span>
+            <span class="hotspot" style="--x: 67%; --y: 58%"><span class="dot"></span><span class="label">RNA 引物</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示 DNA 双链解旋、前导链连续合成、后随链片段合成和复制相关酶的空间关系。</p>
+            <div class="tag-list">
+              <span class="tag">遗传信息</span>
+              <span class="tag">DNA 复制</span>
+              <span class="tag">分子机制</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>减数分裂与同源染色体交换</h2>
+              <p class="en">Meiosis Crossing Over</p>
+            </div>
+            <div class="links">
+              <a href="png/meiosis-crossing-over-teaching.png">PNG</a>
+              <a href="jpg/meiosis-crossing-over-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/meiosis-crossing-over-teaching.png" alt="减数分裂与同源染色体交换 3D 教学参考图" />
+            <span class="hotspot" style="--x: 50%; --y: 48%"><span class="dot"></span><span class="label">细胞核</span></span>
+            <span class="hotspot" style="--x: 75%; --y: 24%"><span class="dot"></span><span class="label">核膜</span></span>
+            <span class="hotspot" style="--x: 39%; --y: 45%"><span class="dot"></span><span class="label">同源染色体</span></span>
+            <span class="hotspot" style="--x: 58%; --y: 40%"><span class="dot"></span><span class="label">姐妹染色单体</span></span>
+            <span class="hotspot" style="--x: 50%; --y: 44%"><span class="dot"></span><span class="label">四分体</span></span>
+            <span class="hotspot" style="--x: 51%; --y: 55%"><span class="dot"></span><span class="label">交叉互换点</span></span>
+            <span class="hotspot" style="--x: 47%; --y: 58%"><span class="dot"></span><span class="label">交换片段</span></span>
+            <span class="hotspot" style="--x: 12%; --y: 48%"><span class="dot"></span><span class="label">中心体</span></span>
+            <span class="hotspot" style="--x: 78%; --y: 45%"><span class="dot"></span><span class="label">纺锤丝</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示减数分裂 I 前期同源染色体联会、四分体形成和非姐妹染色单体交换。</p>
+            <div class="tag-list">
+              <span class="tag">遗传变异</span>
+              <span class="tag">减数分裂</span>
+              <span class="tag">染色体行为</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>酶催化与活性位点</h2>
+              <p class="en">Enzyme Catalysis and Active Site</p>
+            </div>
+            <div class="links">
+              <a href="png/enzyme-catalysis-active-site-teaching.png">PNG</a>
+              <a href="jpg/enzyme-catalysis-active-site-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/enzyme-catalysis-active-site-teaching.png" alt="酶催化与活性位点 3D 教学参考图" />
+            <span class="hotspot" style="--x: 30%; --y: 31%"><span class="dot"></span><span class="label">酶蛋白表面</span></span>
+            <span class="hotspot" style="--x: 39%; --y: 43%"><span class="dot"></span><span class="label">活性位点</span></span>
+            <span class="hotspot" style="--x: 44%; --y: 52%"><span class="dot"></span><span class="label">底物</span></span>
+            <span class="hotspot" style="--x: 35%; --y: 55%"><span class="dot"></span><span class="label">催化残基</span></span>
+            <span class="hotspot" style="--x: 39%; --y: 50%"><span class="dot"></span><span class="label">弱相互作用</span></span>
+            <span class="hotspot" style="--x: 49%; --y: 53%"><span class="dot"></span><span class="label">酶-底物复合物</span></span>
+            <span class="hotspot" style="--x: 82%; --y: 44%"><span class="dot"></span><span class="label">产物释放</span></span>
+            <span class="hotspot" style="--x: 90%; --y: 67%"><span class="dot"></span><span class="label">产物分子</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示酶活性位点、底物专一性、酶-底物复合物和产物释放。</p>
+            <div class="tag-list">
+              <span class="tag">酶与代谢</span>
+              <span class="tag">蛋白质结构</span>
+              <span class="tag">催化反应</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>细菌细胞结构</h2>
+              <p class="en">Bacterial Cell Structure</p>
+            </div>
+            <div class="links">
+              <a href="png/bacterial-cell-structure-teaching.png">PNG</a>
+              <a href="jpg/bacterial-cell-structure-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/bacterial-cell-structure-teaching.png" alt="细菌细胞结构 3D 教学参考图" />
+            <span class="hotspot" style="--x: 42%; --y: 24%"><span class="dot"></span><span class="label">荚膜</span></span>
+            <span class="hotspot" style="--x: 44%; --y: 31%"><span class="dot"></span><span class="label">细胞壁</span></span>
+            <span class="hotspot" style="--x: 45%; --y: 36%"><span class="dot"></span><span class="label">细胞膜</span></span>
+            <span class="hotspot" style="--x: 50%; --y: 47%"><span class="dot"></span><span class="label">细胞质</span></span>
+            <span class="hotspot" style="--x: 48%; --y: 50%"><span class="dot"></span><span class="label">拟核区</span></span>
+            <span class="hotspot" style="--x: 49%; --y: 48%"><span class="dot"></span><span class="label">环状染色体 DNA</span></span>
+            <span class="hotspot" style="--x: 69%; --y: 38%"><span class="dot"></span><span class="label">质粒</span></span>
+            <span class="hotspot" style="--x: 63%; --y: 55%"><span class="dot"></span><span class="label">核糖体</span></span>
+            <span class="hotspot" style="--x: 33%; --y: 20%"><span class="dot"></span><span class="label">菌毛</span></span>
+            <span class="hotspot" style="--x: 82%; --y: 51%"><span class="dot"></span><span class="label">鞭毛</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示原核细胞没有成形细胞核，遗传物质位于拟核区，并具有细胞壁、质膜、质粒、菌毛和鞭毛。</p>
+            <div class="tag-list">
+              <span class="tag">原核生物</span>
+              <span class="tag">微生物</span>
+              <span class="tag">细胞结构</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>CRISPR-Cas9 基因编辑</h2>
+              <p class="en">CRISPR-Cas9 Gene Editing</p>
+            </div>
+            <div class="links">
+              <a href="png/crispr-cas9-gene-editing-teaching.png">PNG</a>
+              <a href="jpg/crispr-cas9-gene-editing-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/crispr-cas9-gene-editing-teaching.png" alt="CRISPR-Cas9 基因编辑 3D 教学参考图" />
+            <span class="hotspot" style="--x: 53%; --y: 42%"><span class="dot"></span><span class="label">Cas9 蛋白</span></span>
+            <span class="hotspot" style="--x: 31%; --y: 52%"><span class="dot"></span><span class="label">目标 DNA</span></span>
+            <span class="hotspot" style="--x: 65%; --y: 38%"><span class="dot"></span><span class="label">引导 RNA</span></span>
+            <span class="hotspot" style="--x: 57%; --y: 52%"><span class="dot"></span><span class="label">RNA-DNA 配对区</span></span>
+            <span class="hotspot" style="--x: 48%; --y: 51%"><span class="dot"></span><span class="label">切割位点</span></span>
+            <span class="hotspot" style="--x: 50%; --y: 59%"><span class="dot"></span><span class="label">断裂 DNA 端</span></span>
+            <span class="hotspot" style="--x: 48%; --y: 57%"><span class="dot"></span><span class="label">金属离子辅因子</span></span>
+            <span class="hotspot" style="--x: 83%; --y: 59%"><span class="dot"></span><span class="label">双链 DNA</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示 Cas9 蛋白在引导 RNA 帮助下识别目标 DNA 并切开双链。</p>
+            <div class="tag-list">
+              <span class="tag">现代生物技术</span>
+              <span class="tag">基因编辑</span>
+              <span class="tag">DNA 切割</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div class="title-block">
+              <h2>植物维管束运输</h2>
+              <p class="en">Plant Vascular Bundle Transport</p>
+            </div>
+            <div class="links">
+              <a href="png/plant-vascular-bundle-transport-teaching.png">PNG</a>
+              <a href="jpg/plant-vascular-bundle-transport-teaching.jpg">JPG</a>
+            </div>
+          </div>
+          <div class="stage">
+            <img src="png/plant-vascular-bundle-transport-teaching.png" alt="植物维管束运输 3D 教学参考图" />
+            <span class="hotspot" style="--x: 82%; --y: 20%"><span class="dot"></span><span class="label">表皮</span></span>
+            <span class="hotspot" style="--x: 76%; --y: 32%"><span class="dot"></span><span class="label">皮层</span></span>
+            <span class="hotspot" style="--x: 59%; --y: 25%"><span class="dot"></span><span class="label">维管束环</span></span>
+            <span class="hotspot" style="--x: 57%; --y: 41%"><span class="dot"></span><span class="label">髓</span></span>
+            <span class="hotspot" style="--x: 27%; --y: 62%"><span class="dot"></span><span class="label">木质部导管</span></span>
+            <span class="hotspot" style="--x: 26%; --y: 50%"><span class="dot"></span><span class="label">水分运输</span></span>
+            <span class="hotspot" style="--x: 48%; --y: 66%"><span class="dot"></span><span class="label">形成层</span></span>
+            <span class="hotspot" style="--x: 63%; --y: 68%"><span class="dot"></span><span class="label">韧皮部筛管</span></span>
+            <span class="hotspot" style="--x: 69%; --y: 68%"><span class="dot"></span><span class="label">伴胞</span></span>
+            <span class="hotspot" style="--x: 74%; --y: 60%"><span class="dot"></span><span class="label">有机物运输</span></span>
+          </div>
+          <div class="body">
+            <p class="goal">演示茎横切面中的木质部、韧皮部、形成层和水分/有机物运输结构。</p>
+            <div class="tag-list">
+              <span class="tag">植物组织</span>
+              <span class="tag">维管束</span>
+              <span class="tag">物质运输</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const colors = [
+          "#0f7c72",
+          "#9c432f",
+          "#334a7d",
+          "#7b4aa0",
+          "#a36b00",
+          "#2f6d3b",
+          "#b33c6b",
+          "#4f6678",
+          "#007093",
+          "#885a22"
+        ];
+
+        const svgNs = "http://www.w3.org/2000/svg";
+
+        function makeSvgPath(className, color) {
+          const path = document.createElementNS(svgNs, "path");
+          path.setAttribute("class", className);
+          path.style.setProperty("--callout-color", color);
+          return path;
+        }
+
+        function prepareStage(stage) {
+          if (stage.dataset.calloutsReady === "true") {
+            return;
+          }
+
+          const image = Array.from(stage.children).find((node) => node.tagName === "IMG");
+          const hotspots = Array.from(stage.children).filter((node) => node.classList?.contains("hotspot"));
+          if (!image || hotspots.length === 0) {
+            return;
+          }
+
+          stage.dataset.calloutsReady = "true";
+
+          const imagePanel = document.createElement("div");
+          imagePanel.className = "image-panel";
+          stage.prepend(imagePanel);
+          imagePanel.appendChild(image);
+
+          const rail = document.createElement("div");
+          rail.className = "callout-rail";
+
+          hotspots.forEach((hotspot, index) => {
+            const color = colors[index % colors.length];
+            const label = hotspot.querySelector(".label");
+            const text = label?.textContent.trim() || `标注 ${index + 1}`;
+            const dot = hotspot.querySelector(".dot");
+
+            hotspot.dataset.index = String(index);
+            hotspot.style.setProperty("--callout-color", color);
+            hotspot.setAttribute("aria-label", text);
+            hotspot.tabIndex = 0;
+            imagePanel.appendChild(hotspot);
+
+            if (dot) {
+              dot.textContent = String(index + 1);
+              dot.style.setProperty("--callout-color", color);
+              dot.style.background = color;
+              dot.style.color = "#fff";
+            }
+
+            if (label) {
+              label.remove();
+            }
+
+            const item = document.createElement("div");
+            item.className = "callout";
+            item.dataset.index = String(index);
+            item.tabIndex = 0;
+            item.style.setProperty("--callout-color", color);
+            item.innerHTML = `<span class="callout-number">${index + 1}</span><span class="callout-text"></span>`;
+            item.querySelector(".callout-text").textContent = text;
+            rail.appendChild(item);
+
+            const activate = () => setActive(stage, index);
+            const lock = () => setActive(stage, index, true);
+            hotspot.addEventListener("mouseenter", activate);
+            hotspot.addEventListener("focus", activate);
+            hotspot.addEventListener("click", lock);
+            item.addEventListener("mouseenter", activate);
+            item.addEventListener("focus", activate);
+            item.addEventListener("click", lock);
+          });
+
+          const leaderLayer = document.createElementNS(svgNs, "svg");
+          leaderLayer.setAttribute("class", "leader-layer");
+          leaderLayer.setAttribute("aria-hidden", "true");
+          stage.appendChild(rail);
+          stage.appendChild(leaderLayer);
+
+          const redraw = () => requestAnimationFrame(() => layoutStage(stage));
+          image.addEventListener("load", redraw, { once: false });
+          stage.addEventListener("mouseleave", () => {
+            if (stage.dataset.activeLocked !== "true") {
+              clearActive(stage);
+            }
+          });
+          stage.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              clearActive(stage);
+            }
+          });
+          redraw();
+        }
+
+        function setActive(stage, index, locked = false) {
+          const current = stage.dataset.activeIndex;
+          if (locked && current === String(index) && stage.dataset.activeLocked === "true") {
+            clearActive(stage);
+            return;
+          }
+          stage.dataset.activeIndex = String(index);
+          stage.dataset.activeLocked = locked ? "true" : "false";
+          syncActiveClasses(stage);
+          layoutStage(stage);
+        }
+
+        function clearActive(stage) {
+          delete stage.dataset.activeIndex;
+          delete stage.dataset.activeLocked;
+          syncActiveClasses(stage);
+          const leaderLayer = stage.querySelector(".leader-layer");
+          leaderLayer?.replaceChildren();
+        }
+
+        function syncActiveClasses(stage) {
+          const active = stage.dataset.activeIndex;
+          const hasActive = active !== undefined;
+          stage.classList.toggle("has-active", hasActive);
+          stage.querySelectorAll(".hotspot, .callout").forEach((element) => {
+            element.classList.toggle("is-active", hasActive && element.dataset.index === active);
+          });
+        }
+
+        function layoutStage(stage) {
+          const imagePanel = stage.querySelector(".image-panel");
+          const rail = stage.querySelector(".callout-rail");
+          const leaderLayer = stage.querySelector(".leader-layer");
+          if (!imagePanel || !rail || !leaderLayer || getComputedStyle(leaderLayer).display === "none") {
+            return;
+          }
+
+          const stageRect = stage.getBoundingClientRect();
+          const railRect = rail.getBoundingClientRect();
+          if (stageRect.width === 0 || stageRect.height === 0 || railRect.height === 0) {
+            return;
+          }
+
+          const rows = Array.from(stage.querySelectorAll(".hotspot")).map((hotspot) => {
+            const index = Number(hotspot.dataset.index);
+            const item = rail.querySelector(`.callout[data-index="${index}"]`);
+            const dot = hotspot.querySelector(".dot");
+            const color = colors[index % colors.length];
+            return { hotspot, item, dot, color, index };
+          }).filter((row) => row.item && row.dot);
+
+          rows.forEach((row) => {
+            row.item.style.top = "0px";
+          });
+
+          const measured = rows.map((row) => {
+            const dotRect = row.dot.getBoundingClientRect();
+            const itemRect = row.item.getBoundingClientRect();
+            const desiredCenter = dotRect.top + dotRect.height / 2 - railRect.top;
+            return {
+              ...row,
+              height: itemRect.height,
+              desiredTop: desiredCenter - itemRect.height / 2
+            };
+          }).sort((a, b) => a.desiredTop - b.desiredTop);
+
+          const minGap = 6;
+          let cursor = 0;
+          measured.forEach((row) => {
+            row.top = Math.max(0, row.desiredTop, cursor);
+            cursor = row.top + row.height + minGap;
+          });
+
+          const last = measured[measured.length - 1];
+          if (last) {
+            const overflow = last.top + last.height - railRect.height;
+            if (overflow > 0) {
+              last.top -= overflow;
+              for (let index = measured.length - 2; index >= 0; index -= 1) {
+                const next = measured[index + 1];
+                const row = measured[index];
+                row.top = Math.min(row.top, next.top - row.height - minGap);
+              }
+              measured.forEach((row) => {
+                row.top = Math.max(0, row.top);
+              });
+            }
+          }
+
+          measured.forEach((row) => {
+            row.item.style.top = `${row.top}px`;
+          });
+
+          leaderLayer.setAttribute("viewBox", `0 0 ${stageRect.width} ${stageRect.height}`);
+          leaderLayer.setAttribute("width", String(stageRect.width));
+          leaderLayer.setAttribute("height", String(stageRect.height));
+          leaderLayer.replaceChildren();
+
+          const activeIndex = stage.dataset.activeIndex;
+          const activeRow = rows.find((row) => String(row.index) === activeIndex);
+          if (!activeRow) {
+            return;
+          }
+
+          const dotRect = activeRow.dot.getBoundingClientRect();
+          const itemRect = activeRow.item.getBoundingClientRect();
+          const startX = dotRect.left + dotRect.width / 2 - stageRect.left;
+          const startY = dotRect.top + dotRect.height / 2 - stageRect.top;
+          const endX = itemRect.left - stageRect.left;
+          const endY = itemRect.top + itemRect.height / 2 - stageRect.top;
+          const tension = Math.max(28, Math.min(92, (endX - startX) * 0.38));
+          const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} C ${(startX + tension).toFixed(1)} ${startY.toFixed(1)}, ${(endX - tension).toFixed(1)} ${endY.toFixed(1)}, ${endX.toFixed(1)} ${endY.toFixed(1)}`;
+          const bg = makeSvgPath("leader-line-bg", activeRow.color);
+          const line = makeSvgPath("leader-line", activeRow.color);
+          bg.setAttribute("d", d);
+          line.setAttribute("d", d);
+          leaderLayer.append(bg, line);
+        }
+
+        function initCallouts() {
+          document.querySelectorAll(".stage").forEach(prepareStage);
+          const redrawAll = () => document.querySelectorAll(".stage").forEach(layoutStage);
+          if ("ResizeObserver" in window) {
+            const observer = new ResizeObserver(redrawAll);
+            document.querySelectorAll(".stage, .image-panel, .callout-rail").forEach((node) => observer.observe(node));
+          }
+          window.addEventListener("resize", redrawAll);
+          window.addEventListener("load", redrawAll);
+        }
+
+        initCallouts();
+      })();
+    </script>
+  </body>
+</html>

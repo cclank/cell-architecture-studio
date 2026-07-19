@@ -41,9 +41,9 @@ function achievement(
 
 export const ACHIEVEMENTS: Achievement[] = [
   achievement("first-contact", "First Contact", "View your first specimen", "Microscope", (s) => s.viewed, 1),
-  achievement("explorer", "Explorer", "View 25 specimens", "Compass", (s) => s.viewed, 25),
-  achievement("curator", "Curator", "View 100 specimens", "Library", (s) => s.viewed, 100),
-  achievement("collector", "Collector", "Favorite 10 specimens", "Star", (s) => s.favorites, 10),
+  achievement("explorer", "Explorer", "Explore 3 specimens", "Compass", (s) => s.viewed, 3),
+  achievement("curator", "Curator", "Explore all 7 specimens", "Library", (s) => s.viewed, 7),
+  achievement("collector", "Collector", "Favorite 3 specimens", "Star", (s) => s.favorites, 3),
   achievement("first-quiz", "Quizzer", "Finish a quiz", "Gamepad2", (s) => s.quizzes, 1),
   achievement("sharp", "Sharpshooter", "Reach a 5 answer streak", "Zap", (s) => s.bestStreak, 5),
   achievement("flawless", "Flawless", "Score a perfect quiz", "Trophy", (s) => s.perfect, 1),

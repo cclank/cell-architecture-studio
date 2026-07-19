@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Biology 3D Teaching References | 2026-05-31</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #17202a;
+        --muted: #5d6673;
+        --line: #d9dee7;
+        --accent: #0f7c72;
+        --accent-2: #9c432f;
+        --marker: #f5c542;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      main {
+        width: min(1440px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      header {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(26px, 3vw, 42px);
+        font-weight: 760;
+      }
+
+      .subhead {
+        max-width: 930px;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: #384252;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      .language-link {
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+        color: #17202a;
+        padding: 7px 11px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .language-link:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 900px), 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        overflow: clip;
+        box-shadow: 0 18px 45px rgb(23 32 42 / 0.08);
+      }
+
+      .card-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 16px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .title-block {
+        display: grid;
+        gap: 3px;
+      }
+
+      h2 {
+        font-size: 18px;
+        font-weight: 720;
+      }
+
+      .caption {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .links {
+        display: flex;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .links a {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        color: #17202a;
+        padding: 5px 9px;
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      .links a:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .stage {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(176px, 220px);
+        gap: 12px;
+        padding: 12px;
+        background: #e9edf2;
+      }
+
+      .image-panel {
+        position: relative;
+        z-index: 2;
+        aspect-ratio: 3 / 2;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #dce3eb;
+      }
+
+      .image-panel img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .hotspot {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translate(-50%, -50%);
+        z-index: 5;
+      }
+
+      .dot {
+        display: grid;
+        width: 21px;
+        height: 21px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 2px solid #fff;
+        border-radius: 999px;
+        background: var(--marker);
+        color: #17202a;
+        font-size: 10px;
+        font-weight: 760;
+        line-height: 1;
+        box-shadow:
+          0 0 0 1px rgb(23 32 42 / 0.35),
+          0 2px 7px rgb(0 0 0 / 0.25);
+        opacity: 0.78;
+        transition:
+          opacity 140ms ease,
+          transform 140ms ease,
+          box-shadow 140ms ease;
+      }
+
+      .label {
+        display: none;
+      }
+
+      .leader-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .leader-line {
+        fill: none;
+        stroke: var(--callout-color, var(--accent));
+        stroke-linecap: round;
+        stroke-width: 1.8;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .leader-line-bg {
+        fill: none;
+        stroke: rgb(255 255 255 / 0.72);
+        stroke-linecap: round;
+        stroke-width: 4;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .callout-rail {
+        position: relative;
+        z-index: 5;
+        min-height: 100%;
+        border-left: 1px solid rgb(23 32 42 / 0.14);
+      }
+
+      .callout {
+        position: absolute;
+        left: 10px;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid rgb(23 32 42 / 0.18);
+        border-radius: 7px;
+        background: rgb(255 255 255 / 0.94);
+        color: #111820;
+        padding: 5px 7px;
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.18;
+        box-shadow: 0 4px 12px rgb(23 32 42 / 0.12);
+        backdrop-filter: blur(7px);
+        cursor: default;
+        opacity: 0.78;
+        transition:
+          border-color 140ms ease,
+          box-shadow 140ms ease,
+          opacity 140ms ease,
+          transform 140ms ease;
+      }
+
+      .callout-number {
+        display: grid;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--callout-color, var(--accent));
+        color: #fff;
+        font-size: 10px;
+        font-weight: 760;
+      }
+
+      .callout-text {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .hotspot.is-active .dot {
+        opacity: 1;
+        transform: scale(1.18);
+        box-shadow:
+          0 0 0 2px rgb(255 255 255 / 0.9),
+          0 0 0 5px color-mix(in srgb, var(--callout-color, var(--accent)) 28%, transparent),
+          0 5px 14px rgb(0 0 0 / 0.28);
+      }
+
+      .callout.is-active {
+        border-color: color-mix(in srgb, var(--callout-color, var(--accent)) 62%, #ffffff);
+        opacity: 1;
+        transform: translateX(-3px);
+        box-shadow: 0 8px 18px rgb(23 32 42 / 0.18);
+      }
+
+      .stage.has-active .callout:not(.is-active),
+      .stage.has-active .hotspot:not(.is-active) .dot {
+        opacity: 0.42;
+      }
+
+      .body {
+        display: grid;
+        gap: 10px;
+        padding: 14px 16px 16px;
+      }
+
+      .goal {
+        color: #2d3745;
+        font-size: 14px;
+      }
+
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .tag {
+        border-radius: 7px;
+        background: #eef6f4;
+        color: #155b54;
+        padding: 4px 7px;
+        font-size: 12px;
+      }
+
+      .tag:nth-child(3n) {
+        background: #f8eee9;
+        color: #7c3724;
+      }
+
+      .tag:nth-child(3n + 2) {
+        background: #eef1fb;
+        color: #334a7d;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          width: min(100% - 20px, 720px);
+          padding-top: 20px;
+        }
+
+        .topline,
+        .card-head {
+          display: grid;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stage {
+          grid-template-columns: 1fr;
+          gap: 10px;
+          padding: 8px;
+        }
+
+        .leader-layer {
+          display: none;
+        }
+
+        .callout-rail {
+          display: grid;
+          gap: 6px;
+          border-left: 0;
+        }
+
+        .callout {
+          position: static;
+          left: auto;
+          right: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="topline">
+          <h1>Biology 3D Teaching References</h1>
+          <a class="language-link" href="index.html">Chinese Version</a>
+        </div>
+        <p class="subhead">
+          Generated with the built-in image generation workflow. Each image keeps lightweight numbered markers on the artwork, with English structure names in the side rail for classroom demonstration, 3D model reference, and site annotations.
+        </p>
+        <div class="meta">
+          <span class="chip">Generated: 2026-05-31</span>
+          <span class="chip">Images: 12</span>
+          <span class="chip">Size: 1536 x 1024</span>
+          <span class="chip">Coordinates: percentage-based</span>
+          <span class="chip">Numbered markers + structure list</span>
+        </div>
+      </header>
+
+      <section class="grid" aria-label="Biology 3D teaching reference gallery" id="gallery"></section>
+    </main>
+    <script>
+      (() => {
+        const items = [
+          {
+            title: "Neuronal Synapse and Neurotransmitter Release",
+            caption: "Chemical signaling across a synapse",
+            png: "png/neuron-synapse-transmission-teaching.png",
+            jpg: "jpg/neuron-synapse-transmission-teaching.jpg",
+            goal: "Shows neurotransmitter release from the presynaptic membrane, diffusion across the synaptic cleft, and receptor activation on the postsynaptic membrane.",
+            tags: ["Nervous system", "Neural signaling", "Membrane receptors"],
+            hotspots: [
+              ["Presynaptic axon terminal", 27, 35],
+              ["Synaptic vesicles", 38, 44],
+              ["Mitochondrion", 18, 52],
+              ["Vesicle fusion site", 52, 43],
+              ["Synaptic cleft", 60, 48],
+              ["Neurotransmitters", 64, 52],
+              ["Postsynaptic membrane", 80, 44],
+              ["Receptor channels", 75, 58]
+            ]
+          },
+          {
+            title: "Chloroplast and Photosynthetic Structures",
+            caption: "Thylakoid stacks, stroma, and photosynthetic flow",
+            png: "png/chloroplast-photosynthesis-teaching.png",
+            jpg: "jpg/chloroplast-photosynthesis-teaching.jpg",
+            goal: "Shows the chloroplast envelope, stroma, thylakoid stacks, and structures involved in photosynthesis.",
+            tags: ["Plant cell", "Energy conversion", "Photosynthesis"],
+            hotspots: [
+              ["Light direction", 8, 8],
+              ["Outer chloroplast membrane", 49, 14],
+              ["Double-membrane envelope", 33, 24],
+              ["Granum", 54, 45],
+              ["Thylakoid stack", 67, 48],
+              ["Stroma lamellae", 46, 51],
+              ["Stroma", 62, 64],
+              ["Circular chloroplast DNA", 50, 62],
+              ["Starch granule", 63, 78],
+              ["Oxygen release", 91, 17]
+            ]
+          },
+          {
+            title: "Antibody and Antigen Binding",
+            caption: "IgG architecture and epitope recognition",
+            png: "png/antibody-antigen-binding-teaching.png",
+            jpg: "jpg/antibody-antigen-binding-teaching.jpg",
+            goal: "Shows the Y-shaped structure of an IgG antibody, its Fab and Fc regions, and the spatial match between an antibody and an antigen epitope.",
+            tags: ["Immune system", "Protein structure", "Specific recognition"],
+            hotspots: [
+              ["Antigen particle", 54, 15],
+              ["Surface antigen", 67, 22],
+              ["Antigen epitope", 46, 31],
+              ["Fab arm", 36, 45],
+              ["Antigen-binding site", 45, 38],
+              ["Hinge region", 50, 57],
+              ["Heavy and light chains", 42, 58],
+              ["Fc region", 52, 80]
+            ]
+          },
+          {
+            title: "Alveoli and Gas Exchange",
+            caption: "Alveolar wall, capillaries, and diffusion barrier",
+            png: "png/alveoli-gas-exchange-teaching.png",
+            jpg: "jpg/alveoli-gas-exchange-teaching.jpg",
+            goal: "Shows the spatial relationship among the thin alveolar wall, capillary network, red blood cells, and the blood-air barrier.",
+            tags: ["Respiratory system", "Gas exchange", "Structure and function"],
+            hotspots: [
+              ["Alveolar lumen", 35, 46],
+              ["Alveolar wall", 21, 37],
+              ["Type I pneumocyte", 29, 36],
+              ["Type II pneumocyte", 24, 28],
+              ["Surfactant film", 41, 34],
+              ["Capillary network", 60, 37],
+              ["Red blood cell", 68, 66],
+              ["Gas molecules", 51, 54],
+              ["Blood-air barrier", 64, 59]
+            ]
+          },
+          {
+            title: "Glomerulus and Filtration",
+            caption: "Bowman's capsule, podocytes, and filtration slits",
+            png: "png/nephron-glomerulus-filtration-teaching.png",
+            jpg: "jpg/nephron-glomerulus-filtration-teaching.jpg",
+            goal: "Shows the relationship among Bowman's capsule, the glomerular capillary tuft, podocytes, and filtration slits.",
+            tags: ["Urinary system", "Nephron", "Filtration"],
+            hotspots: [
+              ["Afferent arteriole", 15, 51],
+              ["Efferent arteriole", 16, 26],
+              ["Bowman's capsule", 59, 35],
+              ["Glomerular capillary tuft", 55, 45],
+              ["Podocyte", 55, 27],
+              ["Foot processes and filtration slits", 53, 47],
+              ["Red blood cell", 62, 46],
+              ["Bowman's space", 72, 59],
+              ["Start of proximal tubule", 86, 59]
+            ]
+          },
+          {
+            title: "Root Tip and Mitosis",
+            caption: "Root growth zones with dividing cells",
+            png: "png/root-tip-mitosis-teaching.png",
+            jpg: "jpg/root-tip-mitosis-teaching.jpg",
+            goal: "Shows the root cap, meristematic zone, elongation zone, differentiation zone, and mitotic stages in root-tip cells.",
+            tags: ["Plant growth", "Cell division", "Tissue zones"],
+            hotspots: [
+              ["Root cap", 27, 79],
+              ["Meristematic zone", 36, 60],
+              ["Mitotic cell", 42, 53],
+              ["Chromosomes", 45, 52],
+              ["Cell wall", 52, 43],
+              ["Nucleus", 67, 33],
+              ["Elongation zone", 58, 37],
+              ["Differentiation zone", 72, 25],
+              ["Root hair", 83, 17]
+            ]
+          },
+          {
+            title: "DNA Replication Fork",
+            caption: "Leading and lagging strand synthesis",
+            png: "png/dna-replication-fork-teaching.png",
+            jpg: "jpg/dna-replication-fork-teaching.jpg",
+            goal: "Shows DNA unwinding, continuous leading-strand synthesis, discontinuous lagging-strand synthesis, and the spatial arrangement of replication enzymes.",
+            tags: ["Genetic information", "DNA replication", "Molecular mechanism"],
+            hotspots: [
+              ["Replication fork", 52, 36],
+              ["Helicase", 47, 43],
+              ["Single-strand binding proteins", 61, 44],
+              ["Leading strand", 27, 64],
+              ["DNA polymerase", 23, 59],
+              ["Sliding clamp", 14, 63],
+              ["Lagging strand", 72, 64],
+              ["Okazaki fragment", 76, 66],
+              ["RNA primer", 67, 58]
+            ]
+          },
+          {
+            title: "Meiosis and Homologous Chromosome Crossing Over",
+            caption: "Homologous chromosomes and recombination",
+            png: "png/meiosis-crossing-over-teaching.png",
+            jpg: "jpg/meiosis-crossing-over-teaching.jpg",
+            goal: "Shows homologous chromosome pairing, tetrad formation, and non-sister chromatid exchange during prophase I of meiosis.",
+            tags: ["Genetic variation", "Meiosis", "Chromosome behavior"],
+            hotspots: [
+              ["Nucleus", 50, 48],
+              ["Nuclear envelope", 75, 24],
+              ["Homologous chromosomes", 39, 45],
+              ["Sister chromatids", 58, 40],
+              ["Tetrad", 50, 44],
+              ["Chiasma crossing point", 51, 55],
+              ["Exchanged segment", 47, 58],
+              ["Centrosome", 12, 48],
+              ["Spindle fibers", 78, 45]
+            ]
+          },
+          {
+            title: "Enzyme Catalysis and Active Site",
+            caption: "Substrate fit, catalytic residues, and product release",
+            png: "png/enzyme-catalysis-active-site-teaching.png",
+            jpg: "jpg/enzyme-catalysis-active-site-teaching.jpg",
+            goal: "Shows the enzyme active site, substrate specificity, enzyme-substrate complex, and product release.",
+            tags: ["Enzymes and metabolism", "Protein structure", "Catalytic reaction"],
+            hotspots: [
+              ["Enzyme surface", 30, 31],
+              ["Active site", 39, 43],
+              ["Substrate", 44, 52],
+              ["Catalytic residues", 35, 55],
+              ["Noncovalent interactions", 39, 50],
+              ["Enzyme-substrate complex", 49, 53],
+              ["Product release", 82, 44],
+              ["Product molecules", 90, 67]
+            ]
+          },
+          {
+            title: "Bacterial Cell Structure",
+            caption: "Core prokaryotic anatomy",
+            png: "png/bacterial-cell-structure-teaching.png",
+            jpg: "jpg/bacterial-cell-structure-teaching.jpg",
+            goal: "Shows a prokaryotic cell without a membrane-bound nucleus, with genetic material in the nucleoid region plus a cell wall, plasma membrane, plasmids, pili, and flagellum.",
+            tags: ["Prokaryotes", "Microbiology", "Cell structure"],
+            hotspots: [
+              ["Capsule", 42, 24],
+              ["Cell wall", 44, 31],
+              ["Cell membrane", 45, 36],
+              ["Cytoplasm", 50, 47],
+              ["Nucleoid region", 48, 50],
+              ["Circular chromosome DNA", 49, 48],
+              ["Plasmid", 69, 38],
+              ["Ribosomes", 63, 55],
+              ["Pili", 33, 20],
+              ["Flagellum", 82, 51]
+            ]
+          },
+          {
+            title: "CRISPR-Cas9 Gene Editing",
+            caption: "Guide RNA targeting and double-strand cutting",
+            png: "png/crispr-cas9-gene-editing-teaching.png",
+            jpg: "jpg/crispr-cas9-gene-editing-teaching.jpg",
+            goal: "Shows how the Cas9 protein uses guide RNA to recognize a target DNA sequence and cut both DNA strands.",
+            tags: ["Modern biotechnology", "Gene editing", "DNA cleavage"],
+            hotspots: [
+              ["Cas9 protein", 53, 42],
+              ["Target DNA", 31, 52],
+              ["Guide RNA", 65, 38],
+              ["RNA-DNA pairing region", 57, 52],
+              ["Cleavage site", 48, 51],
+              ["Broken DNA ends", 50, 59],
+              ["Metal ion cofactor", 48, 57],
+              ["Double-stranded DNA", 83, 59]
+            ]
+          },
+          {
+            title: "Plant Vascular Bundle Transport",
+            caption: "Xylem, phloem, cambium, and transport direction",
+            png: "png/plant-vascular-bundle-transport-teaching.png",
+            jpg: "jpg/plant-vascular-bundle-transport-teaching.jpg",
+            goal: "Shows xylem, phloem, cambium, and water or organic-molecule transport structures in a stem cross-section.",
+            tags: ["Plant tissue", "Vascular bundle", "Material transport"],
+            hotspots: [
+              ["Epidermis", 82, 20],
+              ["Cortex", 76, 32],
+              ["Ring of vascular bundles", 59, 25],
+              ["Pith", 57, 41],
+              ["Xylem vessel", 27, 62],
+              ["Water transport", 26, 50],
+              ["Cambium", 48, 66],
+              ["Phloem sieve tube", 63, 68],
+              ["Companion cell", 69, 68],
+              ["Organic solute transport", 74, 60]
+            ]
+          }
+        ];
+
+        const colors = [
+          "#0f7c72",
+          "#9c432f",
+          "#334a7d",
+          "#7b4aa0",
+          "#a36b00",
+          "#2f6d3b",
+          "#b33c6b",
+          "#4f6678",
+          "#007093",
+          "#885a22"
+        ];
+
+        const svgNs = "http://www.w3.org/2000/svg";
+
+        function appendText(parent, tagName, className, text) {
+          const element = document.createElement(tagName);
+          if (className) {
+            element.className = className;
+          }
+          element.textContent = text;
+          parent.appendChild(element);
+          return element;
+        }
+
+        function createLink(href, text) {
+          const link = document.createElement("a");
+          link.href = href;
+          link.textContent = text;
+          return link;
+        }
+
+        function renderGallery() {
+          const gallery = document.querySelector("#gallery");
+          items.forEach((item) => {
+            const article = document.createElement("article");
+            article.className = "card";
+
+            const cardHead = document.createElement("div");
+            cardHead.className = "card-head";
+
+            const titleBlock = document.createElement("div");
+            titleBlock.className = "title-block";
+            appendText(titleBlock, "h2", "", item.title);
+            appendText(titleBlock, "p", "caption", item.caption);
+
+            const links = document.createElement("div");
+            links.className = "links";
+            links.append(createLink(item.png, "PNG"), createLink(item.jpg, "JPG"));
+            cardHead.append(titleBlock, links);
+
+            const stage = document.createElement("div");
+            stage.className = "stage";
+            const image = document.createElement("img");
+            image.src = item.png;
+            image.alt = `${item.title} 3D teaching reference`;
+            stage.appendChild(image);
+
+            item.hotspots.forEach(([label, x, y]) => {
+              const hotspot = document.createElement("span");
+              hotspot.className = "hotspot";
+              hotspot.style.setProperty("--x", `${x}%`);
+              hotspot.style.setProperty("--y", `${y}%`);
+              const dot = document.createElement("span");
+              dot.className = "dot";
+              const hiddenLabel = document.createElement("span");
+              hiddenLabel.className = "label";
+              hiddenLabel.textContent = label;
+              hotspot.append(dot, hiddenLabel);
+              stage.appendChild(hotspot);
+            });
+
+            const body = document.createElement("div");
+            body.className = "body";
+            appendText(body, "p", "goal", item.goal);
+
+            const tagList = document.createElement("div");
+            tagList.className = "tag-list";
+            item.tags.forEach((tag) => appendText(tagList, "span", "tag", tag));
+            body.appendChild(tagList);
+
+            article.append(cardHead, stage, body);
+            gallery.appendChild(article);
+          });
+        }
+
+        function makeSvgPath(className, color) {
+          const path = document.createElementNS(svgNs, "path");
+          path.setAttribute("class", className);
+          path.style.setProperty("--callout-color", color);
+          return path;
+        }
+
+        function prepareStage(stage) {
+          if (stage.dataset.calloutsReady === "true") {
+            return;
+          }
+
+          const image = Array.from(stage.children).find((node) => node.tagName === "IMG");
+          const hotspots = Array.from(stage.children).filter((node) => node.classList?.contains("hotspot"));
+          if (!image || hotspots.length === 0) {
+            return;
+          }
+
+          stage.dataset.calloutsReady = "true";
+
+          const imagePanel = document.createElement("div");
+          imagePanel.className = "image-panel";
+          stage.prepend(imagePanel);
+          imagePanel.appendChild(image);
+
+          const rail = document.createElement("div");
+          rail.className = "callout-rail";
+
+          hotspots.forEach((hotspot, index) => {
+            const color = colors[index % colors.length];
+            const label = hotspot.querySelector(".label");
+            const text = label?.textContent.trim() || `Annotation ${index + 1}`;
+            const dot = hotspot.querySelector(".dot");
+
+            hotspot.dataset.index = String(index);
+            hotspot.style.setProperty("--callout-color", color);
+            hotspot.setAttribute("aria-label", text);
+            hotspot.tabIndex = 0;
+            imagePanel.appendChild(hotspot);
+
+            if (dot) {
+              dot.textContent = String(index + 1);
+              dot.style.setProperty("--callout-color", color);
+              dot.style.background = color;
+              dot.style.color = "#fff";
+            }
+
+            if (label) {
+              label.remove();
+            }
+
+            const item = document.createElement("div");
+            item.className = "callout";
+            item.dataset.index = String(index);
+            item.tabIndex = 0;
+            item.style.setProperty("--callout-color", color);
+            item.innerHTML = `<span class="callout-number">${index + 1}</span><span class="callout-text"></span>`;
+            item.querySelector(".callout-text").textContent = text;
+            rail.appendChild(item);
+
+            const activate = () => setActive(stage, index);
+            const lock = () => setActive(stage, index, true);
+            hotspot.addEventListener("mouseenter", activate);
+            hotspot.addEventListener("focus", activate);
+            hotspot.addEventListener("click", lock);
+            item.addEventListener("mouseenter", activate);
+            item.addEventListener("focus", activate);
+            item.addEventListener("click", lock);
+          });
+
+          const leaderLayer = document.createElementNS(svgNs, "svg");
+          leaderLayer.setAttribute("class", "leader-layer");
+          leaderLayer.setAttribute("aria-hidden", "true");
+          stage.appendChild(rail);
+          stage.appendChild(leaderLayer);
+
+          const redraw = () => requestAnimationFrame(() => layoutStage(stage));
+          image.addEventListener("load", redraw, { once: false });
+          stage.addEventListener("mouseleave", () => {
+            if (stage.dataset.activeLocked !== "true") {
+              clearActive(stage);
+            }
+          });
+          stage.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              clearActive(stage);
+            }
+          });
+          redraw();
+        }
+
+        function setActive(stage, index, locked = false) {
+          const current = stage.dataset.activeIndex;
+          if (locked && current === String(index) && stage.dataset.activeLocked === "true") {
+            clearActive(stage);
+            return;
+          }
+          stage.dataset.activeIndex = String(index);
+          stage.dataset.activeLocked = locked ? "true" : "false";
+          syncActiveClasses(stage);
+          layoutStage(stage);
+        }
+
+        function clearActive(stage) {
+          delete stage.dataset.activeIndex;
+          delete stage.dataset.activeLocked;
+          syncActiveClasses(stage);
+          const leaderLayer = stage.querySelector(".leader-layer");
+          leaderLayer?.replaceChildren();
+        }
+
+        function syncActiveClasses(stage) {
+          const active = stage.dataset.activeIndex;
+          const hasActive = active !== undefined;
+          stage.classList.toggle("has-active", hasActive);
+          stage.querySelectorAll(".hotspot, .callout").forEach((element) => {
+            element.classList.toggle("is-active", hasActive && element.dataset.index === active);
+          });
+        }
+
+        function layoutStage(stage) {
+          const imagePanel = stage.querySelector(".image-panel");
+          const rail = stage.querySelector(".callout-rail");
+          const leaderLayer = stage.querySelector(".leader-layer");
+          if (!imagePanel || !rail || !leaderLayer || getComputedStyle(leaderLayer).display === "none") {
+            return;
+          }
+
+          const stageRect = stage.getBoundingClientRect();
+          const railRect = rail.getBoundingClientRect();
+          if (stageRect.width === 0 || stageRect.height === 0 || railRect.height === 0) {
+            return;
+          }
+
+          const rows = Array.from(stage.querySelectorAll(".hotspot")).map((hotspot) => {
+            const index = Number(hotspot.dataset.index);
+            const item = rail.querySelector(`.callout[data-index="${index}"]`);
+            const dot = hotspot.querySelector(".dot");
+            const color = colors[index % colors.length];
+            return { hotspot, item, dot, color, index };
+          }).filter((row) => row.item && row.dot);
+
+          rows.forEach((row) => {
+            row.item.style.top = "0px";
+          });
+
+          const measured = rows.map((row) => {
+            const dotRect = row.dot.getBoundingClientRect();
+            const itemRect = row.item.getBoundingClientRect();
+            const desiredCenter = dotRect.top + dotRect.height / 2 - railRect.top;
+            return {
+              ...row,
+              height: itemRect.height,
+              desiredTop: desiredCenter - itemRect.height / 2
+            };
+          }).sort((a, b) => a.desiredTop - b.desiredTop);
+
+          const minGap = 6;
+          let cursor = 0;
+          measured.forEach((row) => {
+            row.top = Math.max(0, row.desiredTop, cursor);
+            cursor = row.top + row.height + minGap;
+          });
+
+          const last = measured[measured.length - 1];
+          if (last) {
+            const overflow = last.top + last.height - railRect.height;
+            if (overflow > 0) {
+              last.top -= overflow;
+              for (let index = measured.length - 2; index >= 0; index -= 1) {
+                const next = measured[index + 1];
+                const row = measured[index];
+                row.top = Math.min(row.top, next.top - row.height - minGap);
+              }
+              measured.forEach((row) => {
+                row.top = Math.max(0, row.top);
+              });
+            }
+          }
+
+          measured.forEach((row) => {
+            row.item.style.top = `${row.top}px`;
+          });
+
+          leaderLayer.setAttribute("viewBox", `0 0 ${stageRect.width} ${stageRect.height}`);
+          leaderLayer.setAttribute("width", String(stageRect.width));
+          leaderLayer.setAttribute("height", String(stageRect.height));
+          leaderLayer.replaceChildren();
+
+          const activeIndex = stage.dataset.activeIndex;
+          const activeRow = rows.find((row) => String(row.index) === activeIndex);
+          if (!activeRow) {
+            return;
+          }
+
+          const dotRect = activeRow.dot.getBoundingClientRect();
+          const itemRect = activeRow.item.getBoundingClientRect();
+          const startX = dotRect.left + dotRect.width / 2 - stageRect.left;
+          const startY = dotRect.top + dotRect.height / 2 - stageRect.top;
+          const endX = itemRect.left - stageRect.left;
+          const endY = itemRect.top + itemRect.height / 2 - stageRect.top;
+          const tension = Math.max(28, Math.min(92, (endX - startX) * 0.38));
+          const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} C ${(startX + tension).toFixed(1)} ${startY.toFixed(1)}, ${(endX - tension).toFixed(1)} ${endY.toFixed(1)}, ${endX.toFixed(1)} ${endY.toFixed(1)}`;
+          const bg = makeSvgPath("leader-line-bg", activeRow.color);
+          const line = makeSvgPath("leader-line", activeRow.color);
+          bg.setAttribute("d", d);
+          line.setAttribute("d", d);
+          leaderLayer.append(bg, line);
+        }
+
+        function initCallouts() {
+          document.querySelectorAll(".stage").forEach(prepareStage);
+          const redrawAll = () => document.querySelectorAll(".stage").forEach(layoutStage);
+          if ("ResizeObserver" in window) {
+            const observer = new ResizeObserver(redrawAll);
+            document.querySelectorAll(".stage, .image-panel, .callout-rail").forEach((node) => observer.observe(node));
+          }
+          window.addEventListener("resize", redrawAll);
+          window.addEventListener("load", redrawAll);
+        }
+
+        renderGallery();
+        initCallouts();
+      })();
+    </script>
+  </body>
+</html>

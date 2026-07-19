@@ -15,7 +15,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run && node --test scripts/*.test.mjs",
+    "test:unit": "vitest run",
+    "test:preflight": "node --test scripts/*.test.mjs",
     "test:watch": "vitest",
     "verify": "node scripts/verify.mjs"
   },
@@ -34,7 +36,6 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.0",
-    "gltfpack": "^1.1.0",
     "jsdom": "^29.1.1",
     "playwright-core": "^1.59.1",
     "pngjs": "^7.0.0",

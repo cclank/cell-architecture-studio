@@ -10,9 +10,3 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-.vercel
-
-# Locally-generated 3D library assets (~620MB). Reproduce via scripts/fetch-nih-models.mjs
-# + scripts/generate-all-thumbnails.mjs + scripts/_compress_glbs.mjs.
-public/models/library/
-public/cell-renders-transparent/library/

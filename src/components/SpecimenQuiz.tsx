@@ -23,7 +23,12 @@ type Question = {
   options: CellItem[];
 };
 
-const CATEGORY_FILTERS: CategoryFilter[] = ["All", ...CELL_CATEGORY_ORDER];
+const CATEGORY_FILTERS: CategoryFilter[] = [
+  "All",
+  ...CELL_CATEGORY_ORDER.filter((category) =>
+    QUIZ_POOL.some((cell) => categorize(cell) === category),
+  ),
+];
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];

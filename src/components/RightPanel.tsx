@@ -20,6 +20,7 @@ function buildTutorPrompts(cell: CellItem, organelle: CellItem["organelles"][num
     `Explain how ${organelle.name} helps a ${cell.name} stay alive.`,
     `Quiz me on the visual differences between ${cell.name} and ${getCellById(cell.comparison).name}.`,
     `Guide me through finding ${organelle.name} inside the 3D model.`,
+    `Connect ${cell.name} structure to one clinical observation without giving medical advice.`,
   ];
 }
 
@@ -83,6 +84,12 @@ export function RightPanel({
           <span>Biological Notes</span>
         </div>
         <p>{organelle.note}</p>
+        {cell.clinicalContext && (
+          <div className="clinical-context">
+            <span>Clinical Context</span>
+            <p>{cell.clinicalContext}</p>
+          </div>
+        )}
         <div className="fun-fact">
           <span>Fun Fact: {organelle.fact}</span>
           <Sparkles size={18} />
