@@ -1,0 +1,307 @@
+import type { SyllabusObjective } from "./curriculum/types";
+
+// Student-friendly learning objectives for Milestone 1 (Topics 1-5).
+// `sourceReference` is the project's own paraphrase of where each objective
+// sits in the official syllabus — it is NOT an official Cambridge code, and no
+// syllabus wording is copied verbatim. `id` values are internal project ids.
+
+export const syllabusObjectives: SyllabusObjective[] = [
+  // ---- Topic 1: Characteristics and classification ----
+  {
+    id: "prj-obj-1-1",
+    topicId: "characteristics",
+    subtopicId: "characteristics.1",
+    sourceReference: "Topic 1 — characteristics of living organisms",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "List the seven life processes shared by all living organisms (movement, respiration, sensitivity, growth, reproduction, excretion, nutrition).",
+    keyTerms: ["MRS GREN", "respiration", "excretion", "sensitivity"],
+    misconceptionIds: ["mis-char-1"],
+    visualIds: [],
+    practicalIds: [],
+    questionIds: ["q-char-1"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-1-2",
+    topicId: "characteristics",
+    subtopicId: "characteristics.4",
+    sourceReference: "Topic 1 — species and binomial naming",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Define a species and use the binomial system to name organisms (Genus then species).",
+    keyTerms: ["species", "binomial system", "genus"],
+    misconceptionIds: [],
+    visualIds: [],
+    practicalIds: [],
+    questionIds: ["q-char-2", "q-char-3"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-1-5",
+    topicId: "characteristics",
+    subtopicId: "characteristics.5",
+    sourceReference: "Topic 1 — dichotomous keys",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Use and construct a simple dichotomous key based on easily observable features.",
+    keyTerms: ["dichotomous key", "observable feature"],
+    misconceptionIds: [],
+    visualIds: ["vis-dichotomous-key"],
+    practicalIds: ["prac-classification-key"],
+    questionIds: ["q-char-4", "q-char-5"],
+    status: "VISUAL_AVAILABLE",
+  },
+  // ---- Topic 2: Organisation of the organism ----
+  {
+    id: "prj-obj-2-1",
+    topicId: "organisation",
+    subtopicId: "organisation.1",
+    sourceReference: "Topic 2 — cell structure and organelle functions",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Identify the main organelles (nucleus, cytoplasm, cell membrane, mitochondria, ribosomes) and state what each does.",
+    keyTerms: ["organelle", "nucleus", "mitochondria", "ribosome"],
+    misconceptionIds: ["mis-org-1"],
+    visualIds: ["vis-animal-cell", "vis-plant-cell"],
+    practicalIds: [],
+    questionIds: ["q-org-1"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-2-2",
+    topicId: "organisation",
+    subtopicId: "organisation.2",
+    sourceReference: "Topic 2 — plant cell structure",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Describe a plant cell, including the cell wall, chloroplasts and permanent vacuole, and explain what each does.",
+    keyTerms: ["cell wall", "chloroplast", "vacuole", "cellulose"],
+    misconceptionIds: ["mis-org-2"],
+    visualIds: ["vis-plant-cell"],
+    practicalIds: [],
+    questionIds: ["q-org-2", "q-org-3"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-2-3",
+    topicId: "organisation",
+    subtopicId: "organisation.3",
+    sourceReference: "Topic 2 — animal cell structure",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Describe a typical animal cell and compare it with a plant cell.",
+    keyTerms: ["cell membrane", "cytoplasm", "nucleus"],
+    misconceptionIds: [],
+    visualIds: ["vis-animal-cell"],
+    practicalIds: [],
+    questionIds: ["q-org-4"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-2-4",
+    topicId: "organisation",
+    subtopicId: "organisation.4",
+    sourceReference: "Topic 2 — bacterial cell structure",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Describe a bacterial cell, including circular DNA and the lack of a true nucleus, and use the terms prokaryotic and eukaryotic.",
+    keyTerms: ["prokaryotic", "eukaryotic", "circular DNA", "plasmid"],
+    misconceptionIds: ["mis-org-3"],
+    visualIds: ["vis-bacterial-cell"],
+    practicalIds: [],
+    questionIds: ["q-org-5"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-2-5",
+    topicId: "organisation",
+    subtopicId: "organisation.5",
+    sourceReference: "Topic 2 — specialised cells and their adaptations",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Explain how specialised cells (e.g. ciliated, root hair, red blood, nerve, sperm) are adapted to their functions.",
+    keyTerms: ["specialised cell", "adaptation", "surface area"],
+    misconceptionIds: [],
+    visualIds: ["vis-specialised-cells"],
+    practicalIds: [],
+    questionIds: ["q-org-6"],
+    status: "VISUAL_AVAILABLE",
+  },
+  {
+    id: "prj-obj-2-7",
+    topicId: "organisation",
+    subtopicId: "organisation.7",
+    sourceReference: "Topic 2 — size of specimens and magnification calculations",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Calculate magnification and actual size using magnification = image size ÷ actual size, converting between mm and µm.",
+    keyTerms: ["magnification", "actual size", "micrometre", "scale bar"],
+    misconceptionIds: ["mis-org-4"],
+    visualIds: ["vis-magnification"],
+    practicalIds: ["prac-magnification"],
+    questionIds: [],
+    status: "VISUAL_AVAILABLE",
+  },
+  // ---- Topic 3: Movement into and out of cells ----
+  {
+    id: "prj-obj-3-1",
+    topicId: "movement",
+    subtopicId: "movement.1",
+    sourceReference: "Topic 3 — diffusion and factors affecting its rate",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Define diffusion as the net movement of particles from a high to a low concentration, down a concentration gradient.",
+    keyTerms: ["diffusion", "concentration gradient", "net movement"],
+    misconceptionIds: ["mis-mov-1"],
+    visualIds: [],
+    practicalIds: [],
+    questionIds: ["q-mov-1", "q-mov-2"],
+    status: "VISUAL_AVAILABLE",
+  },
+  {
+    id: "prj-obj-3-2",
+    topicId: "movement",
+    subtopicId: "movement.2",
+    sourceReference: "Topic 3 — osmosis across a partially permeable membrane",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Define osmosis as the net movement of water molecules across a partially permeable membrane from a dilute to a more concentrated solution.",
+    keyTerms: ["osmosis", "partially permeable", "water potential"],
+    misconceptionIds: ["mis-mov-2"],
+    visualIds: [],
+    practicalIds: ["prac-osmosis-potato"],
+    questionIds: ["q-mov-3", "q-mov-4"],
+    status: "VISUAL_AVAILABLE",
+  },
+  {
+    id: "prj-obj-3-5",
+    topicId: "movement",
+    subtopicId: "movement.5",
+    sourceReference: "Topic 3 — active transport and carrier proteins",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Explain active transport as movement against a concentration gradient using energy from respiration and carrier proteins.",
+    keyTerms: ["active transport", "carrier protein", "against the gradient", "energy"],
+    misconceptionIds: ["mis-mov-3"],
+    visualIds: [],
+    practicalIds: [],
+    questionIds: ["q-mov-5"],
+    status: "VISUAL_AVAILABLE",
+  },
+  // ---- Topic 4: Biological molecules ----
+  {
+    id: "prj-obj-4-1",
+    topicId: "molecules",
+    subtopicId: "molecules.1",
+    sourceReference: "Topic 4 — carbohydrates, proteins and lipids",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "State that carbohydrates, proteins and lipids are the main food molecules, and the smaller units each is made from.",
+    keyTerms: ["glucose", "amino acid", "fatty acid", "glycerol"],
+    misconceptionIds: [],
+    visualIds: ["vis-biomolecules"],
+    practicalIds: [],
+    questionIds: ["q-mol-1", "q-mol-2"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-4-4",
+    topicId: "molecules",
+    subtopicId: "molecules.4",
+    sourceReference: "Topic 4 — food tests",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Carry out and interpret food tests for starch (iodine), reducing sugars (Benedict's), protein (biuret) and fats (ethanol emulsion).",
+    keyTerms: ["Benedict's", "iodine", "biuret", "emulsion test"],
+    misconceptionIds: ["mis-mol-1"],
+    visualIds: ["vis-biomolecules"],
+    practicalIds: ["prac-food-tests"],
+    questionIds: ["q-mol-3", "q-mol-4"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-4-6",
+    topicId: "molecules",
+    subtopicId: "molecules.6",
+    sourceReference: "Topic 4 — DNA structure at IGCSE level",
+    courseTier: "SUPPLEMENT",
+    studentFriendlyObjective:
+      "Describe DNA as two strands coiled into a double helix, held together by paired bases (A–T, C–G).",
+    keyTerms: ["double helix", "base pairing", "A–T", "C–G"],
+    misconceptionIds: [],
+    visualIds: ["vis-dna"],
+    practicalIds: [],
+    questionIds: ["q-mol-5"],
+    status: "VISUAL_PLANNED",
+  },
+  // ---- Topic 5: Enzymes ----
+  {
+    id: "prj-obj-5-1",
+    topicId: "enzymes",
+    subtopicId: "enzymes.1",
+    sourceReference: "Topic 5 — enzymes as biological catalysts",
+    courseTier: "CORE",
+    studentFriendlyObjective:
+      "Define an enzyme as a protein that acts as a biological catalyst, speeding up reactions without being used up.",
+    keyTerms: ["enzyme", "catalyst", "protein", "metabolism"],
+    misconceptionIds: ["mis-enz-1"],
+    visualIds: ["vis-enzyme-substrate"],
+    practicalIds: [],
+    questionIds: ["q-enz-1"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-5-2",
+    topicId: "enzymes",
+    subtopicId: "enzymes.2",
+    sourceReference: "Topic 5 — active site, specificity and lock-and-key",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Explain enzyme specificity using the lock-and-key model and the idea of a complementary active site.",
+    keyTerms: ["active site", "specific", "complementary", "lock and key"],
+    misconceptionIds: ["mis-enz-2"],
+    visualIds: ["vis-enzyme-substrate"],
+    practicalIds: [],
+    questionIds: ["q-enz-2"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-5-3",
+    topicId: "enzymes",
+    subtopicId: "enzymes.3",
+    sourceReference: "Topic 5 — effect of temperature on enzymes",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Describe and explain how temperature affects enzyme activity, including denaturation above the optimum.",
+    keyTerms: ["optimum temperature", "denatured", "kinetic energy"],
+    misconceptionIds: ["mis-enz-3"],
+    visualIds: ["vis-enzyme-temp"],
+    practicalIds: ["prac-enzyme-rate"],
+    questionIds: ["q-enz-3", "q-enz-4"],
+    status: "COMPLETE",
+  },
+  {
+    id: "prj-obj-5-4",
+    topicId: "enzymes",
+    subtopicId: "enzymes.4",
+    sourceReference: "Topic 5 — effect of pH on enzymes",
+    courseTier: "BOTH",
+    studentFriendlyObjective:
+      "Describe and explain how pH affects enzyme activity, including denaturation away from the optimum pH.",
+    keyTerms: ["optimum pH", "denatured", "active site shape"],
+    misconceptionIds: [],
+    visualIds: ["vis-enzyme-ph"],
+    practicalIds: ["prac-enzyme-rate"],
+    questionIds: ["q-enz-5"],
+    status: "COMPLETE",
+  },
+];
+
+export function getObjectiveById(id: string): SyllabusObjective | undefined {
+  return syllabusObjectives.find((o) => o.id === id);
+}
+
+export function getObjectivesForTopic(topicId: string): SyllabusObjective[] {
+  return syllabusObjectives.filter((o) => o.topicId === topicId);
+}

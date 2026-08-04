@@ -17,6 +17,7 @@ import {
   createNativeAssetMaterial,
   createSolidAssetMaterial,
 } from "../lib/cellMaterials";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 type CellSceneProps = {
   cell: CellItem;
@@ -994,9 +995,14 @@ export function CellScene({
       camera={{ position: [0, 0.2, 5.8], fov: 38 }}
     >
       {!nativeMaterial && <color attach="background" args={["#fbf7ee"]} />}
-      <Suspense fallback={null}>
-        <Environment preset="studio" background={false} environmentIntensity={nativeMaterial ? 0.75 : 0.5} />
-      </Suspense>
+      {/* The HDR environment is fetched over the network; if that fails (e.g.
+          offline) the manual lights below still light the scene, so we must not
+          let the failure crash the canvas. */}
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <Environment preset="studio" background={false} environmentIntensity={nativeMaterial ? 0.75 : 0.5} />
+        </Suspense>
+      </ErrorBoundary>
       <ambientLight intensity={nativeMaterial ? 0.65 : 0.85} />
       <hemisphereLight
         args={[

@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "1.0.0",
+  "note": "Maps biology visuals to model files and structure->mesh names. Development assets are reused temporarily and marked accordingly; PLANNED models will be produced via the ChatGPT -> Meshy -> Blender pipeline (see docs/ASSET_PIPELINE.md). All future models are project-owned originals.",
+  "models": [
+    {
+      "id": "plant-cell",
+      "title": "Plant Cell",
+      "version": "0.1.0",
+      "topicIds": ["organisation"],
+      "courseTier": "CORE",
+      "modelUrl": "/models/plant-cell-first001.glb",
+      "posterUrl": "/cell-renders-transparent/plant.png",
+      "thumbnailUrl": "/cell-renders/plant.png",
+      "assetStatus": "CONCEPT",
+      "source": "Temporary development asset (user-supplied GLB)",
+      "licence": "To be replaced by an original project model",
+      "meshMap": {
+        "cell-wall": [],
+        "chloroplast": [],
+        "vacuole": [],
+        "nucleus": []
+      }
+    },
+    {
+      "id": "animal-cell",
+      "title": "Animal Cell",
+      "version": "0.1.0",
+      "topicIds": ["organisation"],
+      "courseTier": "CORE",
+      "modelUrl": "/models/animal-cell-nih.glb",
+      "posterUrl": "/nih-previews/animal-cell-nih.png",
+      "thumbnailUrl": "/cell-renders/animal.png",
+      "assetStatus": "CONCEPT",
+      "source": "NIH 3D Print Exchange (3DPX-015797) — temporary development asset",
+      "licence": "Public NIH 3D; to be replaced by an original project model",
+      "meshMap": { "nucleus": [], "mitochondrion": [], "golgi": [] }
+    },
+    {
+      "id": "bacterial-cell",
+      "title": "Bacterial Cell",
+      "version": "0.1.0",
+      "topicIds": ["organisation"],
+      "courseTier": "CORE",
+      "modelUrl": "/models/bacteria-wall-nih.glb",
+      "posterUrl": "/nih-previews/bacteria-wall-nih.png",
+      "thumbnailUrl": "/cell-renders/bacteria.png",
+      "assetStatus": "CONCEPT",
+      "source": "NIH 3D Print Exchange (3DPX-010752) — temporary development asset",
+      "licence": "Public NIH 3D; to be replaced by an original project model",
+      "meshMap": { "nucleoid": [], "cellWall": [], "flagellum": [] }
+    },
+    {
+      "id": "dna-double-helix",
+      "title": "DNA Double Helix",
+      "version": "0.0.0",
+      "topicIds": ["molecules", "inheritance"],
+      "courseTier": "SUPPLEMENT",
+      "modelUrl": "/models/dna/dna-double-helix-v1.glb",
+      "posterUrl": "/cell-renders/neuron.png",
+      "thumbnailUrl": "/cell-renders/neuron.png",
+      "assetStatus": "PLANNED",
+      "source": "Original ChatGPT concept + Meshy reconstruction (planned)",
+      "licence": "Project-owned asset",
+      "meshMap": {
+        "backbone": ["dna__backbone"],
+        "bases": ["dna__bases"]
+      }
+    },
+    {
+      "id": "enzyme-substrate",
+      "title": "Enzyme & Substrate",
+      "version": "0.0.0",
+      "topicIds": ["enzymes"],
+      "courseTier": "BOTH",
+      "modelUrl": "/models/enzyme/enzyme-substrate-v1.glb",
+      "posterUrl": "/cell-renders/muscle.png",
+      "thumbnailUrl": "/cell-renders/muscle.png",
+      "assetStatus": "PLANNED",
+      "source": "Original ChatGPT concept + Meshy reconstruction (planned)",
+      "licence": "Project-owned asset",
+      "meshMap": {
+        "activeSite": ["enzyme__activeSite"],
+        "substrate": ["enzyme__substrate"]
+      }
+    },
+    {
+      "id": "leaf-cross-section",
+      "title": "Leaf Cross-Section",
+      "version": "0.0.0",
+      "topicIds": ["plant-nutrition"],
+      "courseTier": "BOTH",
+      "modelUrl": "/models/leaf-cross-section/leaf-cross-section-v1.glb",
+      "posterUrl": "/cell-renders/plant.png",
+      "thumbnailUrl": "/cell-renders/plant.png",
+      "assetStatus": "PLANNED",
+      "source": "Original ChatGPT concept + Meshy reconstruction (planned)",
+      "licence": "Project-owned asset",
+      "meshMap": {
+        "cuticle": ["leafCrossSection__cuticle"],
+        "upper-epidermis": ["leafCrossSection__upperEpidermis"],
+        "palisade-mesophyll": ["leafCrossSection__palisadeMesophyll"],
+        "spongy-mesophyll": ["leafCrossSection__spongyMesophyll"],
+        "xylem": ["leafCrossSection__xylem"],
+        "phloem": ["leafCrossSection__phloem"],
+        "guard-cells": ["leafCrossSection__guardCells"]
+      }
+    }
+  ]
+}

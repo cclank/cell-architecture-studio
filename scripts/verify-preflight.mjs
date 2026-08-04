@@ -1,4 +1,4 @@
-const expectedAppName = "Cell Architecture Studio";
+const expectedAppName = "IGCSE Biology Studio";
 
 export function hasExpectedAppIdentity({ title = "", bodyText = "" }) {
   return title.includes(expectedAppName) || bodyText.includes(expectedAppName);
