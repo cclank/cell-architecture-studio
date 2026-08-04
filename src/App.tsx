@@ -1,74 +1,106 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { cells, getCellById, type ViewMode } from "./data/cells";
+import { getCellById, type ViewMode } from "./data/cells";
+import { biologyVisuals, getVisualById } from "./data/biologyVisuals";
+import { getTopicById } from "./data/syllabusTopics";
+import { getProcessById } from "./data/processes";
+import { getPracticalById } from "./data/practicals";
+import { getComparisonById } from "./data/comparisons";
+import { getQuestionsForTopic, getQuestionById } from "./data/questions";
+import { glossary } from "./data/glossary";
+import type { PracticeQuestion } from "./data/curriculum/types";
+import { clearAllData } from "./lib/storage";
 import {
-  clearAllData,
-  loadFavorites,
-  loadLastCellId,
-  loadRecentIds,
-  pushRecentId,
-  saveFavorites,
-  saveLastCellId,
-} from "./lib/storage";
+  loadVisualFavorites,
+  saveVisualFavorites,
+  loadVisualNotes,
+  saveVisualNote,
+} from "./lib/studioStorage";
+import {
+  localProgressStore,
+  recordStructureIdentified,
+  recordVisualExplored,
+  recordProcessCompleted,
+  recordPracticalCompleted,
+  recordQuestionResult,
+} from "./lib/curriculumProgress";
+import {
+  loadCourseLevel,
+  saveCourseLevel,
+  loadStudyMode,
+  saveStudyMode,
+  type StudyMode,
+} from "./lib/courseLevel";
+import type { CourseLevel } from "./data/curriculum/types";
 import { Header } from "./components/Header";
-import { SpecimenStrip } from "./components/SpecimenStrip";
-import { Sidebar } from "./components/Sidebar";
-import { Stage } from "./components/Stage";
-import { RightPanel } from "./components/RightPanel";
 import { BottomPanels } from "./components/BottomPanels";
-import { ComparisonModal } from "./components/ComparisonModal";
 import { AboutModal } from "./components/AboutModal";
 import { SpecimenGridModal } from "./components/SpecimenGridModal";
 import { NotebooksModal } from "./components/NotebooksModal";
 import { FlashcardsModal } from "./components/FlashcardsModal";
+import { AchievementsPanel } from "./components/AchievementsPanel";
+import { ShortcutsHelp } from "./components/ShortcutsHelp";
+import { WelcomeTour } from "./components/WelcomeTour";
 import { Toast } from "./components/Toast";
 import { Confetti } from "./components/Confetti";
 import { CelebrationBanner } from "./components/CelebrationBanner";
-import { AchievementsPanel } from "./components/AchievementsPanel";
-import { DailyChallenge } from "./components/DailyChallenge";
-import { ShortcutsHelp } from "./components/ShortcutsHelp";
-import { WelcomeTour } from "./components/WelcomeTour";
+import { SyllabusExplorer, type ExplorerSelection } from "./components/igb/SyllabusExplorer";
+import { VisualStage } from "./components/igb/VisualStage";
+import { StudyPanel } from "./components/igb/StudyPanel";
+import { ProcessViewer } from "./components/igb/ProcessViewer";
+import { PracticalPanel } from "./components/igb/PracticalPanel";
+import { ComparisonView } from "./components/igb/ComparisonView";
+import { TopicOverview } from "./components/igb/TopicOverview";
+import { TopicAside } from "./components/igb/TopicAside";
+import { QuestionRunner } from "./components/igb/QuestionRunner";
 import { useProgression } from "./hooks/useProgression";
 import { useOverlays } from "./hooks/useOverlays";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { claimDaily, isDailyClaimed, registerVisit, specimenOfTheDay } from "./lib/daily";
 import { ACCENTS, loadAccent, saveAccent } from "./lib/theme";
 import { STORAGE_KEYS } from "./lib/storageKeys";
+import { cells } from "./data/cells";
 
 const SpecimenQuiz = lazy(() =>
   import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
 );
 
-const initialCell = getCellById("animal");
+type Workspace = "topic" | "visual" | "process" | "practical" | "comparison";
+
+const DEFAULT_VISUAL = "vis-animal-cell";
 
 export default function App() {
-  const [selectedCellId, setSelectedCellId] = useState(loadLastCellId);
-  const [activeOrganelle, setActiveOrganelle] = useState(initialCell.defaultOrganelle);
+  const [courseLevel, setCourseLevel] = useState<CourseLevel>(loadCourseLevel);
+  const [studyMode, setStudyMode] = useState<StudyMode>(loadStudyMode);
+
+  const [workspace, setWorkspace] = useState<Workspace>("visual");
+  const [selectedVisualId, setSelectedVisualId] = useState<string>(DEFAULT_VISUAL);
+  const [selectedTopicId, setSelectedTopicId] = useState<string>(
+    getVisualById(DEFAULT_VISUAL)?.topicIds[0] ?? "organisation",
+  );
+  const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
+  const [selectedPracticalId, setSelectedPracticalId] = useState<string | null>(null);
+  const [selectedComparisonId, setSelectedComparisonId] = useState<string | null>(null);
+  const [activeStructureId, setActiveStructureId] = useState<string>(
+    getVisualById(DEFAULT_VISUAL)?.structures[0]?.id ?? "",
+  );
+
   const [viewMode, setViewMode] = useState<ViewMode>("mesh");
   const [crossSection, setCrossSection] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [resetKey, setResetKey] = useState(0);
-  const [favorites, setFavorites] = useState<Set<string>>(loadFavorites);
-  const [viewedCells, setViewedCells] = useState<Set<string>>(() => new Set([initialCell.id]));
-  const [viewedOrganelleKeys, setViewedOrganelleKeys] = useState<Set<string>>(
-    () => new Set([`${initialCell.id}:${initialCell.defaultOrganelle}`]),
-  );
-  const overlays = useOverlays();
-  const [tutorPrompt, setTutorPrompt] = useState(
-    `Guide me through finding ${initialCell.organelles[0].name} inside the 3D model.`,
-  );
-  const [toast, setToast] = useState<string | null>(null);
-  const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
-  const toastTimer = useRef<number | null>(null);
-  const [dailyClaimed, setDailyClaimed] = useState(() => isDailyClaimed());
-  const [dailyStreak, setDailyStreak] = useState(0);
+
+  const [favorites, setFavorites] = useState<Set<string>>(loadVisualFavorites);
+  const [notes, setNotes] = useState(loadVisualNotes);
+  const [progress, setProgress] = useState(() => localProgressStore.load());
   const [accent, setAccent] = useState(loadAccent);
-  const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
-  // Seed with the restored cell so reloading doesn't fire a "viewed" award.
-  const firedViews = useRef<Set<string>>(new Set([loadLastCellId()]));
-  const dailyCell = useMemo(() => specimenOfTheDay(), []);
+
+  const [runner, setRunner] = useState<{ title: string; questions: PracticeQuestion[] } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<number | null>(null);
+
+  const overlays = useOverlays();
+  const { progress: xp, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
 
   useEffect(() => {
-    setDailyStreak(registerVisit().streak);
     try {
       if (localStorage.getItem(STORAGE_KEYS.onboarded) !== "1") overlays.open("welcome");
     } catch {
@@ -77,105 +109,138 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function closeWelcome() {
-    overlays.close();
-    try {
-      localStorage.setItem(STORAGE_KEYS.onboarded, "1");
-    } catch {
-      /* ignore */
-    }
-  }
+  useEffect(() => saveCourseLevel(courseLevel), [courseLevel]);
+  useEffect(() => saveStudyMode(studyMode), [studyMode]);
+  useEffect(() => saveVisualFavorites(favorites), [favorites]);
+  useEffect(() => localProgressStore.save(progress), [progress]);
 
-  const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
-  const totalOrganelleCount = useMemo(
-    () => cells.reduce((total, cell) => total + cell.organelles.length, 0),
-    [],
-  );
-  const mastery = useMemo(() => {
-    const cellCoverage = viewedCells.size / cells.length;
-    const organelleCoverage = viewedOrganelleKeys.size / totalOrganelleCount;
-    return Math.round((cellCoverage * 0.42 + organelleCoverage * 0.58) * 100);
-  }, [totalOrganelleCount, viewedCells, viewedOrganelleKeys]);
-
-  const prevCellId = useRef(selectedCellId);
-  useEffect(() => {
-    setActiveOrganelle(selectedCell.defaultOrganelle);
-    // Close overlays only when the specimen actually changes — not on mount
-    // (which would dismiss the welcome tour) and resilient to StrictMode's
-    // double-invoked effects.
-    if (prevCellId.current !== selectedCell.id) {
-      overlays.close();
-      prevCellId.current = selectedCell.id;
-    }
-  }, [selectedCell]);
-
-  useEffect(() => {
-    saveLastCellId(selectedCellId);
-    setRecentIds(pushRecentId(selectedCellId));
-    if (!firedViews.current.has(selectedCellId)) {
-      firedViews.current.add(selectedCellId);
-      fire({ type: "viewNew" });
-    }
-  }, [selectedCellId, fire]);
-
-  useEffect(() => {
-    saveFavorites(favorites);
-  }, [favorites]);
-
-  useEffect(() => {
-    setViewedCells((current) => new Set(current).add(selectedCell.id));
-    setViewedOrganelleKeys((current) => new Set(current).add(`${selectedCell.id}:${activeOrganelle}`));
-  }, [activeOrganelle, selectedCell.id]);
+  const selectedVisual = getVisualById(selectedVisualId) ?? biologyVisuals[0];
+  const specimen = selectedVisual.specimenId ? getCellById(selectedVisual.specimenId) : undefined;
+  const topic = getTopicById(selectedTopicId);
+  const labelsVisible = studyMode !== "EXAM";
 
   function showToast(message: string) {
     setToast(message);
-    if (toastTimer.current) {
-      window.clearTimeout(toastTimer.current);
-    }
+    if (toastTimer.current) window.clearTimeout(toastTimer.current);
     toastTimer.current = window.setTimeout(() => setToast(null), 2600);
   }
 
+  function openVisual(id: string) {
+    const v = getVisualById(id);
+    if (!v) return;
+    setSelectedVisualId(id);
+    setSelectedTopicId(v.topicIds[0] ?? selectedTopicId);
+    setActiveStructureId(v.structures[0]?.id ?? "");
+    setWorkspace("visual");
+    setResetKey((k) => k + 1);
+    setProgress((p) => recordVisualExplored(p, id));
+    fire({ type: "viewNew" });
+    showToast(`Opened ${v.title}.`);
+  }
+
+  function openTopic(id: string) {
+    const t = getTopicById(id);
+    if (!t) return;
+    setSelectedTopicId(id);
+    setWorkspace("topic");
+  }
+
+  function openProcess(id: string) {
+    const p = getProcessById(id);
+    if (!p) return;
+    setSelectedProcessId(id);
+    setSelectedTopicId(p.topicIds[0] ?? selectedTopicId);
+    setWorkspace("process");
+    showToast(`Playing process: ${p.title}.`);
+  }
+
+  function openPractical(id: string) {
+    const p = getPracticalById(id);
+    if (!p) return;
+    setSelectedPracticalId(id);
+    setSelectedTopicId(p.topicIds[0] ?? selectedTopicId);
+    setWorkspace("practical");
+  }
+
+  function openComparison(id: string) {
+    const c = getComparisonById(id);
+    if (!c) return;
+    setSelectedComparisonId(id);
+    setSelectedTopicId(c.topicIds[0] ?? selectedTopicId);
+    setWorkspace("comparison");
+  }
+
+  function handleExplorerSelect(sel: ExplorerSelection) {
+    if (sel.kind === "visual") openVisual(sel.id);
+    else if (sel.kind === "topic") openTopic(sel.id);
+    else if (sel.kind === "process") openProcess(sel.id);
+    else if (sel.kind === "practical") openPractical(sel.id);
+    else if (sel.kind === "glossary") {
+      const term = glossary.find((g) => g.id === sel.id);
+      if (term) showToast(`${term.term}: ${term.definition}`);
+    }
+  }
+
+  function selectStructure(id: string) {
+    setActiveStructureId(id);
+    setProgress((p) => recordStructureIdentified(p, selectedVisualId, id));
+    if (viewMode === "mesh" && specimen) setViewMode("focus");
+  }
+
   function toggleFavorite(id: string) {
-    const wasFav = favorites.has(id);
-    setFavorites((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
+    setFavorites((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else {
         next.add(id);
+        fire({ type: "favorite", favoritesCount: next.size });
       }
       return next;
     });
-    if (!wasFav) fire({ type: "favorite", favoritesCount: favorites.size + 1 });
   }
 
-  function stepSpecimen(delta: number) {
-    const index = cells.findIndex((c) => c.id === selectedCellId);
-    const next = cells[(index + delta + cells.length) % cells.length];
-    setSelectedCellId(next.id);
-    showToast(`${next.name}`);
+  function updateNote(text: string) {
+    setNotes(saveVisualNote(selectedVisualId, text));
   }
 
-  useKeyboardShortcuts(overlays.active === null, {
-    onPrev: () => stepSpecimen(-1),
-    onNext: () => stepSpecimen(1),
-    onFavorite: () => toggleFavorite(selectedCellId),
+  function openTopicQuestions(topicId: string) {
+    const t = getTopicById(topicId);
+    if (!t) return;
+    const qs = getQuestionsForTopic(topicId);
+    if (qs.length === 0) {
+      showToast("No questions yet for this topic.");
+      return;
+    }
+    setRunner({ title: `${t.number}. ${t.title}`, questions: qs });
+  }
+
+  function openSingleQuestion(id: string) {
+    const q = getQuestionById(id);
+    if (!q) return;
+    setRunner({ title: "Comparison question", questions: [q] });
+  }
+
+  function recordAnswer(qid: string, correct: boolean) {
+    setProgress((p) => recordQuestionResult(p, qid, correct));
+    if (correct) fire({ type: "quizCorrect", streak: 1 });
+  }
+
+  const stepVisual = (delta: number) => {
+    const idx = biologyVisuals.findIndex((v) => v.id === selectedVisualId);
+    const next = biologyVisuals[(idx + delta + biologyVisuals.length) % biologyVisuals.length];
+    openVisual(next.id);
+  };
+
+  useKeyboardShortcuts(overlays.active === null && runner === null, {
+    onPrev: () => stepVisual(-1),
+    onNext: () => stepVisual(1),
+    onFavorite: () => toggleFavorite(selectedVisualId),
     onReset: () => {
-      setResetKey((key) => key + 1);
+      setResetKey((k) => k + 1);
       showToast("View reset.");
     },
-    onToggleRotate: () => {
-      setAutoRotate((v) => {
-        showToast(v ? "Auto-rotate off." : "Auto-rotate on.");
-        return !v;
-      });
-    },
-    onSurprise: () => {
-      const pool = cells.filter((c) => c.id !== selectedCellId);
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      setSelectedCellId(pick.id);
-      showToast(`Surprise — ${pick.name}!`);
-    },
+    onToggleRotate: () => setAutoRotate((v) => !v),
+    onSurprise: () => stepVisual(1),
     onGallery: () => overlays.open("gallery"),
     onLibrary: () => overlays.open("library"),
     onFlashcards: () => overlays.open("flashcards"),
@@ -183,23 +248,26 @@ export default function App() {
     onHelp: () => overlays.open("shortcuts"),
   });
 
-  // UI accent comes from the chosen theme; the 3D-stage tint follows the specimen.
   const shellStyle = {
     "--accent": accent.accent,
     "--accent-soft": accent.accentSoft,
     "--brand": accent.accent,
-    "--cell-color": selectedCell.color,
+    "--cell-color": specimen?.color ?? accent.accent,
   } as CSSProperties;
+
+  const headerCell = specimen ?? getCellById("animal");
 
   return (
     <div className="app-shell" style={shellStyle}>
       <Header
-        cell={selectedCell}
+        cell={headerCell}
         favoritesCount={favorites.size}
-        exploredCount={viewedCells.size}
-        totalCount={cells.length}
-        progress={progress}
+        exploredCount={progress.visualsExplored.length}
+        totalCount={biologyVisuals.length}
+        progress={xp}
         xpPulse={xpPulse}
+        studyMode={studyMode}
+        onStudyModeChange={setStudyMode}
         onPlayQuiz={() => overlays.open("quiz")}
         onAbout={() => overlays.open("about")}
         onGallery={() => overlays.open("gallery")}
@@ -216,117 +284,164 @@ export default function App() {
         onReplayIntro={() => overlays.open("welcome")}
         onClearFavorites={() => {
           setFavorites(new Set());
-          showToast("Cleared all favorites.");
+          showToast("Cleared all favourites.");
         }}
         onResetAll={() => {
           clearAllData();
+          localProgressStore.clear();
           resetProgress();
           setFavorites(new Set());
-          setRecentIds([]);
-          showToast("All saved data reset.");
+          setProgress(localProgressStore.load());
+          showToast("All saved progress reset.");
         }}
-      />
-
-      <SpecimenStrip
-        selectedCell={selectedCell}
-        favorites={favorites}
-        onSelectCell={setSelectedCellId}
-        onToggleFavorite={toggleFavorite}
-        onToast={showToast}
       />
 
       <div className="app-grid">
-        <Sidebar
-          selectedCell={selectedCell}
-          activeOrganelle={activeOrganelle}
-          onSelectOrganelle={setActiveOrganelle}
-          onToast={showToast}
-          topSlot={
-            <DailyChallenge
-              cell={dailyCell}
-              streak={dailyStreak}
-              claimed={dailyClaimed}
-              onStudy={() => {
-                setSelectedCellId(dailyCell.id);
-                if (!dailyClaimed && claimDaily()) {
-                  setDailyClaimed(true);
-                  fire({ type: "bonus", amount: 15 });
-                  showToast(`Daily specimen — ${dailyCell.name}! +15 XP`);
-                } else {
-                  showToast(`Loaded ${dailyCell.name} on stage.`);
-                }
-              }}
-            />
+        <SyllabusExplorer
+          courseLevel={courseLevel}
+          onCourseLevelChange={(lvl) => {
+            setCourseLevel(lvl);
+            showToast(`Course level: ${lvl === "ALL" ? "All content" : lvl.charAt(0) + lvl.slice(1).toLowerCase()}.`);
+          }}
+          progress={progress}
+          favorites={favorites}
+          onToggleFavorite={toggleFavorite}
+          activeId={
+            workspace === "visual"
+              ? selectedVisualId
+              : workspace === "process"
+                ? selectedProcessId
+                : workspace === "practical"
+                  ? selectedPracticalId
+                  : selectedTopicId
           }
+          onSelect={handleExplorerSelect}
         />
 
         <div className="center-stack">
-          <Stage
-            cell={selectedCell}
-            activeOrganelle={activeOrganelle}
-            viewMode={viewMode}
-            crossSection={crossSection}
-            autoRotate={autoRotate}
-            resetKey={resetKey}
-            onModeChange={setViewMode}
-            onCrossSectionChange={setCrossSection}
-            onAutoRotateChange={setAutoRotate}
-            onReset={() => {
-              setResetKey((key) => key + 1);
-              showToast("View reset.");
-            }}
-            onToast={showToast}
-          />
-          <BottomPanels
-            cell={selectedCell}
-            onCompare={() => {
-              overlays.open("comparison");
-              showToast(
-                `Opened comparison: ${selectedCell.name} vs ${getCellById(selectedCell.comparison).name}.`,
-              );
-            }}
-            onToast={showToast}
-          />
+          {workspace === "topic" && topic && (
+            <TopicOverview
+              topic={topic}
+              courseLevel={courseLevel}
+              onSelect={handleExplorerSelect}
+              onOpenComparison={openComparison}
+              onOpenQuestions={() => openTopicQuestions(topic.id)}
+              questionCount={topic.questionIds.length}
+            />
+          )}
+
+          {workspace === "visual" && (
+            <>
+              <VisualStage
+                visual={selectedVisual}
+                specimen={specimen}
+                activeStructureId={activeStructureId}
+                viewMode={viewMode}
+                crossSection={crossSection}
+                autoRotate={autoRotate}
+                resetKey={resetKey}
+                labelsVisible={labelsVisible}
+                onModeChange={setViewMode}
+                onCrossSectionChange={setCrossSection}
+                onAutoRotateChange={setAutoRotate}
+                onReset={() => {
+                  setResetKey((k) => k + 1);
+                  showToast("View reset.");
+                }}
+                onToast={showToast}
+              />
+              {specimen && (
+                <BottomPanels
+                  cell={specimen}
+                  onCompare={() => {
+                    const cmp = topic?.comparisonIds[0];
+                    if (cmp) openComparison(cmp);
+                    else showToast("No comparison available for this topic yet.");
+                  }}
+                  onToast={showToast}
+                />
+              )}
+            </>
+          )}
+
+          {workspace === "process" && selectedProcessId && getProcessById(selectedProcessId) && (
+            <ProcessViewer
+              process={getProcessById(selectedProcessId)!}
+              courseLevel={courseLevel}
+              onComplete={(id) => setProgress((p) => recordProcessCompleted(p, id))}
+            />
+          )}
+
+          {workspace === "practical" && selectedPracticalId && getPracticalById(selectedPracticalId) && (
+            <PracticalPanel
+              practical={getPracticalById(selectedPracticalId)!}
+              onComplete={(id) => {
+                setProgress((p) => recordPracticalCompleted(p, id));
+                showToast("Practical marked as reviewed.");
+              }}
+            />
+          )}
+
+          {workspace === "comparison" && selectedComparisonId && getComparisonById(selectedComparisonId) && (
+            <ComparisonView
+              comparison={getComparisonById(selectedComparisonId)!}
+              onOpenQuestion={openSingleQuestion}
+              onSave={() => {
+                const c = getComparisonById(selectedComparisonId)!;
+                setNotes(saveVisualNote(`compare:${c.id}`, `${c.title}\n${c.examSummary}`));
+                showToast("Saved comparison summary to notes.");
+              }}
+            />
+          )}
         </div>
 
-        <RightPanel
-          cell={selectedCell}
-          activeOrganelle={activeOrganelle}
-          favorites={favorites}
-          mastery={mastery}
-          viewedCellCount={viewedCells.size}
-          viewedOrganelleCount={viewedOrganelleKeys.size}
-          totalOrganelleCount={totalOrganelleCount}
-          tutorPrompt={tutorPrompt}
-          onToggleFavorite={(id) => {
-            const wasOn = favorites.has(id);
-            toggleFavorite(id);
-            const name = getCellById(id).name;
-            showToast(wasOn ? `Removed ${name} from favorites.` : `Added ${name} to favorites.`);
-          }}
-          onTutorPrompt={(prompt) => {
-            setTutorPrompt(prompt);
-            showToast("AI tutor prompt staged.");
-          }}
-        />
+        {workspace === "visual" ? (
+          <StudyPanel
+            visual={selectedVisual}
+            topic={topic}
+            structures={selectedVisual.structures}
+            activeStructureId={activeStructureId}
+            onSelectStructure={selectStructure}
+            studyMode={studyMode}
+            isFavorite={favorites.has(selectedVisualId)}
+            onToggleFavorite={() => toggleFavorite(selectedVisualId)}
+            notes={notes[selectedVisualId] ?? ""}
+            onNotesChange={updateNote}
+            onOpenPractical={openPractical}
+            onOpenQuestions={() => topic && openTopicQuestions(topic.id)}
+          />
+        ) : (
+          topic && (
+            <TopicAside
+              topic={topic}
+              courseLevel={courseLevel}
+              progress={progress}
+              onOpenQuestions={() => openTopicQuestions(topic.id)}
+            />
+          )
+        )}
       </div>
 
-      <ComparisonModal
-        cell={selectedCell}
-        open={overlays.isOpen("comparison")}
-        onClose={() => {
-          overlays.close();
-          showToast("Closed comparison view.");
-        }}
-      />
+      {runner && (
+        <div className="quiz-layer igb-quiz-layer">
+          <QuestionRunner
+            title={runner.title}
+            questions={runner.questions}
+            courseLevel={courseLevel}
+            onResult={recordAnswer}
+            onClose={() => setRunner(null)}
+          />
+        </div>
+      )}
+
       {overlays.isOpen("quiz") && (
         <Suspense fallback={<div className="quiz-layer quiz-loading">Loading quiz…</div>}>
           <SpecimenQuiz
             onExit={() => overlays.close()}
             onStudySpecimen={(id) => {
-              setSelectedCellId(id);
+              const v = biologyVisuals.find((bv) => bv.specimenId === id);
+              if (v) openVisual(v.id);
               overlays.close();
-              showToast(`Loaded ${getCellById(id).name} on stage.`);
             }}
             onCorrect={(streak) => fire({ type: "quizCorrect", streak })}
             onComplete={(score, total, bestStreak, perfect) =>
@@ -335,52 +450,50 @@ export default function App() {
           />
         </Suspense>
       )}
+
       <AboutModal open={overlays.isOpen("about")} onClose={overlays.close} />
 
       <SpecimenGridModal
-        title="Gallery"
-        subtitle={`Browse all ${cells.length} specimens`}
+        title="Specimen gallery"
+        subtitle={`Browse all ${cells.length} 3D specimens`}
         open={overlays.isOpen("gallery")}
         searchable
-        selectedId={selectedCellId}
+        selectedId={specimen?.id ?? ""}
         sections={[{ label: "All specimens", items: cells }]}
         onSelect={(id) => {
-          setSelectedCellId(id);
+          const v = biologyVisuals.find((bv) => bv.specimenId === id);
+          if (v) openVisual(v.id);
           overlays.close();
-          showToast(`Loaded ${getCellById(id).name} on stage.`);
         }}
         onClose={() => overlays.close()}
       />
 
       <SpecimenGridModal
-        title="Your Library"
-        subtitle="Favorites and recently viewed specimens"
+        title="Your library"
+        subtitle="Favourite and recently explored specimens"
         open={overlays.isOpen("library")}
-        selectedId={selectedCellId}
+        selectedId={specimen?.id ?? ""}
         sections={[
           {
-            label: "Favorites",
-            items: cells.filter((c) => favorites.has(c.id)),
-            emptyHint: "No favorites yet — tap the star on a specimen.",
-          },
-          {
-            label: "Recently viewed",
-            items: recentIds.map(getCellById),
-            emptyHint: "Specimens you open will appear here.",
+            label: "Specimens",
+            items: cells,
           },
         ]}
         onSelect={(id) => {
-          setSelectedCellId(id);
+          const v = biologyVisuals.find((bv) => bv.specimenId === id);
+          if (v) openVisual(v.id);
           overlays.close();
-          showToast(`Loaded ${getCellById(id).name} on stage.`);
         }}
         onClose={() => overlays.close()}
       />
 
       <NotebooksModal
         open={overlays.isOpen("notebooks")}
-        currentCell={selectedCell}
-        onSelect={setSelectedCellId}
+        currentCell={headerCell}
+        onSelect={(id) => {
+          const v = biologyVisuals.find((bv) => bv.specimenId === id);
+          if (v) openVisual(v.id);
+        }}
         onClose={() => overlays.close()}
       />
 
@@ -388,20 +501,24 @@ export default function App() {
         open={overlays.isOpen("flashcards")}
         onClose={() => overlays.close()}
         onStudySpecimen={(id) => {
-          setSelectedCellId(id);
-          showToast(`Loaded ${getCellById(id).name} on stage.`);
+          const v = biologyVisuals.find((bv) => bv.specimenId === id);
+          if (v) openVisual(v.id);
         }}
       />
 
-      <AchievementsPanel
-        open={overlays.isOpen("achievements")}
-        progress={progress}
-        onClose={() => overlays.close()}
-      />
-
+      <AchievementsPanel open={overlays.isOpen("achievements")} progress={xp} onClose={() => overlays.close()} />
       <ShortcutsHelp open={overlays.isOpen("shortcuts")} onClose={() => overlays.close()} />
-
-      <WelcomeTour open={overlays.isOpen("welcome")} onClose={closeWelcome} />
+      <WelcomeTour
+        open={overlays.isOpen("welcome")}
+        onClose={() => {
+          overlays.close();
+          try {
+            localStorage.setItem(STORAGE_KEYS.onboarded, "1");
+          } catch {
+            /* ignore */
+          }
+        }}
+      />
 
       <CelebrationBanner celebration={banner} />
       <Confetti fireKey={confettiKey} />

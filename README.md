@@ -1,4 +1,16 @@
-# Cell Architecture Studio
+# IGCSE Biology Studio
+
+> _Explore biology from molecules to ecosystems._
+>
+> An interactive visual studio for **Cambridge IGCSE Biology 0610** (examinations 2026, 2027 and 2028), evolved from the original Cell Architecture Studio. It reuses the polished 3D viewer, comparison and notebook systems and extends them across the whole syllabus: 21 topics, Core/Extended filtering, interactive processes, practicals and original exam-style questions.
+>
+> _Independent study tool — not endorsed by or affiliated with Cambridge International. No official logos and no copyrighted past-paper questions are used._
+>
+> See [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md), [`docs/IGCSE_REBUILD_AUDIT.md`](docs/IGCSE_REBUILD_AUDIT.md), [`docs/SYLLABUS_COVERAGE.md`](docs/SYLLABUS_COVERAGE.md) and [`docs/ASSET_PIPELINE.md`](docs/ASSET_PIPELINE.md).
+
+---
+
+The 3D foundation below (viewer, GLB assets, export, verification) is reused as the studio's rendering engine. The seven original specimens now serve as temporary development models for the cell topics while original assets are produced via the ChatGPT → Meshy pipeline.
 
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=111)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=fff)

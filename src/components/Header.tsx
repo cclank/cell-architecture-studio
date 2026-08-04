@@ -14,6 +14,8 @@ import type { CellItem } from "../data/cells";
 import type { Progress } from "../lib/progression";
 import { UserMenu } from "./UserMenu";
 import { XpBar } from "./XpBar";
+import { PRODUCT } from "../config/product";
+import { STUDY_MODES, type StudyMode } from "../lib/courseLevel";
 
 type HeaderProps = {
   cell: CellItem;
@@ -22,6 +24,8 @@ type HeaderProps = {
   totalCount: number;
   progress: Progress;
   xpPulse: number;
+  studyMode: StudyMode;
+  onStudyModeChange: (mode: StudyMode) => void;
   onPlayQuiz: () => void;
   onAbout: () => void;
   onGallery: () => void;
@@ -43,6 +47,8 @@ export function Header({
   totalCount,
   progress,
   xpPulse,
+  studyMode,
+  onStudyModeChange,
   onPlayQuiz,
   onAbout,
   onGallery,
@@ -73,12 +79,26 @@ export function Header({
           <Sparkles size={26} />
         </div>
         <div>
-          <h1>Cell Architecture Studio</h1>
-          <p>Explore life at the microscopic level</p>
+          <h1>{PRODUCT.name}</h1>
+          <p>{PRODUCT.subtitle}</p>
         </div>
       </div>
 
       <nav className="top-nav" aria-label="Primary">
+        <div className="igb-studymode" role="group" aria-label="Study mode">
+          {STUDY_MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className={studyMode === m.id ? "is-active" : ""}
+              aria-pressed={studyMode === m.id}
+              title={m.hint}
+              onClick={() => onStudyModeChange(m.id)}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
         <XpBar progress={progress} pulse={xpPulse} />
         {navItems.map(({ id, label, Icon, onClick }) => (
           <button key={id} type="button" onClick={onClick}>

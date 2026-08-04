@@ -13,6 +13,14 @@ export const STORAGE_KEYS = {
   quizHistory: "cas-quiz-history",
   // Best scores are stored as `cas-quiz-best:<category>:<mode>`.
   quizBestPrefix: "cas-quiz-best",
+  // IGCSE Biology Studio additions.
+  courseLevel: "igb-course-level",
+  studyMode: "igb-study-mode",
+  curriculumProgress: "igb-progress",
+  wrongAnswers: "igb-wrong-answers",
+  topicNotes: "igb-topic-notes",
+  visualFavorites: "igb-visual-favorites",
+  visualNotes: "igb-visual-notes",
 } as const;
 
 // Prefix shared by all quiz-related keys, used for bulk reset.
