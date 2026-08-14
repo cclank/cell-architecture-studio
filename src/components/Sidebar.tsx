@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ChevronDown, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { CellItem } from "../data/cells";
 
 type SidebarProps = {
@@ -11,6 +12,8 @@ type SidebarProps = {
 };
 
 export function Sidebar({ selectedCell, activeOrganelle, onSelectOrganelle, onToast, topSlot }: SidebarProps) {
+  const { t } = useTranslation("common");
+
   return (
     <aside className="left-rail">
       {topSlot}
@@ -18,13 +21,13 @@ export function Sidebar({ selectedCell, activeOrganelle, onSelectOrganelle, onTo
         <div className="panel-heading">
           <span>
             <Sparkles size={16} />
-            Organelles
+            {t("sidebar.organelles")}
           </span>
           <button
             type="button"
             className="panel-heading-chev"
-            onClick={() => onToast(`${selectedCell.organelles.length} organelles available.`)}
-            aria-label="Organelles info"
+            onClick={() => onToast(t("toast.organelleCount", { count: selectedCell.organelles.length }))}
+            aria-label={t("sidebar.organellesInfo")}
           >
             <ChevronDown size={18} />
           </button>
@@ -38,10 +41,10 @@ export function Sidebar({ selectedCell, activeOrganelle, onSelectOrganelle, onTo
               key={organelle.id}
               onClick={() => {
                 if (activeOrganelle === organelle.id) {
-                  onToast(`${organelle.name} is already in focus.`);
+                  onToast(t("toast.alreadyFocus", { name: organelle.name }));
                 } else {
                   onSelectOrganelle(organelle.id);
-                  onToast(`Focused on ${organelle.name}.`);
+                  onToast(t("toast.focused", { name: organelle.name }));
                 }
               }}
             >

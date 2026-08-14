@@ -1,0 +1,344 @@
+{
+  "categories": {
+    "Cells": "Hücreler",
+    "Organs": "Organlar",
+    "Body Systems": "Vücut sistemleri",
+    "Bones & Joints": "Kemik ve eklemler",
+    "Macromolecules": "Makromoleküller",
+    "Viruses": "Virüsler",
+    "Botanical Specimens": "Bitkisel örnekler"
+  },
+  "microscope": {
+    "light": "Işık mikroskobu",
+    "stained": "Boyalı kesit",
+    "electron": "Elektron mikroskobu"
+  },
+  "catalog": {
+    "plant": {
+      "name": "Bitki hücresi",
+      "type": "Ökaryot hücre",
+      "aliases": ["bitki hücresi", "bitki hucresi", "plant cell", "plant"],
+      "clinicalContext": "Hücre duvarı ve kloroplastın hasta doku örneklerinde neden bulunmadığını öğretmek için insan dışı yararlı bir referanstır.",
+      "occurrence": {
+        "title": "Yaprak, gövde, kök",
+        "body": "Bitki hücreleri enerji depolayan, su taşıyan ve güneş ışığını şekere çeviren dokuları oluşturur."
+      },
+      "organelles": {
+        "nucleus": {
+          "name": "Çekirdek (nükleus)",
+          "subtitle": "Kontrol merkezi",
+          "attributes": [
+            { "label": "Boyut", "value": "Çapı 5–10 µm" },
+            { "label": "Konum", "value": "Genellikle merkezde" },
+            { "label": "Işık mikroskobunda", "value": "Evet" }
+          ],
+          "note": "Çekirdek, molekül trafiğini düzenleyen gözenekler içeren çift zarlı çekirdek zarı (nükleer zarf) ile çevrilidir.",
+          "fact": "Çekirdek, keşfedilen ilk hücre yapılarındandır."
+        },
+        "chloroplast": {
+          "name": "Kloroplast",
+          "subtitle": "Işık toplayıcı",
+          "attributes": [
+            { "label": "Görev", "value": "Fotosentez" },
+            { "label": "Pigment", "value": "Klorofil" },
+            { "label": "Işık mikroskobunda", "value": "Sıklıkla" }
+          ],
+          "note": "Kloroplastlar ışık enerjisini kimyasal enerjiye çevirir ve birçok bitki dokusuna yeşil rengini verir.",
+          "fact": "Tek bir yaprak hücresinde onlarca kloroplast bulunabilir."
+        },
+        "vacuole": {
+          "name": "Koful (vakuol)",
+          "subtitle": "Basınç deposu",
+          "attributes": [
+            { "label": "Hacim", "value": "Büyük merkezi boşluk" },
+            { "label": "İçerik", "value": "Su ve çözünenler" },
+            { "label": "İşlev", "value": "Turgor desteği" }
+          ],
+          "note": "Merkezi koful su, iyon ve küçük molekülleri depolar; bitki hücresinin sert kalmasına yardım eder.",
+          "fact": "Olgun bir bitki hücresinin çoğunu kofullar kaplayabilir."
+        },
+        "cellWall": {
+          "name": "Hücre duvarı",
+          "subtitle": "Sert iskelet",
+          "attributes": [
+            { "label": "Madde", "value": "Selüloz açısından zengin" },
+            { "label": "Konum", "value": "Dış sınır" },
+            { "label": "İşlev", "value": "Koruma" }
+          ],
+          "note": "Hücre duvarı bitki hücrelerine düzenli şeklini verir ve alttaki zarı korur.",
+          "fact": "Hücre duvarı bitkilerin iskelet olmadan dik durmasına yardım eder."
+        }
+      }
+    },
+    "whiteBlood": {
+      "name": "Akyuvar (lökosit)",
+      "type": "Bağışıklık hücresi",
+      "aliases": ["akyuvar", "lökosit", "losit", "white blood cell", "leukocyte", "wbc"],
+      "clinicalContext": "Bağışıklık hücresi morfolojisi, temel hücre biyolojisini enfeksiyon, yangı ve kan yaymalarının yorumuna bağlar.",
+      "occurrence": {
+        "title": "Kan, lenf, dokular",
+        "body": "Akyuvarlar tehditleri tanımak ve bağışıklık savunmasını yönetmek için kan ve doku aralıklarında dolaşır."
+      },
+      "organelles": {
+        "lysosome": {
+          "name": "Lizozom",
+          "subtitle": "Temizlik keseciği",
+          "attributes": [
+            { "label": "Boyut", "value": "Yaklaşık 1 µm" },
+            { "label": "İçerik", "value": "Sindirim enzimleri" },
+            { "label": "Görev", "value": "Parçalama" }
+          ],
+          "note": "Lizozomlar bağışıklık hücrelerinin yuttuğu maddeyi sindirmesine ve yıpranmış bileşenleri geri dönüştürmesine yardım eder.",
+          "fact": "Akyuvarlar savunmada keseciklere yoğun biçimde yaslanır."
+        },
+        "nucleus": {
+          "name": "Loplu çekirdek",
+          "subtitle": "Esnek genom kasası",
+          "attributes": [
+            { "label": "Şekil", "value": "Çoğunlukla loplu" },
+            { "label": "Konum", "value": "Merkezi" },
+            { "label": "Işık mikroskobunda", "value": "Evet, boya ile" }
+          ],
+          "note": "Birçok akyuvarın loplu çekirdeği, dar aralıklardan geçmelerine yardım eder.",
+          "fact": "Çekirdek şekli, bağışıklık hücresi türünü ayırt etmede ipucudur."
+        },
+        "granules": {
+          "name": "Granüller",
+          "subtitle": "Kimyasal paketler",
+          "attributes": [
+            { "label": "İçerik", "value": "Protein ve enzimler" },
+            { "label": "Kullanım", "value": "Savunma" },
+            { "label": "Görünürlük", "value": "Boyaya bağlı" }
+          ],
+          "note": "Granüller, bağışıklık hücrelerinin enfeksiyon veya yangıya hızlı yanıt vermesini sağlayan molekülleri depolar.",
+          "fact": "Bazı bağışıklık hücreleri granüllerinin boyanma biçimine göre adlandırılır."
+        }
+      }
+    },
+    "neuron": {
+      "name": "Nöron",
+      "type": "Sinir hücresi",
+      "aliases": ["nöron", "noron", "sinir hücresi", "sinir hucresi", "neuron", "nerve cell"],
+      "clinicalContext": "Nöron şekli, hücre yapısını nöroanatomi, refleks, duyu ve motor sinyal ile bağlar.",
+      "occurrence": {
+        "title": "Beyin, omurilik, sinirler",
+        "body": "Nöronlar uzun dallı ağlar üzerinden elektriksel ve kimyasal sinyaller taşır."
+      },
+      "organelles": {
+        "axon": {
+          "name": "Akson",
+          "subtitle": "Sinyal yolu",
+          "attributes": [
+            { "label": "Uzunluk", "value": "µm’den 1 metreden fazla" },
+            { "label": "Yalıtım", "value": "Miyelin kılıfı" },
+            { "label": "Işık mikroskobunda", "value": "Evet, boya ile" }
+          ],
+          "note": "İnsan vücudunda bazı aksonlar omurgadan ayağa kadar uzanır; nöronlar doğadaki en uzun hücrelerdendir.",
+          "fact": "Bir sinir uyarısı saniyede 100 metreden hızlı gidebilir."
+        },
+        "soma": {
+          "name": "Soma (gövde)",
+          "subtitle": "Hücre gövdesi",
+          "attributes": [
+            { "label": "İçerir", "value": "Çekirdek" },
+            { "label": "Görev", "value": "Metabolik merkez" },
+            { "label": "Şekil", "value": "Yuvarlak" }
+          ],
+          "note": "Soma nöronu yaşatır ve dendritlerden gelen sinyalleri bütünleştirir.",
+          "fact": "Nöron proteinlerinin çoğu soma içinde veya yakınında üretilir."
+        },
+        "dendrites": {
+          "name": "Dendritler",
+          "subtitle": "Alıcı dallar",
+          "attributes": [
+            { "label": "Şekil", "value": "Dallı" },
+            { "label": "Görev", "value": "Girdi" },
+            { "label": "Yüzey", "value": "Çoğunlukla dikenli" }
+          ],
+          "note": "Dendritler diğer hücrelerden sinyal almak için yüzey alanını artırır.",
+          "fact": "Tek bir nöron binlerce sinaptik girdi alabilir."
+        }
+      }
+    },
+    "epithelial": {
+      "name": "Epitel hücresi",
+      "type": "İnsan doku hücresi",
+      "aliases": ["epitel hücresi", "epitel hucresi", "epitel", "epithelial cell", "epithelium"],
+      "clinicalContext": "Epitel kutupluluğu ve sıkı bağlantılar, bariyer, emilim ve patoloji lamı yorumunda bu hücre tipini merkeze koyar.",
+      "occurrence": {
+        "title": "Deri, bağırsak, solunum yolları",
+        "body": "Epitel hücreleri vücutta koruyucu tabakalar ve emilim yüzeyleri oluşturur."
+      },
+      "organelles": {
+        "microvilli": {
+          "name": "Mikrovilluslar",
+          "subtitle": "Emilim fırçası",
+          "attributes": [
+            { "label": "Uzunluk", "value": "0,5–1 µm" },
+            { "label": "Konum", "value": "Apikal yüzey" },
+            { "label": "Görev", "value": "Yüzey alanı" }
+          ],
+          "note": "Mikrovilluslar epitel tabakalarında emilim ve salgı için yüzey alanını artırır.",
+          "fact": "Bağırsak mikrovillusları sıkı bir fırçamsı kenar oluşturur."
+        },
+        "junctions": {
+          "name": "Sıkı bağlantılar",
+          "subtitle": "Sızdırmaz dikişler",
+          "attributes": [
+            { "label": "Konum", "value": "Hücreler arası" },
+            { "label": "Görev", "value": "Bariyer" },
+            { "label": "Görünürlük", "value": "Elektron mikroskobu tercih" }
+          ],
+          "note": "Sıkı bağlantılar komşu epitel hücrelerini bağlar ve aralarından ne geçeceğini denetler.",
+          "fact": "Epitel bariyerleri organ sınırları için zorunludur."
+        },
+        "nucleus": {
+          "name": "Çekirdek (nükleus)",
+          "subtitle": "Talimat deposu",
+          "attributes": [
+            { "label": "Konum", "value": "Bazal–merkezi" },
+            { "label": "Şekil", "value": "Oval" },
+            { "label": "Işık mikroskobunda", "value": "Evet" }
+          ],
+          "note": "Epitel çekirdeği genetik bilgiyi saklar; doku şekline göre konumu değişir.",
+          "fact": "Çekirdek şekli patologların doku örneklerini okumasına yardım eder."
+        }
+      }
+    },
+    "bacteria": {
+      "name": "Bakteri hücresi",
+      "type": "Prokaryot hücre",
+      "aliases": ["bakteri hücresi", "bakteri hucresi", "bakteri", "bacteria", "bacterium", "bacterial cell"],
+      "clinicalContext": "Hücre duvarı yapısı, mikroskop ve Gram boyamadan antimikrobiyal etki mekanizmalarına klinik bir köprü kurar.",
+      "occurrence": {
+        "title": "Toprak, su, bağırsak, deri",
+        "body": "Bakteriler neredeyse her ortamda yaşar ve bağımsız tek hücre olarak var olabilir."
+      },
+      "organelles": {
+        "nucleoid": {
+          "name": "Nükleoid",
+          "subtitle": "Zarfsız genom",
+          "attributes": [
+            { "label": "Boyut", "value": "Yaklaşık 1 µm bölge" },
+            { "label": "Zar", "value": "Yok" },
+            { "label": "Işık mikroskobunda", "value": "Hayır, yalnız EM" }
+          ],
+          "note": "Ökaryotların aksine bakterilerde çekirdek zarı yoktur. DNA, nükleoid denen sitoplazma bölgesinde yüzer.",
+          "fact": "Vücudundaki bakteri hücreleri çoğu insanın beklediğinden fazladır."
+        },
+        "cellWall": {
+          "name": "Hücre duvarı",
+          "subtitle": "Koruyucu kabuk",
+          "attributes": [
+            { "label": "Madde", "value": "Peptidoglikan" },
+            { "label": "Görev", "value": "Şekil ve savunma" },
+            { "label": "Konum", "value": "Zarın dışı" }
+          ],
+          "note": "Bakteri hücre duvarı basınca direnmeye yardım eder ve birçok türe karakteristik şeklini verir.",
+          "fact": "Gram boyama, bakteri duvarı farklarını gösterir."
+        },
+        "flagellum": {
+          "name": "Kamçı (flagellum)",
+          "subtitle": "Yüzme kuyruğu",
+          "attributes": [
+            { "label": "Görev", "value": "Hareket" },
+            { "label": "Şekil", "value": "Helisel filament" },
+            { "label": "Işık mikroskobunda", "value": "Özel boya" }
+          ],
+          "note": "Bazı bakteriler kamçıyı küçük motorlar gibi döndürerek sıvı ortamda ilerler.",
+          "fact": "Bakteri kamçıları iyon gradyanlarıyla çalışır."
+        }
+      }
+    },
+    "animal": {
+      "name": "Hayvan hücresi",
+      "type": "Ökaryot hücre",
+      "aliases": ["hayvan hücresi", "hayvan hucresi", "animal cell", "animal"],
+      "clinicalContext": "Bu genel ökaryot model, organel işlevlerini insan dokuları ve hastalık mekanizmalarına uygulamadan önce sabitlemeye yardım eder.",
+      "occurrence": {
+        "title": "Hayvan dokuları",
+        "body": "Hayvan hücreleri zar, iç organeller ve özelleşmiş sinyal yapılarıyla esnek dokular oluşturur."
+      },
+      "organelles": {
+        "mitochondrion": {
+          "name": "Mitokondri",
+          "subtitle": "Enerji dönüştürücü",
+          "attributes": [
+            { "label": "Uzunluk", "value": "1–10 µm" },
+            { "label": "Zar", "value": "Çift" },
+            { "label": "Görev", "value": "ATP üretimi" }
+          ],
+          "note": "Mitokondri, kıvrımlı iç zarları aracılığıyla yakıt moleküllerini kullanılabilir hücre enerjisine çevirir.",
+          "fact": "Mitokondrinin kendine ait küçük DNA genomu vardır."
+        },
+        "nucleus": {
+          "name": "Çekirdek (nükleus)",
+          "subtitle": "Komuta odası",
+          "attributes": [
+            { "label": "Şekil", "value": "Yuvarlak" },
+            { "label": "Zar", "value": "Çift" },
+            { "label": "Işık mikroskobunda", "value": "Evet" }
+          ],
+          "note": "Çekirdek kromozomları saklar ve hangi genlerin aktif olacağını düzenler.",
+          "fact": "Tüm hayvan hücreleri çekirdek tutmaz. Olgun alyuvarlar çekirdeğini kaybeder."
+        },
+        "golgi": {
+          "name": "Golgi aygıtı",
+          "subtitle": "Paketleme yığını",
+          "attributes": [
+            { "label": "Şekil", "value": "Yassı kesecik yığınları" },
+            { "label": "Görev", "value": "Değiştir ve sırala" },
+            { "label": "Konum", "value": "Çekirdeğe yakın" }
+          ],
+          "note": "Golgi aygıtı protein ve lipidleri değiştirir, sıralar ve hedeflerine gönderir.",
+          "fact": "Salgı hücrelerinde Golgi aygıtı çoğu zaman belirgindir."
+        }
+      }
+    },
+    "muscle": {
+      "name": "Kas hücresi",
+      "type": "Kas lifi",
+      "aliases": ["kas hücresi", "kas hucresi", "kas lifi", "muscle cell", "muscle fiber", "myocyte"],
+      "clinicalContext": "Kas lifi mimarisi, mikroskobik yapıyı kasılma, yorgunluk, rehabilitasyon ve nöromüsküler hastalık öğretimiyle bağlar.",
+      "occurrence": {
+        "title": "İskelet kasları",
+        "body": "Kas lifleri, kısalarak kuvvet üreten tekrarlayan kasılma demetleri içerir."
+      },
+      "organelles": {
+        "myofibril": {
+          "name": "Miyofibril",
+          "subtitle": "Kasılma ipliği",
+          "attributes": [
+            { "label": "Çap", "value": "Yaklaşık 1 µm" },
+            { "label": "Düzen", "value": "Çizgili demetler" },
+            { "label": "Işık mikroskobunda", "value": "Evet, bantlı" }
+          ],
+          "note": "Her kas lifi, boydan boya uzanan yüzlerce–binlerce miyofibril içerir; bunlar sıkı paketlenmiştir.",
+          "fact": "Tek bir kas lifi 30 cm’ye kadar uzayabilir."
+        },
+        "sarcolemma": {
+          "name": "Sarkolemma",
+          "subtitle": "Uyarılabilir zar",
+          "attributes": [
+            { "label": "Konum", "value": "Dış yüzey" },
+            { "label": "Görev", "value": "Sinyal yayılımı" },
+            { "label": "Tür", "value": "Hücre zarı" }
+          ],
+          "note": "Sarkolemma, kas lifi boyunca kasılmayı tetikleyen elektriksel sinyalleri iletir.",
+          "fact": "Zar sinyalleri T tübülleriyle lifin derinine ulaşır."
+        },
+        "mitochondria": {
+          "name": "Mitokondri",
+          "subtitle": "Dayanıklılık kaynağı",
+          "attributes": [
+            { "label": "Görev", "value": "Enerji sağlama" },
+            { "label": "Konum", "value": "Lifler arasında" },
+            { "label": "Yoğunluk", "value": "Aktiviteye bağlı" }
+          ],
+          "note": "Kas hücreleri çok mitokondriye ihtiyaç duyar çünkü kasılma bol ATP harcar.",
+          "fact": "Dayanıklılık antrenmanı mitokondri yoğunluğunu artırabilir."
+        }
+      }
+    }
+  }
+}

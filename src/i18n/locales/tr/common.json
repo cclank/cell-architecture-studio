@@ -1,0 +1,274 @@
+{
+  "brand": {
+    "title": "Hücre Mimarisi Stüdyosu",
+    "tagline": "Yaşamı mikroskobik ölçekte keşfet",
+    "aboutTagline": "Yaşamı etkileşimli 3B ile mikroskobik ölçekte keşfet."
+  },
+  "nav": {
+    "primary": "Ana menü",
+    "gallery": "Galeri",
+    "library": "Kütüphane",
+    "cards": "Kartlar",
+    "notebooks": "Defterler",
+    "about": "Hakkında",
+    "quiz": "Quiz",
+    "userMenu": "Kullanıcı menüsü"
+  },
+  "menu": {
+    "explored": "{{total}} örnekten incelenen",
+    "favorites": "favori",
+    "accent": "Vurgu rengi",
+    "language": "Dil",
+    "achievements": "Başarımlar",
+    "replayIntro": "Tanıtımı tekrarla",
+    "clearFavorites": "Favorileri temizle",
+    "resetAll": "Kayıtlı veriyi sıfırla",
+    "localOnly": "Veri yalnızca bu tarayıcıda saklanır."
+  },
+  "accents": {
+    "blue": "Klinik mavi",
+    "teal": "Deniz yeşili",
+    "violet": "Mor",
+    "rose": "Gül",
+    "amber": "Kehribar",
+    "emerald": "Zümrüt"
+  },
+  "lang": {
+    "tr": "TR",
+    "en": "EN"
+  },
+  "stage": {
+    "viewMode": "Görünüm",
+    "mesh": "Ağ",
+    "focus": "Odak",
+    "crossSection": "Kesit",
+    "rotate": "Döndür",
+    "isolate": "İzole et",
+    "hideOthers": "Diğerlerini gizle",
+    "resetView": "Görünümü sıfırla",
+    "fullscreen": "Tam ekran",
+    "screenshot": "Ekran görüntüsü",
+    "glbExport": "GLB indir"
+  },
+  "sidebar": {
+    "organelles": "Organeller",
+    "organellesInfo": "Organel bilgisi"
+  },
+  "right": {
+    "organelleDetails": "Organel ayrıntıları",
+    "toggleFavorite": "Favoriyi değiştir",
+    "removeFavorite": "Favorilerden çıkar",
+    "addFavorite": "Favorilere ekle",
+    "label": "Etiket",
+    "biologicalNotes": "Biyolojik notlar",
+    "clinicalContext": "Klinik bağlam",
+    "funFact": "İlginç bilgi: {{fact}}",
+    "aiTutor": "Yapay zekâ öğretmen",
+    "mastery": "Ustalık",
+    "masteryMeta": "{{cells}}/{{cellTotal}} hücre incelendi · {{organelles}}/{{organelleTotal}} organel bakıldı",
+    "lessonFocus": "Ders odağı",
+    "lessonBody": "<strong>{{organelle}}</strong> organelini bul, görevini açıkla, sonra {{comparison}} örneğindeki karşılığıyla karşılaştır.",
+    "promptStaged": "Öğretmen için hazır istem",
+    "whereItOccurs": "Nerede bulunur"
+  },
+  "tutor": {
+    "explain": "{{organelle}} bir {{cell}} hücresinin hayatta kalmasına nasıl yardımcı olur, açıkla.",
+    "quizDiff": "{{cell}} ile {{comparison}} arasındaki görsel farkları sor.",
+    "guide": "3B modelde {{organelle}} organelini bulmama yardım et.",
+    "clinical": "{{cell}} yapısını tıbbi tavsiye vermeden bir klinik gözleme bağla."
+  },
+  "strip": {
+    "specimens": "Örnekler",
+    "all": "Tümü",
+    "favorites": "Favoriler",
+    "surprise": "Sürpriz",
+    "search": "Örnek ara…",
+    "searchAria": "Örnek ara",
+    "noFavorites": "Henüz favori yok — bir karoda yıldıza dokun.",
+    "noMatch": "“{{query}}” ile eşleşen örnek yok.",
+    "favoriteAria": "{{name}} favorisi"
+  },
+  "daily": {
+    "title": "Günün örneği",
+    "streak": "{{count}} günlük seri",
+    "claimed": "Bugünün bonusu alındı",
+    "study": "Çalış · +15 XP"
+  },
+  "xp": {
+    "total": "Toplam {{xp}} XP",
+    "levelShort": "Sv {{level}}"
+  },
+  "welcome": {
+    "label": "Hoş geldin",
+    "back": "Geri",
+    "skip": "Atla",
+    "next": "İleri",
+    "start": "Keşfetmeye başla",
+    "steps": [
+      {
+        "title": "Hücre Mimarisi Stüdyosu’na hoş geldin",
+        "body": "Yedi etkileşimli hücre örneğini incele, organellerine bak ve yapıların farklı biyolojik rollerini karşılaştır."
+      },
+      {
+        "title": "Gez ve çalış",
+        "body": "Üst şeritten ara, Galeri’de tüm ızgarayı aç, favori kaydet ve Flash kartlarla adları ve notları öğren."
+      },
+      {
+        "title": "Kendini dene",
+        "body": "Quiz’i serbest, süreli, yazarak veya hayatta kalma modunda oyna. Seri yap, XP kazan, seviye atla. Günlük bonus için geri gel."
+      },
+      {
+        "title": "İpuçları",
+        "body": "Kısayollar için istediğin an ? tuşuna bas (oklar örnek değiştirir). Vurgu rengini avatar menüsünden seç. İyi eğlenceler!"
+      }
+    ]
+  },
+  "shortcuts": {
+    "label": "Klavye kısayolları",
+    "title": "Klavye kısayolları",
+    "subtitle": "Klavye ile daha hızlı çalış.",
+    "items": [
+      "Önceki / sonraki örnek",
+      "Favoriyi aç/kapat",
+      "3B görünümü sıfırla",
+      "Otomatik döndürmeyi aç/kapat",
+      "Sürpriz — rastgele örnek",
+      "Galeriyi aç",
+      "Kütüphaneyi aç",
+      "Flash kartları aç",
+      "Quiz başlat",
+      "Bu yardımı göster",
+      "Açık paneli kapat"
+    ]
+  },
+  "about": {
+    "label": "Bu uygulama hakkında",
+    "specimens": "Örnekler",
+    "specimensBody": "{{count}} etkileşimli 3B model: hücreler, organlar, kemikler, virüsler, makromoleküller ve bitkisel örnekler.",
+    "models": "3B modeller",
+    "modelsBody": "<nih>NIH 3D Print Exchange</nih> kaynaklıdır. Lisanslar modele göre değişir — yeniden kullanmadan önce şartları kontrol et.",
+    "rendering": "Görselleştirme",
+    "renderingBody": "React + Three.js (React Three Fiber); HDR stüdyo ortamı, ACES ton eşleme ve meshopt sıkıştırmalı varlıklar.",
+    "quiz": "Quiz",
+    "quizBody": "Serbest, süreli, yazarak ve hayatta kalma modlarında örnek tanı; skorlar tarayıcıda saklanır.",
+    "foot": "Eğitim amaçlı bir projedir. Klinik kullanım için değildir."
+  },
+  "gallery": {
+    "title": "Galeri",
+    "subtitle": "Tüm {{count}} örneğe göz at",
+    "all": "Tüm örnekler"
+  },
+  "library": {
+    "title": "Kütüphanen",
+    "subtitle": "Favoriler ve son bakılan örnekler",
+    "favorites": "Favoriler",
+    "recent": "Son bakılanlar",
+    "emptyFavorites": "Henüz favori yok — bir örnekteki yıldıza dokun.",
+    "emptyRecent": "Açtığın örnekler burada görünür."
+  },
+  "grid": {
+    "search": "Ara…",
+    "searchAria": "Örnek ara",
+    "empty": "Gösterilecek örnek yok."
+  },
+  "notebooks": {
+    "label": "Defterler",
+    "title": "Defterler",
+    "subtitle": "Her örnek için tarayıcıda saklanan kişisel notlar.",
+    "placeholder": "{{name}} hakkında not yaz…",
+    "aria": "{{name}} notları",
+    "save": "Notu kaydet",
+    "clear": "Temizle",
+    "other": "Diğer notlar",
+    "open": "{{name}} örneğini aç"
+  },
+  "flashcards": {
+    "label": "Flash kartlar",
+    "title": "Flash kartlar",
+    "subtitle": "Cevabı görmek için karta dokun · {{index}} / {{total}}",
+    "shuffle": "Karıştır",
+    "hint": "Bu hangi örnek?",
+    "occurs": "Bulunduğu yer: {{place}}",
+    "showImage": "Görseli göster",
+    "reveal": "Cevabı göster",
+    "flip": "Kartı çevir",
+    "prev": "Önceki",
+    "next": "Sonraki",
+    "previousAria": "Önceki",
+    "nextAria": "Sonraki",
+    "study": "{{name}} örneğini stüdyoda aç →"
+  },
+  "achievementsPanel": {
+    "label": "Başarımlar",
+    "title": "Başarımlar",
+    "meta": "{{unlocked}}/{{total}} açık · {{xp}} XP",
+    "level": "Seviye {{level}}"
+  },
+  "celebration": {
+    "levelUp": "Seviye atladın!",
+    "reached": "{{level}}. seviyeye ulaştın"
+  },
+  "compare": {
+    "label": "Hücre karşılaştırması",
+    "title": "Karşılaştırma",
+    "vs": "{{a}} ile {{b}} karşılaştırması",
+    "defaultFocus": "Varsayılan odak",
+    "mainNote": "Ana not",
+    "occursIn": "Bulunduğu yer"
+  },
+  "bottom": {
+    "microscope": "Mikroskop görünümü",
+    "compare": "Hücreleri karşılaştır",
+    "youAreHere": "Buradasın",
+    "openComparison": "Karşılaştırmayı aç",
+    "addImage": "Görsel ekle",
+    "fallbackImage": "Görsel",
+    "removeImage": "{{label}} görselini kaldır"
+  },
+  "scene": {
+    "loading": "3B örnek yükleniyor"
+  },
+  "quizLoading": "Quiz yükleniyor…",
+  "toast": {
+    "viewReset": "Görünüm sıfırlandı.",
+    "rotateOff": "Otomatik döndürme kapalı.",
+    "rotateOn": "Otomatik döndürme açık.",
+    "surprise": "Sürpriz — {{name}}!",
+    "clearedFavorites": "Tüm favoriler temizlendi.",
+    "resetAll": "Kayıtlı veri sıfırlandı.",
+    "dailyBonus": "Günün örneği — {{name}}! +15 XP",
+    "loaded": "{{name}} sahneye yüklendi.",
+    "alreadyOnStage": "{{name}} zaten sahnede.",
+    "openedComparison": "Karşılaştırma açıldı: {{a}} ve {{b}}.",
+    "removedFavorite": "{{name}} favorilerden çıkarıldı.",
+    "addedFavorite": "{{name}} favorilere eklendi.",
+    "tutorStaged": "Öğretmen istemi hazırlandı.",
+    "closedComparison": "Karşılaştırma kapatıldı.",
+    "favoritesOnly": "Yalnızca favoriler gösteriliyor.",
+    "showingAll": "Tüm örnekler gösteriliyor.",
+    "modeAlready": "{{label}} görünümü zaten açık.",
+    "modeEnabled": "{{label}} görünümü açıldı.",
+    "crossOn": "Kesit açıldı.",
+    "crossOff": "Kesit kapatıldı.",
+    "isolatingAgain": "{{name}} yeniden izole ediliyor.",
+    "isolatedFocus": "{{name}} izole edildi — Odak görünümü.",
+    "hideOthers": "Diğerleri gizlendi — Odak görünümüne geçildi.",
+    "organelleCount": "{{count}} organel var.",
+    "alreadyFocus": "{{name}} zaten odakta.",
+    "focused": "Odak: {{name}}.",
+    "microSelected": "{{label}} seçildi.",
+    "chooseImage": "Lütfen bir görsel dosyası seç.",
+    "addedImages": "{{count}} mikroskop görseli eklendi.",
+    "addedImages_other": "{{count}} mikroskop görseli eklendi.",
+    "removedImage": "Görsel kaldırıldı.",
+    "stageNotReady": "Sahne hazır değil — tekrar dene.",
+    "savedPng": "{{name}}.png kaydedildi",
+    "screenshotFailed": "Ekran görüntüsü alınamadı — tuval engelli.",
+    "fullscreenOn": "Tam ekran — çıkmak için Esc.",
+    "fullscreenBlocked": "Tarayıcı tam ekranı engelledi.",
+    "noModel": "{{name}} için indirilebilir model yok.",
+    "preparingModel": "{{name}} modeli hazırlanıyor…",
+    "downloadedGlb": "{{name}}.glb indirildi",
+    "modelFailed": "Model indirilemedi."
+  }
+}

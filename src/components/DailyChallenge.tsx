@@ -1,4 +1,5 @@
 import { CalendarDays, Flame } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { CellItem } from "../data/cells";
 import { MiniCell } from "./MiniCell";
 
@@ -10,15 +11,17 @@ type DailyChallengeProps = {
 };
 
 export function DailyChallenge({ cell, streak, claimed, onStudy }: DailyChallengeProps) {
+  const { t } = useTranslation("common");
+
   return (
     <section className="panel daily-panel">
       <div className="panel-heading">
         <span>
           <CalendarDays size={16} />
-          Daily Specimen
+          {t("daily.title")}
         </span>
         {streak > 0 && (
-          <span className="daily-streak" title={`${streak}-day streak`}>
+          <span className="daily-streak" title={t("daily.streak", { count: streak })}>
             <Flame size={14} />
             {streak}
           </span>
@@ -34,7 +37,7 @@ export function DailyChallenge({ cell, streak, claimed, onStudy }: DailyChalleng
       </button>
 
       <button type="button" className="daily-cta" onClick={onStudy} disabled={claimed}>
-        {claimed ? "Bonus claimed today" : "Study it · +15 XP"}
+        {claimed ? t("daily.claimed") : t("daily.study")}
       </button>
     </section>
   );

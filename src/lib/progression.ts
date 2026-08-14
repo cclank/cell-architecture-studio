@@ -20,8 +20,6 @@ type StatsWithLevel = ProgressStats & { level: number };
 
 export type Achievement = {
   id: string;
-  title: string;
-  desc: string;
   icon: string; // lucide icon name resolved in the UI
   metric: (s: StatsWithLevel) => number;
   target: number;
@@ -30,24 +28,22 @@ export type Achievement = {
 
 function achievement(
   id: string,
-  title: string,
-  desc: string,
   icon: string,
   metric: (s: StatsWithLevel) => number,
   target: number,
 ): Achievement {
-  return { id, title, desc, icon, metric, target, check: (s) => metric(s) >= target };
+  return { id, icon, metric, target, check: (s) => metric(s) >= target };
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
-  achievement("first-contact", "First Contact", "View your first specimen", "Microscope", (s) => s.viewed, 1),
-  achievement("explorer", "Explorer", "Explore 3 specimens", "Compass", (s) => s.viewed, 3),
-  achievement("curator", "Curator", "Explore all 7 specimens", "Library", (s) => s.viewed, 7),
-  achievement("collector", "Collector", "Favorite 3 specimens", "Star", (s) => s.favorites, 3),
-  achievement("first-quiz", "Quizzer", "Finish a quiz", "Gamepad2", (s) => s.quizzes, 1),
-  achievement("sharp", "Sharpshooter", "Reach a 5 answer streak", "Zap", (s) => s.bestStreak, 5),
-  achievement("flawless", "Flawless", "Score a perfect quiz", "Trophy", (s) => s.perfect, 1),
-  achievement("scholar", "Scholar", "Reach level 5", "GraduationCap", (s) => s.level, 5),
+  achievement("first-contact", "Microscope", (s) => s.viewed, 1),
+  achievement("explorer", "Compass", (s) => s.viewed, 3),
+  achievement("curator", "Library", (s) => s.viewed, 7),
+  achievement("collector", "Star", (s) => s.favorites, 3),
+  achievement("first-quiz", "Gamepad2", (s) => s.quizzes, 1),
+  achievement("sharp", "Zap", (s) => s.bestStreak, 5),
+  achievement("flawless", "Trophy", (s) => s.perfect, 1),
+  achievement("scholar", "GraduationCap", (s) => s.level, 5),
 ];
 
 // Stats including derived level, for progress display in the achievements panel.

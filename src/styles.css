@@ -639,7 +639,7 @@ a {
 .cell-row:hover,
 .cell-row.is-active {
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+  border-color: var(--accent);
   background: var(--accent-soft);
   box-shadow: 0 10px 24px rgba(30, 41, 59, 0.08);
 }
@@ -676,7 +676,7 @@ a {
   place-items: center;
   width: 28px;
   height: 28px;
-  color: color-mix(in srgb, var(--accent) 58%, #5f574d);
+  color: var(--accent);
   cursor: pointer;
   opacity: 0.72;
 }
@@ -906,7 +906,7 @@ a {
 .mode-switcher button:hover,
 .mode-switcher button.is-active {
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--accent) 58%, rgba(26, 31, 43, 0.15));
+  border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -1049,6 +1049,7 @@ a {
   box-shadow: var(--shadow-soft);
   color: #332d24;
   text-align: left;
+  -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
 
@@ -1120,6 +1121,7 @@ a {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.88);
   box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -1165,7 +1167,7 @@ a {
   width: 36px;
   height: 36px;
   cursor: pointer;
-  color: color-mix(in srgb, var(--accent) 72%, #b24778);
+  color: var(--accent);
   background: transparent;
 }
 
@@ -1275,13 +1277,13 @@ a {
   gap: 8px;
   margin-top: 18px;
   padding: 16px;
-  border: 1px solid color-mix(in srgb, var(--accent) 18%, rgba(87, 78, 64, 0.14));
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--accent-soft) 42%, rgba(255, 255, 255, 0.54));
+  background: var(--accent-soft);
 }
 
 .clinical-context > span {
-  color: color-mix(in srgb, var(--accent) 70%, #3b3329);
+  color: var(--accent);
   font-size: 0.8rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -1344,8 +1346,7 @@ a {
   width: var(--progress);
   height: 100%;
   border-radius: inherit;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 78%, #ffffff), var(--accent));
+  background: linear-gradient(90deg, var(--accent-soft), var(--accent));
 }
 
 .mastery-meter small {
@@ -1502,10 +1503,10 @@ a {
   border-radius: 8px;
   background:
     radial-gradient(circle at 20% 30%, var(--micro), transparent 18%),
-    radial-gradient(circle at 72% 40%, color-mix(in srgb, var(--micro) 66%, #ffffff), transparent 20%),
-    radial-gradient(circle at 50% 80%, color-mix(in srgb, var(--micro) 78%, #6a4e78), transparent 22%),
+    radial-gradient(circle at 72% 40%, #ffffff, transparent 20%),
+    radial-gradient(circle at 50% 80%, #6a4e78, transparent 22%),
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.24) 0 10px, rgba(30, 41, 59, 0.05) 10px 18px),
-    color-mix(in srgb, var(--micro) 28%, #f3f7fc);
+    #f3f7fc;
 }
 
 .micro-card strong {
@@ -1594,6 +1595,7 @@ a {
   place-items: center;
   padding: 24px;
   background: rgba(30, 41, 59, 0.28);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -2081,6 +2083,7 @@ a {
   place-items: center;
   padding: 24px;
   background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.97), rgba(238, 241, 245, 0.98));
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   animation: fade-in 220ms ease both;
 }
@@ -3494,8 +3497,8 @@ a {
   border: 1px solid var(--line);
   background: var(--paper);
   box-shadow: var(--shadow-soft);
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .flashcard-front img {
@@ -3633,6 +3636,29 @@ a {
   gap: 8px;
 }
 
+.user-menu-langs {
+  display: flex;
+  gap: 6px;
+}
+
+.user-menu-lang {
+  min-width: 40px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-menu-lang.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .user-menu-swatch {
   display: grid;
   place-items: center;
@@ -3674,8 +3700,8 @@ a {
   margin: 0 auto 16px;
   border-radius: 50%;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #7c5cff));
-  box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 40%, transparent);
+  background: linear-gradient(135deg, var(--accent), #7c5cff);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.4);
   animation: badge-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 

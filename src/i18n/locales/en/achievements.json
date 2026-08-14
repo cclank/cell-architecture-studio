@@ -1,0 +1,36 @@
+{
+  "items": {
+    "first-contact": {
+      "title": "First Contact",
+      "desc": "View your first specimen"
+    },
+    "explorer": {
+      "title": "Explorer",
+      "desc": "Explore 3 specimens"
+    },
+    "curator": {
+      "title": "Curator",
+      "desc": "Explore all 7 specimens"
+    },
+    "collector": {
+      "title": "Collector",
+      "desc": "Favorite 3 specimens"
+    },
+    "first-quiz": {
+      "title": "Quizzer",
+      "desc": "Finish a quiz"
+    },
+    "sharp": {
+      "title": "Sharpshooter",
+      "desc": "Reach a 5 answer streak"
+    },
+    "flawless": {
+      "title": "Flawless",
+      "desc": "Score a perfect quiz"
+    },
+    "scholar": {
+      "title": "Scholar",
+      "desc": "Reach level 5"
+    }
+  }
+}

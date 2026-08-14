@@ -1,55 +1,50 @@
 import { Sparkles } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
 import { cells } from "../data/cells";
 import { Modal } from "./Modal";
 
 export function AboutModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation("common");
+
   return (
-    <Modal open={open} onClose={onClose} label="About this app" panelClassName="about-modal">
+    <Modal open={open} onClose={onClose} label={t("about.label")} panelClassName="about-modal">
       <div className="about-head">
         <span className="brand-orb" aria-hidden="true">
           <Sparkles size={24} />
         </span>
         <div>
-          <h3>Cell Architecture Studio</h3>
-          <p>Explore life at the microscopic level in interactive 3D.</p>
+          <h3>{t("brand.title")}</h3>
+          <p>{t("brand.aboutTagline")}</p>
         </div>
       </div>
 
       <dl className="about-list">
         <div>
-          <dt>Specimens</dt>
+          <dt>{t("about.specimens")}</dt>
+          <dd>{t("about.specimensBody", { count: cells.length })}</dd>
+        </div>
+        <div>
+          <dt>{t("about.models")}</dt>
           <dd>
-            {cells.length} interactive 3D models across cells, organs, bones, viruses,
-            macromolecules and botanical specimens.
+            <Trans
+              i18nKey="about.modelsBody"
+              components={{
+                nih: <a href="https://3d.nih.gov" target="_blank" rel="noopener noreferrer" />,
+              }}
+            />
           </dd>
         </div>
         <div>
-          <dt>3D models</dt>
-          <dd>
-            Sourced from the{" "}
-            <a href="https://3d.nih.gov" target="_blank" rel="noopener noreferrer">
-              NIH 3D Print Exchange
-            </a>
-            . Licenses vary per entry — verify each model's terms before reuse.
-          </dd>
+          <dt>{t("about.rendering")}</dt>
+          <dd>{t("about.renderingBody")}</dd>
         </div>
         <div>
-          <dt>Rendering</dt>
-          <dd>
-            React + Three.js (React Three Fiber) with an HDR studio environment, ACES tone
-            mapping, and meshopt-compressed assets.
-          </dd>
-        </div>
-        <div>
-          <dt>Quiz</dt>
-          <dd>
-            Identify specimens across casual, timed, type-it and survival modes; scores and
-            history are saved locally in your browser.
-          </dd>
+          <dt>{t("about.quiz")}</dt>
+          <dd>{t("about.quizBody")}</dd>
         </div>
       </dl>
 
-      <p className="about-foot">Built as an educational project. Not for clinical use.</p>
+      <p className="about-foot">{t("about.foot")}</p>
     </Modal>
   );
 }
