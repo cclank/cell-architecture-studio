@@ -10,6 +10,7 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Celebration } from "../hooks/useProgression";
 
 const ICONS: Record<string, LucideIcon> = {
@@ -24,6 +25,7 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 export function CelebrationBanner({ celebration }: { celebration: Celebration | null }) {
+  const { t } = useTranslation(["common", "achievements"]);
   if (!celebration) return null;
 
   if (celebration.kind === "level") {
@@ -32,8 +34,8 @@ export function CelebrationBanner({ celebration }: { celebration: Celebration | 
         <div className="celebration-card celebration-level">
           <Sparkles size={28} />
           <div>
-            <strong>Level up!</strong>
-            <span>You reached level {celebration.level}</span>
+            <strong>{t("celebration.levelUp")}</strong>
+            <span>{t("celebration.reached", { level: celebration.level })}</span>
           </div>
         </div>
       </div>
@@ -41,6 +43,7 @@ export function CelebrationBanner({ celebration }: { celebration: Celebration | 
   }
 
   const Icon = ICONS[celebration.achievement.icon] ?? Trophy;
+  const id = celebration.achievement.id;
   return (
     <div className="celebration" role="status">
       <div className="celebration-card celebration-achievement">
@@ -48,8 +51,8 @@ export function CelebrationBanner({ celebration }: { celebration: Celebration | 
           <Icon size={26} />
         </span>
         <div>
-          <strong>{celebration.achievement.title}</strong>
-          <span>{celebration.achievement.desc}</span>
+          <strong>{t(`items.${id}.title`, { ns: "achievements" })}</strong>
+          <span>{t(`items.${id}.desc`, { ns: "achievements" })}</span>
         </div>
       </div>
     </div>

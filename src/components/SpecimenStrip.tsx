@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Leaf, Shuffle, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   CELL_CATEGORY_ORDER,
   categorize,
@@ -7,6 +8,7 @@ import {
   type CellCategory,
   type CellItem,
 } from "../data/cells";
+import { useResolvedCells } from "../i18n/resolveCell";
 import { MiniCell } from "./MiniCell";
 
 type SpecimenStripProps = {
@@ -24,16 +26,18 @@ export function SpecimenStrip({
   onToggleFavorite,
   onToast,
 }: SpecimenStripProps) {
+  const { t } = useTranslation(["common", "cells"]);
+  const resolved = useResolvedCells();
   const [query, setQuery] = useState("");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
 
   const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
     let filtered = q
-      ? cells.filter(
+      ? resolved.filter(
           (c) => c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q),
         )
-      : cells;
+      : resolved;
     if (favoritesOnly) filtered = filtered.filter((c) => favorites.has(c.id));
     const map = new Map<CellCategory, CellItem[]>();
     for (const category of CELL_CATEGORY_ORDER) map.set(category, []);
@@ -42,14 +46,14 @@ export function SpecimenStrip({
       category: cat,
       items: map.get(cat) ?? [],
     })).filter((g) => g.items.length > 0);
-  }, [query, favoritesOnly, favorites]);
+  }, [query, favoritesOnly, favorites, resolved]);
 
   return (
     <section className="specimen-strip">
       <div className="specimen-strip-header">
         <span className="specimen-strip-title">
           <Leaf size={18} />
-          Specimens
+          {t("strip.specimens")}
         </span>
         <button
           type="button"
@@ -57,12 +61,12 @@ export function SpecimenStrip({
           onClick={() => {
             const next = !favoritesOnly;
             setFavoritesOnly(next);
-            onToast(next ? "Showing favorites only." : "Showing all specimens.");
+            onToast(next ? t("toast.favoritesOnly") : t("toast.showingAll"));
           }}
           aria-pressed={favoritesOnly}
         >
           <Star size={15} fill={favoritesOnly ? "currentColor" : "none"} />
-          <span>{favoritesOnly ? "Favorites" : "All"}</span>
+          <span>{favoritesOnly ? t("strip.favorites") : t("strip.all")}</span>
         </button>
         <button
           type="button"
@@ -70,20 +74,21 @@ export function SpecimenStrip({
           onClick={() => {
             const pool = cells.filter((c) => c.id !== selectedCell.id);
             const pick = pool[Math.floor(Math.random() * pool.length)];
+            const name = resolved.find((c) => c.id === pick.id)?.name ?? pick.id;
             onSelectCell(pick.id);
-            onToast(`Surprise — ${pick.name}!`);
+            onToast(t("toast.surprise", { name }));
           }}
         >
           <Shuffle size={15} />
-          <span>Surprise</span>
+          <span>{t("strip.surprise")}</span>
         </button>
         <label className="specimen-strip-search">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search specimens…"
-            aria-label="Search specimens"
+            placeholder={t("strip.search")}
+            aria-label={t("strip.searchAria")}
           />
         </label>
       </div>
@@ -91,14 +96,14 @@ export function SpecimenStrip({
         {grouped.length === 0 && (
           <p className="specimen-strip-empty">
             {favoritesOnly && !query.trim()
-              ? "No favorites yet — tap the star on a tile."
-              : `No specimens match “${query}”.`}
+              ? t("strip.noFavorites")
+              : t("strip.noMatch", { query })}
           </p>
         )}
         {grouped.map(({ category, items }) => (
           <div key={category} className="specimen-strip-section">
             <div className="specimen-strip-section-title">
-              <span>{category}</span>
+              <span>{t(`categories.${category}`, { ns: "cells" })}</span>
               <span className="specimen-strip-count">{items.length}</span>
             </div>
             <div className="specimen-strip-row">
@@ -111,10 +116,10 @@ export function SpecimenStrip({
                     className={`specimen-tile ${selected ? "is-active" : ""}`}
                     onClick={() => {
                       if (selected) {
-                        onToast(`${cell.name} is already on stage.`);
+                        onToast(t("toast.alreadyOnStage", { name: cell.name }));
                       } else {
                         onSelectCell(cell.id);
-                        onToast(`Loaded ${cell.name} on stage.`);
+                        onToast(t("toast.loaded", { name: cell.name }));
                       }
                     }}
                     title={cell.name}
@@ -129,13 +134,13 @@ export function SpecimenStrip({
                         onToggleFavorite(cell.id);
                         onToast(
                           wasOn
-                            ? `Removed ${cell.name} from favorites.`
-                            : `Added ${cell.name} to favorites.`,
+                            ? t("toast.removedFavorite", { name: cell.name })
+                            : t("toast.addedFavorite", { name: cell.name }),
                         );
                       }}
                       role="button"
                       tabIndex={0}
-                      aria-label={`Favorite ${cell.name}`}
+                      aria-label={t("strip.favoriteAria", { name: cell.name })}
                     >
                       <Star size={12} fill="currentColor" />
                     </span>

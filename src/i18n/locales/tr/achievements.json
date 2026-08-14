@@ -1,0 +1,36 @@
+{
+  "items": {
+    "first-contact": {
+      "title": "İlk temas",
+      "desc": "İlk örneğini incele"
+    },
+    "explorer": {
+      "title": "Kaşif",
+      "desc": "3 örnek incele"
+    },
+    "curator": {
+      "title": "Küratör",
+      "desc": "7 örneğin hepsini incele"
+    },
+    "collector": {
+      "title": "Koleksiyoncu",
+      "desc": "3 örneği favorile"
+    },
+    "first-quiz": {
+      "title": "Quizci",
+      "desc": "Bir quizi bitir"
+    },
+    "sharp": {
+      "title": "Keskin nişancı",
+      "desc": "5 doğru cevap serisine ulaş"
+    },
+    "flawless": {
+      "title": "Kusursuz",
+      "desc": "Mükemmel quiz skoru yap"
+    },
+    "scholar": {
+      "title": "Bilgin",
+      "desc": "5. seviyeye ulaş"
+    }
+  }
+}

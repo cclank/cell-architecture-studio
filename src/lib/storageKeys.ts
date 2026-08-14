@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   progress: "cas-progress",
   daily: "cas-daily",
   accent: "cas-accent",
+  lang: "cas-lang",
   onboarded: "cas-onboarded",
   quizMuted: "cas-quiz-muted",
   quizHistory: "cas-quiz-history",

@@ -1,13 +1,14 @@
 import { Box, Camera, CircleDot, EyeOff, Maximize, RotateCcw, type LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { CellItem, ViewMode } from "../data/cells";
 import { captureScreenshot, exportGlb, toggleFullscreen } from "../lib/download";
 import { CellScene } from "./CellScene";
 
-type ModeOption = { id: ViewMode; label: string; Icon: LucideIcon };
+type ModeOption = { id: ViewMode; labelKey: "mesh" | "focus"; Icon: LucideIcon };
 
 const modeOptions: ModeOption[] = [
-  { id: "mesh", label: "Mesh", Icon: Box },
-  { id: "focus", label: "Focus", Icon: CircleDot },
+  { id: "mesh", labelKey: "mesh", Icon: Box },
+  { id: "focus", labelKey: "focus", Icon: CircleDot },
 ];
 
 type StageProps = {
@@ -37,6 +38,8 @@ export function Stage({
   onReset,
   onToast,
 }: StageProps) {
+  const { t } = useTranslation("common");
+
   return (
     <main className="stage-column">
       <section className="stage-panel">
@@ -47,35 +50,38 @@ export function Stage({
           </div>
 
           <div className="view-card">
-            <span>View Mode</span>
+            <span>{t("stage.viewMode")}</span>
             <div className="mode-switcher">
-              {modeOptions.map(({ id, label, Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={viewMode === id ? "is-active" : ""}
-                  onClick={() => {
-                    if (viewMode === id) {
-                      onToast(`${label} view already active.`);
-                    } else {
-                      onModeChange(id);
-                      onToast(`${label} view enabled.`);
-                    }
-                  }}
-                  title={label}
-                >
-                  <Icon size={22} />
-                </button>
-              ))}
+              {modeOptions.map(({ id, labelKey, Icon }) => {
+                const label = t(`stage.${labelKey}`);
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={viewMode === id ? "is-active" : ""}
+                    onClick={() => {
+                      if (viewMode === id) {
+                        onToast(t("toast.modeAlready", { label }));
+                      } else {
+                        onModeChange(id);
+                        onToast(t("toast.modeEnabled", { label }));
+                      }
+                    }}
+                    title={label}
+                  >
+                    <Icon size={22} />
+                  </button>
+                );
+              })}
             </div>
             <label className="toggle-line">
-              <span>Cross Section</span>
+              <span>{t("stage.crossSection")}</span>
               <input
                 type="checkbox"
                 checked={crossSection}
                 onChange={(event) => {
                   onCrossSectionChange(event.target.checked);
-                  onToast(event.target.checked ? "Cross section enabled." : "Cross section disabled.");
+                  onToast(event.target.checked ? t("toast.crossOn") : t("toast.crossOff"));
                 }}
               />
               <i />
@@ -101,11 +107,11 @@ export function Stage({
             onClick={() => {
               const next = !autoRotate;
               onAutoRotateChange(next);
-              onToast(next ? "Auto-rotate on." : "Auto-rotate off.");
+              onToast(next ? t("toast.rotateOn") : t("toast.rotateOff"));
             }}
           >
             <RotateCcw size={20} />
-            Rotate
+            {t("stage.rotate")}
           </button>
           <button
             type="button"
@@ -114,43 +120,43 @@ export function Stage({
               onModeChange("focus");
               onToast(
                 viewMode === "focus"
-                  ? `Isolating ${cell.name} again.`
-                  : `Isolated ${cell.name} — Focus view.`,
+                  ? t("toast.isolatingAgain", { name: cell.name })
+                  : t("toast.isolatedFocus", { name: cell.name }),
               );
             }}
           >
             <CircleDot size={20} />
-            Isolate
+            {t("stage.isolate")}
           </button>
           <button
             type="button"
             className={viewMode === "focus" ? "is-active" : ""}
             onClick={() => {
               onModeChange("focus");
-              onToast("Hide others — switched to Focus view.");
+              onToast(t("toast.hideOthers"));
             }}
           >
             <EyeOff size={20} />
-            Hide Others
+            {t("stage.hideOthers")}
           </button>
           <button type="button" onClick={onReset}>
             <RotateCcw size={20} />
-            Reset View
+            {t("stage.resetView")}
           </button>
           <button type="button" onClick={() => toggleFullscreen(onToast)}>
             <Maximize size={20} />
-            Fullscreen
+            {t("stage.fullscreen")}
           </button>
         </div>
 
         <div className="export-toolbar">
           <button type="button" onClick={() => captureScreenshot(cell, onToast)}>
             <Camera size={20} />
-            Screenshot
+            {t("stage.screenshot")}
           </button>
           <button type="button" onClick={() => exportGlb(cell, onToast)}>
             <Box size={20} />
-            GLB Export
+            {t("stage.glbExport")}
           </button>
         </div>
       </section>

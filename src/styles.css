@@ -3633,6 +3633,29 @@ a {
   gap: 8px;
 }
 
+.user-menu-langs {
+  display: flex;
+  gap: 6px;
+}
+
+.user-menu-lang {
+  min-width: 40px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-menu-lang.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .user-menu-swatch {
   display: grid;
   place-items: center;

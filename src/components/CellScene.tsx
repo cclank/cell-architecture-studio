@@ -2,6 +2,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Center, ContactShadows, Environment, Float, Html, OrbitControls, RoundedBox, useGLTF, useProgress } from "@react-three/drei";
 import { ACESFilmicToneMapping } from "three";
 import { Suspense, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   CatmullRomCurve3,
   Group,
@@ -937,6 +938,7 @@ function CellModel({
 }
 
 function ModelLoadingOverlay({ cell }: { cell: CellItem }) {
+  const { t } = useTranslation("common");
   const { progress, loaded, total } = useProgress();
   const displayProgress = Math.max(2, Math.min(100, Math.round(progress)));
   const mbLoaded = loaded ? (loaded / (1024 * 1024)).toFixed(1) : null;
@@ -947,7 +949,7 @@ function ModelLoadingOverlay({ cell }: { cell: CellItem }) {
     <Html center className="model-loader">
       <div>
         <span className="model-loader-spinner" aria-hidden="true" />
-        <span>Loading 3D specimen</span>
+        <span>{t("scene.loading")}</span>
         <strong>{cell.name}</strong>
         {sourceLabel && <small className="model-loader-source">{sourceLabel}</small>}
         <i>

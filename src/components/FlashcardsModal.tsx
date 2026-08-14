@@ -1,21 +1,14 @@
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, RotateCw, Shuffle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   CELL_CATEGORY_ORDER,
   categorize,
-  cells,
   type CellCategory,
   type CellItem,
 } from "../data/cells";
+import { useResolvedCells } from "../i18n/resolveCell";
 import { Modal } from "./Modal";
-
-const DECK_BASE = cells.filter((c) => c.renderImage);
-const CATEGORY_FILTERS: ("All" | CellCategory)[] = [
-  "All",
-  ...CELL_CATEGORY_ORDER.filter((category) =>
-    DECK_BASE.some((cell) => categorize(cell) === category),
-  ),
-];
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -35,6 +28,19 @@ export function FlashcardsModal({
   onClose: () => void;
   onStudySpecimen: (id: string) => void;
 }) {
+  const { t } = useTranslation(["common", "cells"]);
+  const resolved = useResolvedCells();
+  const deckBase = useMemo(() => resolved.filter((c) => c.renderImage), [resolved]);
+  const categoryFilters: ("All" | CellCategory)[] = useMemo(
+    () => [
+      "All",
+      ...CELL_CATEGORY_ORDER.filter((category) =>
+        deckBase.some((cell) => categorize(cell) === category),
+      ),
+    ],
+    [deckBase],
+  );
+
   const [category, setCategory] = useState<"All" | CellCategory>("All");
   const [seed, setSeed] = useState(0);
   const [index, setIndex] = useState(0);
@@ -42,9 +48,9 @@ export function FlashcardsModal({
 
   const deck = useMemo(() => {
     void seed;
-    const pool = category === "All" ? DECK_BASE : DECK_BASE.filter((c) => categorize(c) === category);
-    return shuffle(pool.length > 0 ? pool : DECK_BASE);
-  }, [category, seed]);
+    const pool = category === "All" ? deckBase : deckBase.filter((c) => categorize(c) === category);
+    return shuffle(pool.length > 0 ? pool : deckBase);
+  }, [category, seed, deckBase]);
 
   const card: CellItem | undefined = deck[index];
   const organelle = card?.organelles[0];
@@ -60,85 +66,91 @@ export function FlashcardsModal({
     setSeed((s) => s + 1);
   }
 
+  function categoryLabel(c: "All" | CellCategory) {
+    return c === "All" ? t("strip.all") : t(`categories.${c}`, { ns: "cells" });
+  }
+
   return (
-    <Modal open={open} onClose={onClose} label="Flashcards" panelClassName="browser-modal flashcards-modal">
-        <div className="browser-head">
-          <div>
-            <h3>
-              <BookOpen size={20} /> Flashcards
-            </h3>
-            <p>Tap the card to reveal the answer · {index + 1} / {deck.length}</p>
-          </div>
-          <button type="button" className="quiz-secondary" onClick={reshuffle}>
-            <Shuffle size={15} /> Shuffle
-          </button>
+    <Modal open={open} onClose={onClose} label={t("flashcards.label")} panelClassName="browser-modal flashcards-modal">
+      <div className="browser-head">
+        <div>
+          <h3>
+            <BookOpen size={20} /> {t("flashcards.title")}
+          </h3>
+          <p>{t("flashcards.subtitle", { index: index + 1, total: deck.length })}</p>
         </div>
+        <button type="button" className="quiz-secondary" onClick={reshuffle}>
+          <Shuffle size={15} /> {t("flashcards.shuffle")}
+        </button>
+      </div>
 
-        <div className="fc-chips">
-          {CATEGORY_FILTERS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className={`quiz-chip ${category === c ? "is-active" : ""}`}
-              onClick={() => {
-                setCategory(c);
-                setIndex(0);
-                setFlipped(false);
-              }}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        {card && (
+      <div className="fc-chips">
+        {categoryFilters.map((c) => (
           <button
+            key={c}
             type="button"
-            className={`flashcard ${flipped ? "is-flipped" : ""}`}
-            onClick={() => setFlipped((f) => !f)}
-            aria-label={flipped ? "Show image" : "Reveal answer"}
-          >
-            <span className="flashcard-inner">
-              <span className="flashcard-face flashcard-front">
-                <img src={card.renderImage!.url} alt="" aria-hidden="true" />
-                <span className="flashcard-hint">
-                  <RotateCw size={14} /> What specimen is this?
-                </span>
-              </span>
-              <span className="flashcard-face flashcard-back">
-                <strong>{card.name}</strong>
-                <em>{card.type}</em>
-                {organelle && <p className="flashcard-note">{organelle.note}</p>}
-                <span className="flashcard-where">Occurs in: {card.occurrence.title}</span>
-              </span>
-            </span>
-          </button>
-        )}
-
-        <div className="fc-controls">
-          <button type="button" className="quiz-secondary" onClick={() => go(-1)} aria-label="Previous">
-            <ArrowLeft size={16} /> Prev
-          </button>
-          <button type="button" className="quiz-primary" onClick={() => setFlipped((f) => !f)}>
-            {flipped ? "Show image" : "Flip card"}
-          </button>
-          <button type="button" className="quiz-secondary" onClick={() => go(1)} aria-label="Next">
-            Next <ArrowRight size={16} />
-          </button>
-        </div>
-
-        {card && (
-          <button
-            type="button"
-            className="fc-study-link"
+            className={`quiz-chip ${category === c ? "is-active" : ""}`}
             onClick={() => {
-              onStudySpecimen(card.id);
-              onClose();
+              setCategory(c);
+              setIndex(0);
+              setFlipped(false);
             }}
           >
-            Open {card.name} in the studio →
+            {categoryLabel(c)}
           </button>
-        )}
+        ))}
+      </div>
+
+      {card && (
+        <button
+          type="button"
+          className={`flashcard ${flipped ? "is-flipped" : ""}`}
+          onClick={() => setFlipped((f) => !f)}
+          aria-label={flipped ? t("flashcards.showImage") : t("flashcards.reveal")}
+        >
+          <span className="flashcard-inner">
+            <span className="flashcard-face flashcard-front">
+              <img src={card.renderImage!.url} alt="" aria-hidden="true" />
+              <span className="flashcard-hint">
+                <RotateCw size={14} /> {t("flashcards.hint")}
+              </span>
+            </span>
+            <span className="flashcard-face flashcard-back">
+              <strong>{card.name}</strong>
+              <em>{card.type}</em>
+              {organelle && <p className="flashcard-note">{organelle.note}</p>}
+              <span className="flashcard-where">
+                {t("flashcards.occurs", { place: card.occurrence.title })}
+              </span>
+            </span>
+          </span>
+        </button>
+      )}
+
+      <div className="fc-controls">
+        <button type="button" className="quiz-secondary" onClick={() => go(-1)} aria-label={t("flashcards.previousAria")}>
+          <ArrowLeft size={16} /> {t("flashcards.prev")}
+        </button>
+        <button type="button" className="quiz-primary" onClick={() => setFlipped((f) => !f)}>
+          {flipped ? t("flashcards.showImage") : t("flashcards.flip")}
+        </button>
+        <button type="button" className="quiz-secondary" onClick={() => go(1)} aria-label={t("flashcards.nextAria")}>
+          {t("flashcards.next")} <ArrowRight size={16} />
+        </button>
+      </div>
+
+      {card && (
+        <button
+          type="button"
+          className="fc-study-link"
+          onClick={() => {
+            onStudySpecimen(card.id);
+            onClose();
+          }}
+        >
+          {t("flashcards.study", { name: card.name })}
+        </button>
+      )}
     </Modal>
   );
 }

@@ -1,6 +1,8 @@
 import { ArrowRight, Info, Plus, X } from "lucide-react";
 import { useRef, useState, type CSSProperties } from "react";
-import { getCellById, type CellItem } from "../data/cells";
+import { useTranslation } from "react-i18next";
+import type { CellItem } from "../data/cells";
+import { useResolvedCell } from "../i18n/resolveCell";
 import { MiniCell } from "./MiniCell";
 
 type BottomPanelsProps = {
@@ -12,7 +14,8 @@ type BottomPanelsProps = {
 type UploadedImage = { id: string; url: string; label: string };
 
 export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
-  const comparedCell = getCellById(cell.comparison);
+  const { t } = useTranslation("common");
+  const comparedCell = useResolvedCell(cell.comparison);
   const [uploads, setUploads] = useState<UploadedImage[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,15 +27,15 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
       added.push({
         id: `${Date.now()}-${file.name}`,
         url: URL.createObjectURL(file),
-        label: file.name.replace(/\.[^.]+$/, "").slice(0, 18) || "Image",
+        label: file.name.replace(/\.[^.]+$/, "").slice(0, 18) || t("bottom.fallbackImage"),
       });
     }
     if (added.length === 0) {
-      onToast("Please choose an image file.");
+      onToast(t("toast.chooseImage"));
       return;
     }
     setUploads((prev) => [...prev, ...added]);
-    onToast(`Added ${added.length} microscope image${added.length > 1 ? "s" : ""}.`);
+    onToast(t("toast.addedImages", { count: added.length }));
   }
 
   function removeUpload(id: string) {
@@ -41,7 +44,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
       if (target) URL.revokeObjectURL(target.url);
       return prev.filter((u) => u.id !== id);
     });
-    onToast("Removed image.");
+    onToast(t("toast.removedImage"));
   }
 
   return (
@@ -49,7 +52,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
       <div className="panel microscope-panel">
         <div className="panel-heading">
           <span>
-            Microscope View
+            {t("bottom.microscope")}
             <Info size={16} />
           </span>
         </div>
@@ -57,10 +60,10 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
           {cell.microscope.map((image) => (
             <button
               type="button"
-              key={image.label}
+              key={image.pattern}
               className={`micro-card pattern-${image.pattern}`}
               style={{ "--micro": image.tone } as CSSProperties}
-              onClick={() => onToast(`${image.label} selected.`)}
+              onClick={() => onToast(t("toast.microSelected", { label: image.label }))}
             >
               <span />
               <strong>{image.label}</strong>
@@ -73,7 +76,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
               <button
                 type="button"
                 className="micro-card-remove"
-                aria-label={`Remove ${image.label}`}
+                aria-label={t("bottom.removeImage", { label: image.label })}
                 onClick={() => removeUpload(image.id)}
               >
                 <X size={14} />
@@ -86,7 +89,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
             onClick={() => fileInputRef.current?.click()}
           >
             <Plus size={28} />
-            <strong>Add Image</strong>
+            <strong>{t("bottom.addImage")}</strong>
           </button>
           <input
             ref={fileInputRef}
@@ -105,7 +108,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
       <div className="panel compare-panel">
         <div className="panel-heading">
           <span>
-            Compare Cells
+            {t("bottom.compare")}
             <Info size={16} />
           </span>
         </div>
@@ -114,7 +117,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
             <MiniCell cell={cell} />
             <span>
               <strong>{cell.name}</strong>
-              <em>You are here</em>
+              <em>{t("bottom.youAreHere")}</em>
             </span>
           </div>
           <b>VS</b>
@@ -127,7 +130,7 @@ export function BottomPanels({ cell, onCompare, onToast }: BottomPanelsProps) {
           </div>
         </div>
         <button type="button" className="comparison-button" onClick={onCompare}>
-          Open Comparison View
+          {t("bottom.openComparison")}
           <ArrowRight size={20} />
         </button>
       </div>

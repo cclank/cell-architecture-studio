@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { cells, getCellById, type ViewMode } from "./data/cells";
+import { useTranslation } from "react-i18next";
+import { cells, type ViewMode } from "./data/cells";
+import { useResolvedCell, useResolvedCells } from "./i18n/resolveCell";
 import {
   clearAllData,
   loadFavorites,
@@ -38,23 +40,28 @@ const SpecimenQuiz = lazy(() =>
   import("./components/SpecimenQuiz").then((m) => ({ default: m.SpecimenQuiz })),
 );
 
-const initialCell = getCellById("animal");
-
 export default function App() {
+  const { t, i18n } = useTranslation("common");
+  const resolvedCells = useResolvedCells();
   const [selectedCellId, setSelectedCellId] = useState(loadLastCellId);
-  const [activeOrganelle, setActiveOrganelle] = useState(initialCell.defaultOrganelle);
+  const selectedCell = useResolvedCell(selectedCellId);
+  const [activeOrganelle, setActiveOrganelle] = useState(selectedCell.defaultOrganelle);
   const [viewMode, setViewMode] = useState<ViewMode>("mesh");
   const [crossSection, setCrossSection] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [resetKey, setResetKey] = useState(0);
   const [favorites, setFavorites] = useState<Set<string>>(loadFavorites);
-  const [viewedCells, setViewedCells] = useState<Set<string>>(() => new Set([initialCell.id]));
+  const [viewedCells, setViewedCells] = useState<Set<string>>(() => new Set([loadLastCellId()]));
   const [viewedOrganelleKeys, setViewedOrganelleKeys] = useState<Set<string>>(
-    () => new Set([`${initialCell.id}:${initialCell.defaultOrganelle}`]),
+    () => new Set([`${loadLastCellId()}:${selectedCell.defaultOrganelle}`]),
   );
   const overlays = useOverlays();
-  const [tutorPrompt, setTutorPrompt] = useState(
-    `Guide me through finding ${initialCell.organelles[0].name} inside the 3D model.`,
+  const organelleName =
+    selectedCell.organelles.find((item) => item.id === selectedCell.defaultOrganelle)?.name ??
+    selectedCell.organelles[0]?.name ??
+    "";
+  const [tutorPrompt, setTutorPrompt] = useState(() =>
+    t("tutor.guide", { organelle: organelleName }),
   );
   const [toast, setToast] = useState<string | null>(null);
   const [recentIds, setRecentIds] = useState<string[]>(() => loadRecentIds());
@@ -63,9 +70,8 @@ export default function App() {
   const [dailyStreak, setDailyStreak] = useState(0);
   const [accent, setAccent] = useState(loadAccent);
   const { progress, fire, reset: resetProgress, confettiKey, banner, xpPulse } = useProgression();
-  // Seed with the restored cell so reloading doesn't fire a "viewed" award.
   const firedViews = useRef<Set<string>>(new Set([loadLastCellId()]));
-  const dailyCell = useMemo(() => specimenOfTheDay(), []);
+  const dailyCell = useResolvedCell(specimenOfTheDay().id);
 
   useEffect(() => {
     setDailyStreak(registerVisit().streak);
@@ -77,6 +83,12 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const current =
+      selectedCell.organelles.find((item) => item.id === activeOrganelle) ?? selectedCell.organelles[0];
+    if (current) setTutorPrompt(t("tutor.guide", { organelle: current.name }));
+  }, [i18n.language, t]);
+
   function closeWelcome() {
     overlays.close();
     try {
@@ -86,7 +98,6 @@ export default function App() {
     }
   }
 
-  const selectedCell = useMemo(() => getCellById(selectedCellId), [selectedCellId]);
   const totalOrganelleCount = useMemo(
     () => cells.reduce((total, cell) => total + cell.organelles.length, 0),
     [],
@@ -100,9 +111,6 @@ export default function App() {
   const prevCellId = useRef(selectedCellId);
   useEffect(() => {
     setActiveOrganelle(selectedCell.defaultOrganelle);
-    // Close overlays only when the specimen actually changes — not on mount
-    // (which would dismiss the welcome tour) and resilient to StrictMode's
-    // double-invoked effects.
     if (prevCellId.current !== selectedCell.id) {
       overlays.close();
       prevCellId.current = selectedCell.id;
@@ -149,11 +157,15 @@ export default function App() {
     if (!wasFav) fire({ type: "favorite", favoritesCount: favorites.size + 1 });
   }
 
+  function cellName(id: string) {
+    return resolvedCells.find((c) => c.id === id)?.name ?? id;
+  }
+
   function stepSpecimen(delta: number) {
     const index = cells.findIndex((c) => c.id === selectedCellId);
     const next = cells[(index + delta + cells.length) % cells.length];
     setSelectedCellId(next.id);
-    showToast(`${next.name}`);
+    showToast(cellName(next.id));
   }
 
   useKeyboardShortcuts(overlays.active === null, {
@@ -162,11 +174,11 @@ export default function App() {
     onFavorite: () => toggleFavorite(selectedCellId),
     onReset: () => {
       setResetKey((key) => key + 1);
-      showToast("View reset.");
+      showToast(t("toast.viewReset"));
     },
     onToggleRotate: () => {
       setAutoRotate((v) => {
-        showToast(v ? "Auto-rotate off." : "Auto-rotate on.");
+        showToast(v ? t("toast.rotateOff") : t("toast.rotateOn"));
         return !v;
       });
     },
@@ -174,7 +186,7 @@ export default function App() {
       const pool = cells.filter((c) => c.id !== selectedCellId);
       const pick = pool[Math.floor(Math.random() * pool.length)];
       setSelectedCellId(pick.id);
-      showToast(`Surprise — ${pick.name}!`);
+      showToast(t("toast.surprise", { name: cellName(pick.id) }));
     },
     onGallery: () => overlays.open("gallery"),
     onLibrary: () => overlays.open("library"),
@@ -183,7 +195,6 @@ export default function App() {
     onHelp: () => overlays.open("shortcuts"),
   });
 
-  // UI accent comes from the chosen theme; the 3D-stage tint follows the specimen.
   const shellStyle = {
     "--accent": accent.accent,
     "--accent-soft": accent.accentSoft,
@@ -216,14 +227,14 @@ export default function App() {
         onReplayIntro={() => overlays.open("welcome")}
         onClearFavorites={() => {
           setFavorites(new Set());
-          showToast("Cleared all favorites.");
+          showToast(t("toast.clearedFavorites"));
         }}
         onResetAll={() => {
           clearAllData();
           resetProgress();
           setFavorites(new Set());
           setRecentIds([]);
-          showToast("All saved data reset.");
+          showToast(t("toast.resetAll"));
         }}
       />
 
@@ -251,9 +262,9 @@ export default function App() {
                 if (!dailyClaimed && claimDaily()) {
                   setDailyClaimed(true);
                   fire({ type: "bonus", amount: 15 });
-                  showToast(`Daily specimen — ${dailyCell.name}! +15 XP`);
+                  showToast(t("toast.dailyBonus", { name: dailyCell.name }));
                 } else {
-                  showToast(`Loaded ${dailyCell.name} on stage.`);
+                  showToast(t("toast.loaded", { name: dailyCell.name }));
                 }
               }}
             />
@@ -273,7 +284,7 @@ export default function App() {
             onAutoRotateChange={setAutoRotate}
             onReset={() => {
               setResetKey((key) => key + 1);
-              showToast("View reset.");
+              showToast(t("toast.viewReset"));
             }}
             onToast={showToast}
           />
@@ -282,7 +293,10 @@ export default function App() {
             onCompare={() => {
               overlays.open("comparison");
               showToast(
-                `Opened comparison: ${selectedCell.name} vs ${getCellById(selectedCell.comparison).name}.`,
+                t("toast.openedComparison", {
+                  a: selectedCell.name,
+                  b: cellName(selectedCell.comparison),
+                }),
               );
             }}
             onToast={showToast}
@@ -301,12 +315,12 @@ export default function App() {
           onToggleFavorite={(id) => {
             const wasOn = favorites.has(id);
             toggleFavorite(id);
-            const name = getCellById(id).name;
-            showToast(wasOn ? `Removed ${name} from favorites.` : `Added ${name} to favorites.`);
+            const name = cellName(id);
+            showToast(wasOn ? t("toast.removedFavorite", { name }) : t("toast.addedFavorite", { name }));
           }}
           onTutorPrompt={(prompt) => {
             setTutorPrompt(prompt);
-            showToast("AI tutor prompt staged.");
+            showToast(t("toast.tutorStaged"));
           }}
         />
       </div>
@@ -316,17 +330,17 @@ export default function App() {
         open={overlays.isOpen("comparison")}
         onClose={() => {
           overlays.close();
-          showToast("Closed comparison view.");
+          showToast(t("toast.closedComparison"));
         }}
       />
       {overlays.isOpen("quiz") && (
-        <Suspense fallback={<div className="quiz-layer quiz-loading">Loading quiz…</div>}>
+        <Suspense fallback={<div className="quiz-layer quiz-loading">{t("quizLoading")}</div>}>
           <SpecimenQuiz
             onExit={() => overlays.close()}
             onStudySpecimen={(id) => {
               setSelectedCellId(id);
               overlays.close();
-              showToast(`Loaded ${getCellById(id).name} on stage.`);
+              showToast(t("toast.loaded", { name: cellName(id) }));
             }}
             onCorrect={(streak) => fire({ type: "quizCorrect", streak })}
             onComplete={(score, total, bestStreak, perfect) =>
@@ -338,41 +352,41 @@ export default function App() {
       <AboutModal open={overlays.isOpen("about")} onClose={overlays.close} />
 
       <SpecimenGridModal
-        title="Gallery"
-        subtitle={`Browse all ${cells.length} specimens`}
+        title={t("gallery.title")}
+        subtitle={t("gallery.subtitle", { count: cells.length })}
         open={overlays.isOpen("gallery")}
         searchable
         selectedId={selectedCellId}
-        sections={[{ label: "All specimens", items: cells }]}
+        sections={[{ label: t("gallery.all"), items: resolvedCells }]}
         onSelect={(id) => {
           setSelectedCellId(id);
           overlays.close();
-          showToast(`Loaded ${getCellById(id).name} on stage.`);
+          showToast(t("toast.loaded", { name: cellName(id) }));
         }}
         onClose={() => overlays.close()}
       />
 
       <SpecimenGridModal
-        title="Your Library"
-        subtitle="Favorites and recently viewed specimens"
+        title={t("library.title")}
+        subtitle={t("library.subtitle")}
         open={overlays.isOpen("library")}
         selectedId={selectedCellId}
         sections={[
           {
-            label: "Favorites",
-            items: cells.filter((c) => favorites.has(c.id)),
-            emptyHint: "No favorites yet — tap the star on a specimen.",
+            label: t("library.favorites"),
+            items: resolvedCells.filter((c) => favorites.has(c.id)),
+            emptyHint: t("library.emptyFavorites"),
           },
           {
-            label: "Recently viewed",
-            items: recentIds.map(getCellById),
-            emptyHint: "Specimens you open will appear here.",
+            label: t("library.recent"),
+            items: recentIds.map((id) => resolvedCells.find((c) => c.id === id)).filter(Boolean) as typeof resolvedCells,
+            emptyHint: t("library.emptyRecent"),
           },
         ]}
         onSelect={(id) => {
           setSelectedCellId(id);
           overlays.close();
-          showToast(`Loaded ${getCellById(id).name} on stage.`);
+          showToast(t("toast.loaded", { name: cellName(id) }));
         }}
         onClose={() => overlays.close()}
       />
@@ -389,7 +403,7 @@ export default function App() {
         onClose={() => overlays.close()}
         onStudySpecimen={(id) => {
           setSelectedCellId(id);
-          showToast(`Loaded ${getCellById(id).name} on stage.`);
+          showToast(t("toast.loaded", { name: cellName(id) }));
         }}
       />
 
@@ -399,7 +413,7 @@ export default function App() {
         onClose={() => overlays.close()}
       />
 
-      <ShortcutsHelp open={overlays.isOpen("shortcuts")} onClose={() => overlays.close()} />
+      <ShortcutsHelp open={overlays.isOpen("shortcuts")} onClose={overlays.close} />
 
       <WelcomeTour open={overlays.isOpen("welcome")} onClose={closeWelcome} />
 

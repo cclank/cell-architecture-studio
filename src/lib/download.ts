@@ -1,4 +1,5 @@
 import type { CellItem } from "../data/cells";
+import i18n from "../i18n";
 
 type Notify = (message: string) => void;
 
@@ -15,18 +16,22 @@ function triggerDownload(href: string, filename: string): void {
   link.remove();
 }
 
+function fileStem(cell: CellItem): string {
+  return slugify(cell.id);
+}
+
 export function captureScreenshot(cell: CellItem, onToast: Notify): void {
   const canvas = document.querySelector<HTMLCanvasElement>(".canvas-wrap canvas");
   if (!canvas) {
-    onToast("Stage not ready — try again.");
+    onToast(i18n.t("toast.stageNotReady", { ns: "common" }));
     return;
   }
   try {
     const url = canvas.toDataURL("image/png");
-    triggerDownload(url, `${slugify(cell.name)}.png`);
-    onToast(`Saved ${cell.name}.png`);
+    triggerDownload(url, `${fileStem(cell)}.png`);
+    onToast(i18n.t("toast.savedPng", { ns: "common", name: cell.name }));
   } catch {
-    onToast("Screenshot failed — canvas blocked.");
+    onToast(i18n.t("toast.screenshotFailed", { ns: "common" }));
   }
 }
 
@@ -35,8 +40,8 @@ export function toggleFullscreen(onToast: Notify): void {
   if (!el) return;
   if (!document.fullscreenElement) {
     el.requestFullscreen()
-      .then(() => onToast("Fullscreen — press Esc to exit."))
-      .catch(() => onToast("Fullscreen blocked by browser."));
+      .then(() => onToast(i18n.t("toast.fullscreenOn", { ns: "common" })))
+      .catch(() => onToast(i18n.t("toast.fullscreenBlocked", { ns: "common" })));
   } else {
     document.exitFullscreen().catch(() => {});
   }
@@ -45,19 +50,19 @@ export function toggleFullscreen(onToast: Notify): void {
 export async function exportGlb(cell: CellItem, onToast: Notify): Promise<void> {
   const url = cell.modelAsset?.url;
   if (!url) {
-    onToast(`${cell.name} has no downloadable model.`);
+    onToast(i18n.t("toast.noModel", { ns: "common", name: cell.name }));
     return;
   }
-  onToast(`Preparing ${cell.name} model…`);
+  onToast(i18n.t("toast.preparingModel", { ns: "common", name: cell.name }));
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(String(res.status));
     const blob = await res.blob();
     const objectUrl = URL.createObjectURL(blob);
-    triggerDownload(objectUrl, `${slugify(cell.name)}.glb`);
+    triggerDownload(objectUrl, `${fileStem(cell)}.glb`);
     URL.revokeObjectURL(objectUrl);
-    onToast(`Downloaded ${cell.name}.glb`);
+    onToast(i18n.t("toast.downloadedGlb", { ns: "common", name: cell.name }));
   } catch {
-    onToast("Model download failed.");
+    onToast(i18n.t("toast.modelFailed", { ns: "common" }));
   }
 }

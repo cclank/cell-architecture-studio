@@ -1,0 +1,274 @@
+{
+  "brand": {
+    "title": "Cell Architecture Studio",
+    "tagline": "Explore life at the microscopic level",
+    "aboutTagline": "Explore life at the microscopic level in interactive 3D."
+  },
+  "nav": {
+    "primary": "Primary",
+    "gallery": "Gallery",
+    "library": "Library",
+    "cards": "Cards",
+    "notebooks": "Notebooks",
+    "about": "About",
+    "quiz": "Quiz",
+    "userMenu": "User menu"
+  },
+  "menu": {
+    "explored": "of {{total}} explored",
+    "favorites": "favorites",
+    "accent": "Accent",
+    "language": "Language",
+    "achievements": "Achievements",
+    "replayIntro": "Replay intro",
+    "clearFavorites": "Clear favorites",
+    "resetAll": "Reset all saved data",
+    "localOnly": "Data is stored only in this browser."
+  },
+  "accents": {
+    "blue": "Clinical Blue",
+    "teal": "Teal",
+    "violet": "Violet",
+    "rose": "Rose",
+    "amber": "Amber",
+    "emerald": "Emerald"
+  },
+  "lang": {
+    "tr": "TR",
+    "en": "EN"
+  },
+  "stage": {
+    "viewMode": "View Mode",
+    "mesh": "Mesh",
+    "focus": "Focus",
+    "crossSection": "Cross Section",
+    "rotate": "Rotate",
+    "isolate": "Isolate",
+    "hideOthers": "Hide Others",
+    "resetView": "Reset View",
+    "fullscreen": "Fullscreen",
+    "screenshot": "Screenshot",
+    "glbExport": "GLB Export"
+  },
+  "sidebar": {
+    "organelles": "Organelles",
+    "organellesInfo": "Organelles info"
+  },
+  "right": {
+    "organelleDetails": "Organelle Details",
+    "toggleFavorite": "Toggle favorite",
+    "removeFavorite": "Remove from favorites",
+    "addFavorite": "Add to favorites",
+    "label": "Label",
+    "biologicalNotes": "Biological Notes",
+    "clinicalContext": "Clinical Context",
+    "funFact": "Fun Fact: {{fact}}",
+    "aiTutor": "AI Tutor",
+    "mastery": "Mastery",
+    "masteryMeta": "{{cells}}/{{cellTotal}} cells explored · {{organelles}}/{{organelleTotal}} organelles inspected",
+    "lessonFocus": "Current lesson focus",
+    "lessonBody": "Locate <strong>{{organelle}}</strong>, explain its role, then compare it with the matching structure in {{comparison}}.",
+    "promptStaged": "Prompt staged for AI tutor",
+    "whereItOccurs": "Where It Occurs"
+  },
+  "tutor": {
+    "explain": "Explain how {{organelle}} helps a {{cell}} stay alive.",
+    "quizDiff": "Quiz me on the visual differences between {{cell}} and {{comparison}}.",
+    "guide": "Guide me through finding {{organelle}} inside the 3D model.",
+    "clinical": "Connect {{cell}} structure to one clinical observation without giving medical advice."
+  },
+  "strip": {
+    "specimens": "Specimens",
+    "all": "All",
+    "favorites": "Favorites",
+    "surprise": "Surprise",
+    "search": "Search specimens…",
+    "searchAria": "Search specimens",
+    "noFavorites": "No favorites yet — tap the star on a tile.",
+    "noMatch": "No specimens match “{{query}}”.",
+    "favoriteAria": "Favorite {{name}}"
+  },
+  "daily": {
+    "title": "Daily Specimen",
+    "streak": "{{count}}-day streak",
+    "claimed": "Bonus claimed today",
+    "study": "Study it · +15 XP"
+  },
+  "xp": {
+    "total": "{{xp}} XP total",
+    "levelShort": "Lv {{level}}"
+  },
+  "welcome": {
+    "label": "Welcome",
+    "back": "Back",
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Start exploring",
+    "steps": [
+      {
+        "title": "Welcome to Cell Architecture Studio",
+        "body": "Explore seven interactive cell specimens, inspect their organelles, and compare how cellular structures support different biological roles."
+      },
+      {
+        "title": "Browse & study",
+        "body": "Search the strip at the top, open the Gallery for the full grid, save favorites, and flip through Flashcards to learn names and notes."
+      },
+      {
+        "title": "Test yourself",
+        "body": "Play the Quiz in casual, timed, type-it or survival mode. Build streaks, earn XP, level up and unlock achievements. Come back daily for a bonus."
+      },
+      {
+        "title": "Pro tips",
+        "body": "Press ? anytime for keyboard shortcuts (arrows switch specimens). Pick your accent colour from the avatar menu. Have fun!"
+      }
+    ]
+  },
+  "shortcuts": {
+    "label": "Keyboard shortcuts",
+    "title": "Keyboard shortcuts",
+    "subtitle": "Work faster without leaving the keyboard.",
+    "items": [
+      "Previous / next specimen",
+      "Toggle favorite",
+      "Reset the 3D view",
+      "Toggle auto-rotate",
+      "Surprise — random specimen",
+      "Open Gallery",
+      "Open Library",
+      "Open Flashcards",
+      "Start a Quiz",
+      "Show this help",
+      "Close any panel"
+    ]
+  },
+  "about": {
+    "label": "About this app",
+    "specimens": "Specimens",
+    "specimensBody": "{{count}} interactive 3D models across cells, organs, bones, viruses, macromolecules and botanical specimens.",
+    "models": "3D models",
+    "modelsBody": "Sourced from the <nih>NIH 3D Print Exchange</nih>. Licenses vary per entry — verify each model's terms before reuse.",
+    "rendering": "Rendering",
+    "renderingBody": "React + Three.js (React Three Fiber) with an HDR studio environment, ACES tone mapping, and meshopt-compressed assets.",
+    "quiz": "Quiz",
+    "quizBody": "Identify specimens across casual, timed, type-it and survival modes; scores and history are saved locally in your browser.",
+    "foot": "Built as an educational project. Not for clinical use."
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Browse all {{count}} specimens",
+    "all": "All specimens"
+  },
+  "library": {
+    "title": "Your Library",
+    "subtitle": "Favorites and recently viewed specimens",
+    "favorites": "Favorites",
+    "recent": "Recently viewed",
+    "emptyFavorites": "No favorites yet — tap the star on a specimen.",
+    "emptyRecent": "Specimens you open will appear here."
+  },
+  "grid": {
+    "search": "Search…",
+    "searchAria": "Search specimens",
+    "empty": "No specimens to show."
+  },
+  "notebooks": {
+    "label": "Notebooks",
+    "title": "Notebooks",
+    "subtitle": "Personal notes saved in your browser, per specimen.",
+    "placeholder": "Write notes about {{name}}…",
+    "aria": "Notes for {{name}}",
+    "save": "Save note",
+    "clear": "Clear",
+    "other": "Other notes",
+    "open": "Open {{name}}"
+  },
+  "flashcards": {
+    "label": "Flashcards",
+    "title": "Flashcards",
+    "subtitle": "Tap the card to reveal the answer · {{index}} / {{total}}",
+    "shuffle": "Shuffle",
+    "hint": "What specimen is this?",
+    "occurs": "Occurs in: {{place}}",
+    "showImage": "Show image",
+    "reveal": "Reveal answer",
+    "flip": "Flip card",
+    "prev": "Prev",
+    "next": "Next",
+    "previousAria": "Previous",
+    "nextAria": "Next",
+    "study": "Open {{name}} in the studio →"
+  },
+  "achievementsPanel": {
+    "label": "Achievements",
+    "title": "Achievements",
+    "meta": "{{unlocked}}/{{total}} unlocked · {{xp}} XP",
+    "level": "Level {{level}}"
+  },
+  "celebration": {
+    "levelUp": "Level up!",
+    "reached": "You reached level {{level}}"
+  },
+  "compare": {
+    "label": "Cell comparison",
+    "title": "Comparison View",
+    "vs": "{{a}} compared with {{b}}",
+    "defaultFocus": "Default focus",
+    "mainNote": "Main note",
+    "occursIn": "Occurs in"
+  },
+  "bottom": {
+    "microscope": "Microscope View",
+    "compare": "Compare Cells",
+    "youAreHere": "You are here",
+    "openComparison": "Open Comparison View",
+    "addImage": "Add Image",
+    "fallbackImage": "Image",
+    "removeImage": "Remove {{label}}"
+  },
+  "scene": {
+    "loading": "Loading 3D specimen"
+  },
+  "quizLoading": "Loading quiz…",
+  "toast": {
+    "viewReset": "View reset.",
+    "rotateOff": "Auto-rotate off.",
+    "rotateOn": "Auto-rotate on.",
+    "surprise": "Surprise — {{name}}!",
+    "clearedFavorites": "Cleared all favorites.",
+    "resetAll": "All saved data reset.",
+    "dailyBonus": "Daily specimen — {{name}}! +15 XP",
+    "loaded": "Loaded {{name}} on stage.",
+    "alreadyOnStage": "{{name}} is already on stage.",
+    "openedComparison": "Opened comparison: {{a}} vs {{b}}.",
+    "removedFavorite": "Removed {{name}} from favorites.",
+    "addedFavorite": "Added {{name}} to favorites.",
+    "tutorStaged": "AI tutor prompt staged.",
+    "closedComparison": "Closed comparison view.",
+    "favoritesOnly": "Showing favorites only.",
+    "showingAll": "Showing all specimens.",
+    "modeAlready": "{{label}} view already active.",
+    "modeEnabled": "{{label}} view enabled.",
+    "crossOn": "Cross section enabled.",
+    "crossOff": "Cross section disabled.",
+    "isolatingAgain": "Isolating {{name}} again.",
+    "isolatedFocus": "Isolated {{name}} — Focus view.",
+    "hideOthers": "Hide others — switched to Focus view.",
+    "organelleCount": "{{count}} organelles available.",
+    "alreadyFocus": "{{name}} is already in focus.",
+    "focused": "Focused on {{name}}.",
+    "microSelected": "{{label}} selected.",
+    "chooseImage": "Please choose an image file.",
+    "addedImages": "Added {{count}} microscope image.",
+    "addedImages_other": "Added {{count}} microscope images.",
+    "removedImage": "Removed image.",
+    "stageNotReady": "Stage not ready — try again.",
+    "savedPng": "Saved {{name}}.png",
+    "screenshotFailed": "Screenshot failed — canvas blocked.",
+    "fullscreenOn": "Fullscreen — press Esc to exit.",
+    "fullscreenBlocked": "Fullscreen blocked by browser.",
+    "noModel": "{{name}} has no downloadable model.",
+    "preparingModel": "Preparing {{name}} model…",
+    "downloadedGlb": "Downloaded {{name}}.glb",
+    "modelFailed": "Model download failed."
+  }
+}

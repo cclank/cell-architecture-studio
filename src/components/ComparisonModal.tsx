@@ -1,4 +1,6 @@
-import { getCellById, type CellItem } from "../data/cells";
+import { useTranslation } from "react-i18next";
+import type { CellItem } from "../data/cells";
+import { useResolvedCell } from "../i18n/resolveCell";
 import { MiniCell } from "./MiniCell";
 import { Modal } from "./Modal";
 
@@ -9,7 +11,8 @@ type ComparisonModalProps = {
 };
 
 export function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
-  const comparedCell = getCellById(cell.comparison);
+  const { t } = useTranslation("common");
+  const comparedCell = useResolvedCell(cell.comparison);
   const currentOrganelle =
     cell.organelles.find((item) => item.id === cell.defaultOrganelle) ?? cell.organelles[0];
   const comparedOrganelle =
@@ -17,12 +20,10 @@ export function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
     comparedCell.organelles[0];
 
   return (
-    <Modal open={open} onClose={onClose} label="Cell comparison" panelClassName="comparison-modal">
+    <Modal open={open} onClose={onClose} label={t("compare.label")} panelClassName="comparison-modal">
       <div className="comparison-modal-head">
-        <h3>Comparison View</h3>
-        <p>
-          {cell.name} compared with {comparedCell.name}
-        </p>
+        <h3>{t("compare.title")}</h3>
+        <p>{t("compare.vs", { a: cell.name, b: comparedCell.name })}</p>
       </div>
       <div className="comparison-columns">
         {[cell, comparedCell].map((item) => {
@@ -34,15 +35,15 @@ export function ComparisonModal({ cell, open, onClose }: ComparisonModalProps) {
               <p>{item.type}</p>
               <dl>
                 <div>
-                  <dt>Default focus</dt>
+                  <dt>{t("compare.defaultFocus")}</dt>
                   <dd>{organelle.name}</dd>
                 </div>
                 <div>
-                  <dt>Main note</dt>
+                  <dt>{t("compare.mainNote")}</dt>
                   <dd>{organelle.subtitle}</dd>
                 </div>
                 <div>
-                  <dt>Occurs in</dt>
+                  <dt>{t("compare.occursIn")}</dt>
                   <dd>{item.occurrence.title}</dd>
                 </div>
               </dl>

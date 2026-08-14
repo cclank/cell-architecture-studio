@@ -10,6 +10,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { CellItem } from "../data/cells";
 import type { Progress } from "../lib/progression";
 import { UserMenu } from "./UserMenu";
@@ -56,14 +57,15 @@ export function Header({
   onClearFavorites,
   onResetAll,
 }: HeaderProps) {
+  const { t } = useTranslation("common");
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems: { id: string; label: string; Icon: LucideIcon; onClick: () => void }[] = [
-    { id: "gallery", label: "Gallery", Icon: Grid3X3, onClick: onGallery },
-    { id: "library", label: "Library", Icon: Library, onClick: onLibrary },
-    { id: "cards", label: "Cards", Icon: Layers, onClick: onFlashcards },
-    { id: "notebooks", label: "Notebooks", Icon: BookOpen, onClick: onNotebooks },
-    { id: "about", label: "About", Icon: Info, onClick: onAbout },
+    { id: "gallery", label: t("nav.gallery"), Icon: Grid3X3, onClick: onGallery },
+    { id: "library", label: t("nav.library"), Icon: Library, onClick: onLibrary },
+    { id: "cards", label: t("nav.cards"), Icon: Layers, onClick: onFlashcards },
+    { id: "notebooks", label: t("nav.notebooks"), Icon: BookOpen, onClick: onNotebooks },
+    { id: "about", label: t("nav.about"), Icon: Info, onClick: onAbout },
   ];
 
   return (
@@ -73,12 +75,12 @@ export function Header({
           <Sparkles size={26} />
         </div>
         <div>
-          <h1>Cell Architecture Studio</h1>
-          <p>Explore life at the microscopic level</p>
+          <h1>{t("brand.title")}</h1>
+          <p>{t("brand.tagline")}</p>
         </div>
       </div>
 
-      <nav className="top-nav" aria-label="Primary">
+      <nav className="top-nav" aria-label={t("nav.primary")}>
         <XpBar progress={progress} pulse={xpPulse} />
         {navItems.map(({ id, label, Icon, onClick }) => (
           <button key={id} type="button" onClick={onClick}>
@@ -88,13 +90,13 @@ export function Header({
         ))}
         <button className="quiz-launch" type="button" onClick={onPlayQuiz}>
           <Gamepad2 size={22} />
-          <span>Quiz</span>
+          <span>{t("nav.quiz")}</span>
         </button>
         <div className="avatar-wrap">
           <button
             className="avatar-button"
             type="button"
-            aria-label="User menu"
+            aria-label={t("nav.userMenu")}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
           >
