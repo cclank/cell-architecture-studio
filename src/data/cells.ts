@@ -73,7 +73,7 @@ export type CellStructure = {
   }>;
 };
 
-export type CellItem = CellStructure & {
+export type CellItem = Omit<CellStructure, "organelles" | "microscope" | "occurrenceMotif"> & {
   name: string;
   type: string;
   aliases: string[];

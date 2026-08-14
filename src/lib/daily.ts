@@ -1,4 +1,4 @@
-import { cells, type CellItem } from "../data/cells";
+import { cells, type CellStructure } from "../data/cells";
 import { STORAGE_KEYS } from "./storageKeys";
 
 // Local YYYY-MM-DD key for "today".
@@ -18,7 +18,7 @@ function hashString(s: string): number {
 
 const FEATURED = cells.filter((c) => c.renderImage);
 
-export function specimenOfTheDay(d = new Date()): CellItem {
+export function specimenOfTheDay(d = new Date()): CellStructure {
   const pool = FEATURED.length > 0 ? FEATURED : cells;
   return pool[hashString(todayKey(d)) % pool.length];
 }
